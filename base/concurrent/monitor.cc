@@ -25,11 +25,11 @@ void Monitor::Wait() {
 }
 
 void Monitor::NotifyAll() {
-  pthread_cond_signal(&cv_);
+  pthread_cond_broadcast(&cv_);
 }
 
 void Monitor::NotifyOne() {
-  pthread_cond_broadcast(&cv_);
+  pthread_cond_signal(&cv_);
 }
 
 Monitor::~Monitor() {
