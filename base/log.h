@@ -12,7 +12,10 @@
 #ifndef BASE_LOG_H_
 #define BASE_LOG_H_
 
+#include <cstddef>
+#include <ostream>
 #include <sstream>
+#include <string>
 
 // [pid, tid, data, time, level, filename, line] Message
 
