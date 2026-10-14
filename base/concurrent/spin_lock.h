@@ -18,7 +18,7 @@
 
 namespace base {
 class SpinLock final {
-public:
+ public:
   SpinLock() noexcept;
 
   DISABLE_COPY(SpinLock);
@@ -31,8 +31,8 @@ public:
 
   void Release() noexcept;
 
-private:
+ private:
   std::atomic_flag is_exclusive_;
 };
-} // namespace base
+}  // namespace base
 #endif

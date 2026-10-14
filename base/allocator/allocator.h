@@ -26,19 +26,21 @@ namespace base {
  *
  * @tparam T
  */
-template <typename T> class Allocator {
-public:
+template <typename T>
+class Allocator {
+ public:
   // I am immortal.
   using value_type = T;
 
 #if UNTIL(CXX_20)
-  using pointer = T *;
-  using const_pointer = T const *;
-  using reference = T &;
-  using const_reference = T const &;
+  using pointer = T*;
+  using const_pointer = T const*;
+  using reference = T&;
+  using const_reference = T const&;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
-  template <typename U> struct rebind {
+  template <typename U>
+  struct rebind {
     typedef Allocator<U> other;
   };
 #endif
@@ -48,21 +50,23 @@ public:
 
 #if UNTIL(CXX_11)
   Allocator() throw() {}
-  Allocator(Allocator const &other) throw() {}
-  template <typename U> Allocator(Allocator<U> const &other) throw() {}
+  Allocator(Allocator const& other) throw() {}
+  template <typename U>
+  Allocator(Allocator<U> const& other) throw() {}
 #endif
 
 #if SINCE(CXX_11) && UNTIL(CXX_20)
   Allocator() noexcept = default;
-  Allocator(Allocator const &other) noexcept = default;
-  template <typename U> Allocator(Allocator<U> const &other) noexcept {}
+  Allocator(Allocator const& other) noexcept = default;
+  template <typename U>
+  Allocator(Allocator<U> const& other) noexcept {}
 #endif
 
 #if SINCE(CXX_20)
   constexpr Allocator() noexcept = default;
-  constexpr Allocator(Allocator const &other) noexcept = default;
+  constexpr Allocator(Allocator const& other) noexcept = default;
   template <typename U>
-  constexpr Allocator(Allocator<U> const &other) noexcept {
+  constexpr Allocator(Allocator<U> const& other) noexcept {
     std::ignore(other);
   }
 #endif
@@ -86,47 +90,47 @@ public:
 
 // allocate
 #if UNTIL(CXX_17)
-  pointer allocate(size_type n, const void *hint = 0) {
+  pointer allocate(size_type n, void const* hint = 0) {
 #if SINCE(CXX_11)
     static_assert(sizeof(T) != 0, "Cannot allocate incomplete types.");
-#endif // SINCE(CXX_11)
+#endif  // SINCE(CXX_11)
     if (n > (std::size_t(-1) / sizeof(T))) {
       throw std::bad_array_new_length();
     }
-    return static_cast<T *>(::operator new(n * sizeof(T)));
+    return static_cast<T*>(::operator new(n * sizeof(T)));
   }
 #elif SINCE(CXX_17) && UNTIL(CXX_20)
-  T *allocate(std::size_t n, const void *hint) {
+  T* allocate(std::size_t n, void const* hint) {
 #if SINCE(CXX_11)
     static_assert(sizeof(T) != 0, "Cannot allocate incomplete types.");
-#endif // SINCE(CXX_11)
+#endif  // SINCE(CXX_11)
     if (n > (std::size_t(-1) / sizeof(T))) {
       throw std::bad_array_new_length();
     }
-    return static_cast<T *>(::operator new(n * sizeof(T)));
+    return static_cast<T*>(::operator new(n * sizeof(T)));
   }
 
-  T *allocate(std::size_t n) { return allocate(n, nullptr); }
+  T* allocate(std::size_t n) { return allocate(n, nullptr); }
 #elif SINCE(CXX_20)
-  [[nodiscard]] constexpr T *allocate(std::size_t n) {
+  [[nodiscard]] constexpr T* allocate(std::size_t n) {
 #if SINCE(CXX_11)
     static_assert(sizeof(T) != 0, "Cannot allocate incomplete types.");
 #endif
     if (n > (std::size_t(-1) / sizeof(T))) {
       throw std::bad_array_new_length();
     }
-    return static_cast<T *>(::operator new(n * sizeof(T)));
+    return static_cast<T*>(::operator new(n * sizeof(T)));
   }
-#endif // UNTIL(CXX_17)
+#endif  // UNTIL(CXX_17)
 
 // deallocate
 #if UNTIL(CXX_20)
-  void deallocate(T *p, std::size_t n) {
+  void deallocate(T* p, std::size_t n) {
     (void)n;
     ::operator delete(p);
   }
 #elif SINCE(CXX_20)
-  constexpr void deallocate(T *p, std::size_t n) {
+  constexpr void deallocate(T* p, std::size_t n) {
     (void)n;
     ::operator delete(p);
   }
@@ -146,11 +150,12 @@ public:
 // construct
 #if UNTIL(CXX_11)
   void construct(pointer p, const_reference value) {
-    ::new ((void *)p) T(value);
+    ::new ((void*)p) T(value);
   }
 #elif SINCE(CXX_11) && UNTIL(CXX_20)
-  template <typename U, typename... Args> void construct(U *p, Args &&...args) {
-    ::new ((void *)p) U(std::forward<Args>(args)...);
+  template <typename U, typename... Args>
+  void construct(U* p, Args&&... args) {
+    ::new ((void*)p) U(std::forward<Args>(args)...);
   }
 #endif
 
@@ -158,22 +163,26 @@ public:
 #if UNTIL(CXX_11)
   void destroy(pointer p) { p->~T(); }
 #elif SINCE(CXX_11) && UNTIL(CXX_20)
-  template <typename U> void destroy(U *p) { p->~U(); }
+  template <typename U>
+  void destroy(U* p) {
+    p->~U();
+  }
 #endif
 };
 
 #if UNTIL(CXX_17)
-template <> class Allocator<void> {
-public:
-  using reference = T &;
-  using const_reference = T const &;
+template <>
+class Allocator<void> {
+ public:
+  using reference = T&;
+  using const_reference = T const&;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
 };
 #endif
 
 template <typename T, typename U>
-inline bool operator==(Allocator<T> const &lhs, Allocator<U> const &rhs) {
+inline bool operator==(Allocator<T> const& lhs, Allocator<U> const& rhs) {
   std::ignore = lhs;
   std::ignore = rhs;
   return true;
@@ -181,10 +190,10 @@ inline bool operator==(Allocator<T> const &lhs, Allocator<U> const &rhs) {
 
 #if UNTIL(CXX_17)
 template <typename T, typename U>
-inline bool operator!=(Allocator<T> const &lhs, Allocator<U> const &rhs) {
+inline bool operator!=(Allocator<T> const& lhs, Allocator<U> const& rhs) {
   return false;
 }
 #endif
 
-} // namespace base
-#endif // BASE_ALLOCATOR_ALLOCATOR_H_
+}  // namespace base
+#endif  // BASE_ALLOCATOR_ALLOCATOR_H_

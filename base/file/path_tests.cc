@@ -26,4 +26,4 @@ TEST(Path, Construction0) {
   ASSERT_EQ(path.ToString(), "/tmp/hikari/dora");
 }
 
-} // namespace base
+}  // namespace base

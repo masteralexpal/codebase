@@ -13,5 +13,5 @@
 #define BASE_STRING_HELPER_H_
 namespace base {
 class StringHelper {};
-} // namespace base
+}  // namespace base
 #endif

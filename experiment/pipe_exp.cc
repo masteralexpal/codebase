@@ -9,18 +9,18 @@
  *
  */
 
+#include <sys/wait.h>
+#include <unistd.h>
 #include <cassert>
 #include <cstddef>
 #include <cstring>
 #include <iostream>
-#include <sys/wait.h>
 #include <thread>
-#include <unistd.h>
 
 #include "experiment/helper.h"
 
 int main() {
-  int pipe_0[2]; // pipe_0[0] used for reading and pipe_0[1] used for writing.
+  int pipe_0[2];  // pipe_0[0] used for reading and pipe_0[1] used for writing.
   int pipe_1[2];
 
   pid_t child_pid;

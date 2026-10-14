@@ -11,13 +11,13 @@
 
 #include <gtest/gtest.h>
 
-#include <cstdio>
 #include <pthread.h>
 #include <sched.h>
 #include <sys/syscall.h>
+#include <unistd.h>
+#include <cstdio>
 #include <thread>
 #include <tuple>
-#include <unistd.h>
 #include <vector>
 
 inline pid_t GetThreadID() {
@@ -26,7 +26,7 @@ inline pid_t GetThreadID() {
 }
 
 class PlatformThreadHandle {
-public:
+ public:
   // inline PlatformThreadHandle() noexcept {
   //   std::puts("PlatformThreadHandle created!");
   //   id_ = syscall(SYS_gettid);
@@ -42,7 +42,7 @@ public:
 
   inline pid_t Get() const noexcept { return id_; }
 
-private:
+ private:
   pid_t id_{};
 };
 
@@ -60,7 +60,7 @@ TEST(a, b) {
     threads.emplace_back(threda_func);
   }
 
-  for (auto &&thread : threads) {
+  for (auto&& thread : threads) {
     thread.join();
   }
 

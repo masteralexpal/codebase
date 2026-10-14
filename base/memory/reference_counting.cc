@@ -19,7 +19,9 @@ ReferenceCountingBase::ReferenceCountingBase() noexcept : count_(1) {}
 ReferenceCountingBase::ReferenceCountingBase(int initial_count) noexcept
     : count_(initial_count) {}
 
-void ReferenceCountingBase::Add() const noexcept { ++count_; }
+void ReferenceCountingBase::Add() const noexcept {
+  ++count_;
+}
 
 bool ReferenceCountingBase::Sub() const noexcept {
   --count_;
@@ -27,9 +29,15 @@ bool ReferenceCountingBase::Sub() const noexcept {
   return count_ == 0;
 }
 
-int ReferenceCountingBase::Count() const noexcept { return count_; }
+int ReferenceCountingBase::Count() const noexcept {
+  return count_;
+}
 
-bool ReferenceCountingBase::Shared() const noexcept { return count_ > 1; }
+bool ReferenceCountingBase::Shared() const noexcept {
+  return count_ > 1;
+}
 
-bool ReferenceCountingBase::Unique() const noexcept { return count_ == 1; }
-} // namespace base
+bool ReferenceCountingBase::Unique() const noexcept {
+  return count_ == 1;
+}
+}  // namespace base

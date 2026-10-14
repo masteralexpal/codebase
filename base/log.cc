@@ -66,14 +66,17 @@ LogSeverity LogConfiguration::GetMinLogSeverity() const noexcept {
   return min_log_severity_;
 }
 
-LogMessage::LogMessage(char const *file, int line,
+LogMessage::LogMessage(char const* file,
+                       int line,
                        LogSeverity severity) noexcept
     : LogMessage(file, strlen(file), line, severity) {}
 
-LogMessage::LogMessage(char const *file, size_t file_length, int line,
+LogMessage::LogMessage(char const* file,
+                       size_t file_length,
+                       int line,
                        LogSeverity severity) noexcept
     : severity_(severity) {
-  char const *reduced_file = file;
+  char const* reduced_file = file;
   for (auto i = file_length; i != 0; --i) {
     if (file[i] == kSlash) {
       reduced_file = &(file[i + 1]);
@@ -83,7 +86,7 @@ LogMessage::LogMessage(char const *file, size_t file_length, int line,
   stream_ << '[' << GetPid() << ':' << GetTid() << ' ';
   timespec ts;
   clock_gettime(CLOCK_REALTIME, &ts);
-  tm *ptm = localtime(&ts.tv_sec);
+  tm* ptm = localtime(&ts.tv_sec);
   if (ptm) {
     stream_ << std::setw(4) << std::setfill('0') << ptm->tm_year + 1900 << '-'
             << std::setw(2) << std::setfill('0') << ptm->tm_mon + 1 << '-'
@@ -93,24 +96,24 @@ LogMessage::LogMessage(char const *file, size_t file_length, int line,
             << std::setw(2) << std::setfill('0') << ptm->tm_sec << '.'
             << std::setw(9) << std::setfill('0') << ts.tv_nsec << ' ';
     switch (severity_) {
-    case LOG_VERBOSE:
-      stream_ << "VERBOSE";
-      break;
-    case LOG_DEBUG:
-      stream_ << "DEBUG";
-      break;
-    case LOG_INFO:
-      stream_ << "INFO";
-      break;
-    case LOG_WARNING:
-      stream_ << "WARNING";
-      break;
-    case LOG_ERROR:
-      stream_ << "ERROR";
-      break;
-    case LOG_FATAL:
-      stream_ << "FATAL";
-      break;
+      case LOG_VERBOSE:
+        stream_ << "VERBOSE";
+        break;
+      case LOG_DEBUG:
+        stream_ << "DEBUG";
+        break;
+      case LOG_INFO:
+        stream_ << "INFO";
+        break;
+      case LOG_WARNING:
+        stream_ << "WARNING";
+        break;
+      case LOG_ERROR:
+        stream_ << "ERROR";
+        break;
+      case LOG_FATAL:
+        stream_ << "FATAL";
+        break;
     };
     stream_ << ' ' << reduced_file << '(' << line << ')' << ']';
   }
@@ -122,11 +125,15 @@ LogMessage::~LogMessage() {
   write(STDERR_FILENO, message.c_str(), message.size());
 }
 
-std::ostream &LogMessage::Stream() noexcept { return stream_; }
+std::ostream& LogMessage::Stream() noexcept {
+  return stream_;
+}
 
-std::string LogMessage::ToString() noexcept { return stream_.str(); }
+std::string LogMessage::ToString() noexcept {
+  return stream_.str();
+}
 
-void Initialize(LogConfiguration const &logging_configuration) {
+void Initialize(LogConfiguration const& logging_configuration) {
   g_log_configuration = logging_configuration;
 }
 
@@ -134,5 +141,5 @@ bool ShouldCreateLogMessage(LogSeverity severity) {
   return severity >= g_log_configuration.GetMinLogSeverity();
 }
 
-} // namespace log
-} // namespace base
+}  // namespace log
+}  // namespace base

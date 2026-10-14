@@ -19,11 +19,12 @@
 static constexpr std::uint64_t const kFnvPrime64 = 1099511628211u;
 static constexpr std::uint64_t const kFnvOffsetBasis64 = 14695981039346656037u;
 
-template <typename Type> struct FNV1A64 {
-  inline std::uint64_t constexpr operator()(Type const &value) {
-    auto &array = reinterpret_cast<char const(&)[sizeof(value)]>(value);
+template <typename Type>
+struct FNV1A64 {
+  inline std::uint64_t constexpr operator()(Type const& value) {
+    auto& array = reinterpret_cast<char const(&)[sizeof(value)]>(value);
     std::uint64_t hash = kFnvOffsetBasis64;
-    for (auto &&c : array) {
+    for (auto&& c : array) {
       hash ^= c;
       hash *= kFnvPrime64;
     }
@@ -32,7 +33,7 @@ template <typename Type> struct FNV1A64 {
 };
 
 class Foo {
-public:
+ public:
   Foo() = default;
   virtual ~Foo() = default;
 };

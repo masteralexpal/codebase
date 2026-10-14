@@ -26,18 +26,18 @@ constexpr char const kPathSeparator = '/';
 namespace base {
 
 class SourceLocation {
-public:
+ public:
   template <std::size_t N>
   inline constexpr SourceLocation(char const (&file_path)[N], int line) noexcept
       : file_name_(ExtractFileName(file_path)), line_(line) {}
 
-  inline char const *file_name() const noexcept { return file_name_; }
+  inline char const* file_name() const noexcept { return file_name_; }
 
   inline int line() const noexcept { return line_; }
 
-private:
+ private:
   template <std::size_t N>
-  static constexpr char const *ExtractFileName(char const (&file_path)[N]) {
+  static constexpr char const* ExtractFileName(char const (&file_path)[N]) {
     auto pos = SIZE_MAX;
     for (auto i = 0U; i < N; ++i) {
       if (file_path[i] == kPathSeparator) {
@@ -47,11 +47,13 @@ private:
     return &(file_path[pos + 1]);
   }
 
-  char const *file_name_{nullptr};
+  char const* file_name_{nullptr};
   int const line_{0};
 };
 
-#define CURRNET_SOURCE_LOCATION(Name)                                          \
-  base::SourceLocation Name { __FILE__, __LINE__ }
-} // namespace base
-#endif // BASE_SOURCE_LOCATION_H_
+#define CURRNET_SOURCE_LOCATION(Name) \
+  base::SourceLocation Name {         \
+    __FILE__, __LINE__                \
+  }
+}  // namespace base
+#endif  // BASE_SOURCE_LOCATION_H_

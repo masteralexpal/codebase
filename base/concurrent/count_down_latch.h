@@ -17,8 +17,8 @@
 
 namespace base {
 class CountdownLatch {
-public:
-  CountdownLatch(int const &count);
+ public:
+  CountdownLatch(int const& count);
 
   void CountDown();
 
@@ -26,10 +26,10 @@ public:
 
   int GetCount();
 
-private:
+ private:
   int count_;
   Mutex mtx_;
   ConditionVariable cv_;
 };
-} // namespace base
-#endif //  BASE_CONCURRENT_COUNT_DOWN_LATCH_H_
+}  // namespace base
+#endif  //  BASE_CONCURRENT_COUNT_DOWN_LATCH_H_

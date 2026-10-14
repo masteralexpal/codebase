@@ -22,9 +22,10 @@ namespace base {
  * @brief A iterator to wrap pointer.
  *
  */
-template <typename T, typename Container> class PointerIterator {
-public:
-  using P = T *;
+template <typename T, typename Container>
+class PointerIterator {
+ public:
+  using P = T*;
   using iterator_category = typename IteratorTraits<P>::iterator_category;
   using value_type = typename IteratorTraits<P>::value_type;
   using pointer = typename IteratorTraits<P>::pointer;
@@ -32,7 +33,7 @@ public:
   using difference_type = typename IteratorTraits<P>::difference_type;
 
   PointerIterator() noexcept = default;
-  PointerIterator(T *p) noexcept : p_(p) {}
+  PointerIterator(T* p) noexcept : p_(p) {}
 
   // `const` is needed, becauese the constancy of iterator has
   // noting to do with T.
@@ -40,12 +41,12 @@ public:
 
   pointer operator->() const noexcept { return p_; }
 
-  PointerIterator &operator++() noexcept {
+  PointerIterator& operator++() noexcept {
     ++p_;
     return *this;
   }
 
-  PointerIterator &operator--() noexcept {
+  PointerIterator& operator--() noexcept {
     --p_;
     return *this;
   }
@@ -62,12 +63,12 @@ public:
     return PointerIterator(p_);
   }
 
-  PointerIterator &operator+=(difference_type diff) noexcept {
+  PointerIterator& operator+=(difference_type diff) noexcept {
     p_ += diff;
     return *this;
   }
 
-  PointerIterator &operator-=(difference_type diff) noexcept {
+  PointerIterator& operator-=(difference_type diff) noexcept {
     p_ -= diff;
     return *this;
   }
@@ -80,115 +81,115 @@ public:
     return PointerIterator{p_ - diff};
   }
 
-  bool operator==(PointerIterator const &other) const noexcept {
+  bool operator==(PointerIterator const& other) const noexcept {
     return p_ == other.p_;
   }
 
-  bool operator!=(PointerIterator const &other) const noexcept {
+  bool operator!=(PointerIterator const& other) const noexcept {
     return !(*this == other);
   }
 
   reference operator[](difference_type diff) const noexcept { return p_[diff]; }
 
-private:
+ private:
   template <typename X, typename Y, typename C>
-  friend bool operator==(PointerIterator<X, C> const &,
-                         PointerIterator<Y, C> const &) noexcept;
+  friend bool operator==(PointerIterator<X, C> const&,
+                         PointerIterator<Y, C> const&) noexcept;
 
   template <typename X, typename Y, typename C>
-  friend bool operator!=(PointerIterator<X, C> const &,
-                         PointerIterator<Y, C> const &) noexcept;
+  friend bool operator!=(PointerIterator<X, C> const&,
+                         PointerIterator<Y, C> const&) noexcept;
 
   template <typename X, typename Y, typename C>
-  friend bool operator<(PointerIterator<X, C> const &,
-                        PointerIterator<Y, C> const &) noexcept;
+  friend bool operator<(PointerIterator<X, C> const&,
+                        PointerIterator<Y, C> const&) noexcept;
 
   template <typename X, typename Y, typename C>
-  friend bool operator<=(PointerIterator<X, C> const &,
-                         PointerIterator<Y, C> const &) noexcept;
+  friend bool operator<=(PointerIterator<X, C> const&,
+                         PointerIterator<Y, C> const&) noexcept;
 
   template <typename X, typename Y, typename C>
-  friend bool operator>(PointerIterator<X, C> const &,
-                        PointerIterator<Y, C> const &) noexcept;
+  friend bool operator>(PointerIterator<X, C> const&,
+                        PointerIterator<Y, C> const&) noexcept;
 
   template <typename X, typename Y, typename C>
-  friend bool operator>=(PointerIterator<X, C> const &,
-                         PointerIterator<Y, C> const &) noexcept;
+  friend bool operator>=(PointerIterator<X, C> const&,
+                         PointerIterator<Y, C> const&) noexcept;
 
   template <typename X, typename C>
-  friend typename PointerIterator<X, C>::difference_type
-  operator-(PointerIterator<X, C> const &,
-            PointerIterator<X, C> const &) noexcept;
+  friend typename PointerIterator<X, C>::difference_type operator-(
+      PointerIterator<X, C> const&,
+      PointerIterator<X, C> const&) noexcept;
 
   template <typename X, typename Y, typename C>
-  friend inline auto operator-(PointerIterator<X, C> const &lhs,
-                               PointerIterator<Y, C> const &rhs) noexcept
+  friend inline auto operator-(PointerIterator<X, C> const& lhs,
+                               PointerIterator<Y, C> const& rhs) noexcept
       -> decltype(lhs.p_ - rhs.p_);
 
   template <typename X, typename C>
-  PointerIterator<X, C> friend
-  operator+(typename PointerIterator<X, C>::difference_type diff,
-            PointerIterator<X, C> const &iter) noexcept;
+  PointerIterator<X, C> friend operator+(
+      typename PointerIterator<X, C>::difference_type diff,
+      PointerIterator<X, C> const& iter) noexcept;
 
-private:
+ private:
   pointer p_ = nullptr;
 };
 
 template <typename T, typename U, typename Container>
-inline bool operator==(PointerIterator<T, Container> const &lhs,
-                       PointerIterator<U, Container> const &rhs) noexcept {
+inline bool operator==(PointerIterator<T, Container> const& lhs,
+                       PointerIterator<U, Container> const& rhs) noexcept {
   return lhs.p_ == rhs.p_;
 }
 
 template <typename T, typename U, typename Container>
-inline bool operator!=(PointerIterator<T, Container> const &lhs,
-                       PointerIterator<U, Container> const &rhs) noexcept {
+inline bool operator!=(PointerIterator<T, Container> const& lhs,
+                       PointerIterator<U, Container> const& rhs) noexcept {
   return lhs.p_ != rhs.p_;
 }
 
 template <typename T, typename U, typename Container>
-inline bool operator<(PointerIterator<T, Container> const &lhs,
-                      PointerIterator<U, Container> const &rhs) noexcept {
+inline bool operator<(PointerIterator<T, Container> const& lhs,
+                      PointerIterator<U, Container> const& rhs) noexcept {
   return lhs.p_ < rhs.p_;
 }
 
 template <typename T, typename U, typename Container>
-inline bool operator<=(PointerIterator<T, Container> const &lhs,
-                       PointerIterator<U, Container> const &rhs) noexcept {
+inline bool operator<=(PointerIterator<T, Container> const& lhs,
+                       PointerIterator<U, Container> const& rhs) noexcept {
   return lhs.p_ <= rhs.p_;
 }
 
 template <typename T, typename U, typename Container>
-inline bool operator>(PointerIterator<T, Container> const &lhs,
-                      PointerIterator<U, Container> const &rhs) noexcept {
+inline bool operator>(PointerIterator<T, Container> const& lhs,
+                      PointerIterator<U, Container> const& rhs) noexcept {
   return lhs.p_ > rhs.p_;
 }
 
 template <typename T, typename U, typename Container>
-inline bool operator>=(PointerIterator<T, Container> const &lhs,
-                       PointerIterator<U, Container> const &rhs) noexcept {
+inline bool operator>=(PointerIterator<T, Container> const& lhs,
+                       PointerIterator<U, Container> const& rhs) noexcept {
   return lhs.p_ >= rhs.p_;
 }
 
 template <typename T, typename Container>
-inline typename PointerIterator<T, Container>::difference_type
-operator-(PointerIterator<T, Container> const &lhs,
-          PointerIterator<T, Container> const &rhs) noexcept {
+inline typename PointerIterator<T, Container>::difference_type operator-(
+    PointerIterator<T, Container> const& lhs,
+    PointerIterator<T, Container> const& rhs) noexcept {
   return lhs.p_ - rhs.p_;
 }
 
 template <typename T, typename U, typename Container>
-inline auto operator-(PointerIterator<T, Container> const &lhs,
-                      PointerIterator<U, Container> const &rhs) noexcept
+inline auto operator-(PointerIterator<T, Container> const& lhs,
+                      PointerIterator<U, Container> const& rhs) noexcept
     -> decltype(lhs.p_ - rhs.p_) {
   return lhs.p_ - rhs.p_;
 }
 
 template <typename T, typename Container>
-inline PointerIterator<T, Container>
-operator+(typename PointerIterator<T, Container>::difference_type diff,
-          PointerIterator<T, Container> const &iter) noexcept {
+inline PointerIterator<T, Container> operator+(
+    typename PointerIterator<T, Container>::difference_type diff,
+    PointerIterator<T, Container> const& iter) noexcept {
   return {iter.p_ + diff};
 }
-} // namespace base
+}  // namespace base
 #endif

@@ -13,37 +13,39 @@
 #include <tuple>
 
 namespace base {
-template <typename T> struct Node {
+template <typename T>
+struct Node {
   T value;
-  Node *l = nullptr;
-  Node *r = nullptr;
-  Node *p = nullptr;
+  Node* l = nullptr;
+  Node* r = nullptr;
+  Node* p = nullptr;
 };
 
-template <typename T> class Tree {
-public:
+template <typename T>
+class Tree {
+ public:
   using TreeNode = Node<T>;
   Tree() : root_(nullptr) {}
 
-  void Insert(T const &value) {
+  void Insert(T const& value) {
     if (!root_) {
       root_ = new TreeNode();
       root_->value = value;
       return;
     }
 
-    TreeNode *node = root_;
+    TreeNode* node = root_;
     return;
   }
 
-  void Remove(T const &value) { std::ignore = value; }
+  void Remove(T const& value) { std::ignore = value; }
 
   void Print() const {}
 
   virtual ~Tree();
 
-private:
-  void PreOrder(TreeNode *node) {
+ private:
+  void PreOrder(TreeNode* node) {
     if (node) {
       std::cout << node->value;
       PreOrder(node->l);
@@ -51,7 +53,7 @@ private:
     }
   }
 
-  void InOrder(TreeNode *node) {
+  void InOrder(TreeNode* node) {
     if (node) {
       PreOrder(node->l);
       std::cout << node->value;
@@ -59,7 +61,7 @@ private:
     }
   }
 
-  void PostOrder(TreeNode *node) {
+  void PostOrder(TreeNode* node) {
     if (node) {
       PreOrder(node->l);
       PreOrder(node->r);
@@ -67,6 +69,6 @@ private:
     }
   }
 
-  TreeNode *root_ = nullptr;
+  TreeNode* root_ = nullptr;
 };
-} // namespace base
+}  // namespace base

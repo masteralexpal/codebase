@@ -41,7 +41,7 @@ TEST(Array, Iterators) {
   int expect[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   Array<int, 10> array = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   auto iter = array.begin();
-  for (auto &&element : expect) {
+  for (auto&& element : expect) {
     ASSERT_EQ(element, *iter);
     ++iter;
   }
@@ -53,7 +53,7 @@ TEST(Array, ConstIterators) {
   int expect[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   Array<int, 10> array = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   auto iter = array.cbegin();
-  for (auto &&element : expect) {
+  for (auto&& element : expect) {
     ASSERT_EQ(element, *iter);
     ++iter;
   }
@@ -65,7 +65,7 @@ TEST(Array, ReverseIterators) {
   int expect[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
   Array<int, 10> array = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   auto iter = array.rbegin();
-  for (auto &&element : expect) {
+  for (auto&& element : expect) {
     ASSERT_EQ(element, *iter);
     ++iter;
   }
@@ -77,7 +77,7 @@ TEST(Array, ConstReverseIterators) {
   int expect[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
   Array<int, 10> array = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   auto iter = array.crbegin();
-  for (auto &&element : expect) {
+  for (auto&& element : expect) {
     ASSERT_EQ(element, *iter);
     ++iter;
   }
@@ -92,9 +92,9 @@ TEST(Array, At) {
   ASSERT_NO_THROW(array.At(5));
   for (std::size_t idx = 0; idx < array.Size(); ++idx) {
     ASSERT_EQ(expect[idx], array.At(idx));
-    ASSERT_TRUE((std::is_same_v<int &, decltype(array.At(idx))>));
-    ASSERT_FALSE((std::is_same_v<int const &, decltype(array.At(idx))>));
-    ASSERT_FALSE((std::is_same_v<int &&, decltype(array.At(idx))>));
+    ASSERT_TRUE((std::is_same_v<int&, decltype(array.At(idx))>));
+    ASSERT_FALSE((std::is_same_v<int const&, decltype(array.At(idx))>));
+    ASSERT_FALSE((std::is_same_v<int&&, decltype(array.At(idx))>));
     ASSERT_FALSE((std::is_same_v<int, decltype(array.At(idx))>));
   }
 }
@@ -106,9 +106,9 @@ TEST(Array, ConstAt) {
   ASSERT_NO_THROW(array.At(5));
   for (std::size_t idx = 0; idx < array.Size(); ++idx) {
     ASSERT_EQ(expect[idx], array.At(idx));
-    ASSERT_TRUE((std::is_same_v<int const &, decltype(array.At(idx))>));
-    ASSERT_FALSE((std::is_same_v<int &, decltype(array.At(idx))>));
-    ASSERT_FALSE((std::is_same_v<int &&, decltype(array.At(idx))>));
+    ASSERT_TRUE((std::is_same_v<int const&, decltype(array.At(idx))>));
+    ASSERT_FALSE((std::is_same_v<int&, decltype(array.At(idx))>));
+    ASSERT_FALSE((std::is_same_v<int&&, decltype(array.At(idx))>));
     ASSERT_FALSE((std::is_same_v<int, decltype(array.At(idx))>));
   }
 }
@@ -117,14 +117,14 @@ TEST(Array, FrontAndBack) {
   Array<int, 10> array = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   ASSERT_EQ(array.Front(), 0);
   ASSERT_EQ(array.Back(), 9);
-  ASSERT_TRUE((std::is_same_v<int &, decltype(array.Front())>));
-  ASSERT_FALSE((std::is_same_v<int const &, decltype(array.Front())>));
-  ASSERT_FALSE((std::is_same_v<int &&, decltype(array.Front())>));
+  ASSERT_TRUE((std::is_same_v<int&, decltype(array.Front())>));
+  ASSERT_FALSE((std::is_same_v<int const&, decltype(array.Front())>));
+  ASSERT_FALSE((std::is_same_v<int&&, decltype(array.Front())>));
   ASSERT_FALSE((std::is_same_v<int, decltype(array.Front())>));
 
-  ASSERT_TRUE((std::is_same_v<int &, decltype(array.Back())>));
-  ASSERT_FALSE((std::is_same_v<int const &, decltype(array.Back())>));
-  ASSERT_FALSE((std::is_same_v<int &&, decltype(array.Back())>));
+  ASSERT_TRUE((std::is_same_v<int&, decltype(array.Back())>));
+  ASSERT_FALSE((std::is_same_v<int const&, decltype(array.Back())>));
+  ASSERT_FALSE((std::is_same_v<int&&, decltype(array.Back())>));
   ASSERT_FALSE((std::is_same_v<int, decltype(array.Back())>));
 }
 
@@ -136,12 +136,12 @@ TEST(Array, ConstFrontAndBack) {
 
 TEST(Array, Fill) {
   Array<int, 10> array;
-  for (auto &&elem : array) {
+  for (auto&& elem : array) {
     ASSERT_EQ(elem, 0);
   }
   array.Fill(1);
 
-  for (auto &&elem : array) {
+  for (auto&& elem : array) {
     ASSERT_EQ(elem, 1);
   }
 }
@@ -156,4 +156,4 @@ TEST(Array, Swap) {
   ASSERT_EQ(array1[1], 2);
 }
 
-} // namespace base
+}  // namespace base

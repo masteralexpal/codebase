@@ -16,20 +16,22 @@
 #ifndef EXPERIMENT_HELPER_H_
 #define EXPERIMENT_HELPER_H_
 
-#define LOG_ERR_MSG()                                                          \
-  std::cerr << "[" << __FILE__ << "(" << __LINE__ << ")@" << __func__          \
-            << "()] "                                                          \
-            << "Error " << errno << " Occured: " << std::strerror(errno)       \
+#define LOG_ERR_MSG()                                                    \
+  std::cerr << "[" << __FILE__ << "(" << __LINE__ << ")@" << __func__    \
+            << "()] "                                                    \
+            << "Error " << errno << " Occured: " << std::strerror(errno) \
             << std::endl
 
-template <typename T, size_t N> void Zero(T (&a)[N]) {
-  auto *s = memset(a, 0, N * sizeof(T));
+template <typename T, size_t N>
+void Zero(T (&a)[N]) {
+  auto* s = memset(a, 0, N * sizeof(T));
   assert(s == a);
 }
 
-template <typename T> void Zero(T *a, size_t n) {
-  auto *s = memset(a, 0, n * sizeof(T));
+template <typename T>
+void Zero(T* a, size_t n) {
+  auto* s = memset(a, 0, n * sizeof(T));
   assert(s == a);
 }
 
-#endif // EXPERIMENT_HELPER_H_
+#endif  // EXPERIMENT_HELPER_H_

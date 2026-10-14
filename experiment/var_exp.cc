@@ -14,42 +14,45 @@
 
 struct Var {
   struct Storage {
-    virtual void Add(void const *args) = 0;
+    virtual void Add(void const* args) = 0;
 
-    virtual void *Get() = 0;
+    virtual void* Get() = 0;
 
     virtual ~Storage() = default;
   };
 
-  template <typename Type> struct StorageImpl : public Storage {
+  template <typename Type>
+  struct StorageImpl : public Storage {
+    explicit StorageImpl(Type const& value) : value_(value) {}
 
-    explicit StorageImpl(Type const &value) : value_(value) {}
-
-    void Add(void const *args) override {
-      value_ += *(static_cast<Type const *>(args));
-      std::cout << "value_ = " << *(static_cast<Type const *>(args))
+    void Add(void const* args) override {
+      value_ += *(static_cast<Type const*>(args));
+      std::cout << "value_ = " << *(static_cast<Type const*>(args))
                 << std::endl;
     }
     Type value_;
 
-    void *Get() override { return &value_; }
+    void* Get() override { return &value_; }
 
     ~StorageImpl() override = default;
   };
 
   template <typename Type>
-  explicit Var(Type const &value) : storage_(new StorageImpl<Type>(value)) {}
+  explicit Var(Type const& value) : storage_(new StorageImpl<Type>(value)) {}
 
-  template <typename Type> void Set(Type const &value) {
+  template <typename Type>
+  void Set(Type const& value) {
     storage_ = std::make_unique<StorageImpl<Type>>(value);
   }
 
-  template <typename Type> void Add(Type const &value) {
+  template <typename Type>
+  void Add(Type const& value) {
     storage_->Add(&value);
   }
 
-  template <typename Type> Type const &Get() {
-    return static_cast<Type const &>(*static_cast<Type *>(storage_->Get()));
+  template <typename Type>
+  Type const& Get() {
+    return static_cast<Type const&>(*static_cast<Type*>(storage_->Get()));
   }
 
   std::unique_ptr<Storage> storage_ = nullptr;

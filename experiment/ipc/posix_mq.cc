@@ -24,7 +24,7 @@ static int const kMsgSize = 4096;
 
 int Server(mqd_t message_queue) {
   static char buffer[kMsgSize];
-  Zero(buffer); // not necessary.
+  Zero(buffer);  // not necessary.
   int unsigned priority = 0;
 
   while (true) {

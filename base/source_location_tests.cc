@@ -18,7 +18,7 @@
 #include <gtest/gtest.h>
 
 template <std::size_t N>
-constexpr char const *ExtractFileName(char const (&file_path)[N]) {
+constexpr char const* ExtractFileName(char const (&file_path)[N]) {
   auto pos = SIZE_MAX;
   for (auto i = 0U; i < N; ++i) {
     if (file_path[i] == '/') {

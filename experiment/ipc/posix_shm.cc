@@ -29,7 +29,7 @@ struct CountBlock {
   pthread_mutex_t mutex;
 };
 
-int Server(CountBlock *count_block, int loop) {
+int Server(CountBlock* count_block, int loop) {
   for (int i = 0; i < loop; ++i) {
     pthread_mutex_lock(&(count_block->mutex));
     ++(count_block->count);
@@ -37,7 +37,7 @@ int Server(CountBlock *count_block, int loop) {
   }
   return 0;
 }
-int Client(CountBlock *count_block, int loop) {
+int Client(CountBlock* count_block, int loop) {
   for (int i = 0; i < loop; ++i) {
     pthread_mutex_lock(&(count_block->mutex));
     ++(count_block->count);
@@ -59,9 +59,9 @@ int main() {
   // or: write(mmap_fd, &count_block, sizeof(count_block));
   ftruncate(mmap_fd, sizeof(CountBlock));
 
-  CountBlock *cb = static_cast<CountBlock *>(mmap(nullptr, sizeof(CountBlock),
-                                                  PROT_READ | PROT_WRITE,
-                                                  MAP_SHARED, mmap_fd, 0));
+  CountBlock* cb = static_cast<CountBlock*>(mmap(nullptr, sizeof(CountBlock),
+                                                 PROT_READ | PROT_WRITE,
+                                                 MAP_SHARED, mmap_fd, 0));
   cb->count = 0;
   pthread_mutexattr_t mutex_attr;
   pthread_mutexattr_init(&mutex_attr);

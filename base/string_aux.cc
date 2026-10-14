@@ -12,7 +12,7 @@
 #include "base/string_aux.h"
 
 namespace base {
-std::vector<std::string> Split(const std::string &text, char delimiter) {
+std::vector<std::string> Split(std::string const& text, char delimiter) {
   std::vector<std::string> strings;
   auto slow = text.begin();
   auto fast = text.begin();
@@ -28,7 +28,8 @@ std::vector<std::string> Split(const std::string &text, char delimiter) {
   return strings;
 }
 
-std::vector<std::string> Split(const std::string &text, char delimiter,
+std::vector<std::string> Split(std::string const& text,
+                               char delimiter,
                                int degree) {
   std::vector<std::string> strings;
   auto slow = text.begin();
@@ -47,7 +48,7 @@ std::vector<std::string> Split(const std::string &text, char delimiter,
   return strings;
 }
 
-std::vector<std::string> ReverseSplit(const std::string &text, char delimiter) {
+std::vector<std::string> ReverseSplit(std::string const& text, char delimiter) {
   std::vector<std::string> strings;
   auto fast = text.end();
   auto slow = text.end();
@@ -62,7 +63,8 @@ std::vector<std::string> ReverseSplit(const std::string &text, char delimiter) {
   return strings;
 }
 
-std::vector<std::string> ReverseSplit(const std::string &text, char delimiter,
+std::vector<std::string> ReverseSplit(std::string const& text,
+                                      char delimiter,
                                       int degree) {
   std::vector<std::string> strings;
   auto fast = text.end();
@@ -80,7 +82,7 @@ std::vector<std::string> ReverseSplit(const std::string &text, char delimiter,
   return strings;
 }
 
-void LeftTrim(std::string &text) {
+void LeftTrim(std::string& text) {
   auto iter = text.begin();
   while (iter != text.end() && std::isspace(*iter)) {
     ++iter;
@@ -88,7 +90,7 @@ void LeftTrim(std::string &text) {
   text.erase(text.begin(), iter);
 }
 
-void RightTrim(std::string &text) {
+void RightTrim(std::string& text) {
   auto iter = text.rbegin();
   while (iter != text.rend() && std::isspace(*iter)) {
     ++iter;
@@ -96,12 +98,12 @@ void RightTrim(std::string &text) {
   text.erase(iter.base(), text.rbegin().base());
 }
 
-void Trim(std::string &text) {
+void Trim(std::string& text) {
   LeftTrim(text);
   RightTrim(text);
 }
 
-std::string LeftTrim(const std::string &text) {
+std::string LeftTrim(std::string const& text) {
   auto iter = text.begin();
   while (iter != text.end() && std::isspace(*iter)) {
     ++iter;
@@ -109,7 +111,7 @@ std::string LeftTrim(const std::string &text) {
   return std::string{iter, text.end()};
 }
 
-std::string RightTrim(const std::string &text) {
+std::string RightTrim(std::string const& text) {
   auto iter = text.rbegin();
   while (iter != text.rend() && std::isspace(*iter)) {
     ++iter;
@@ -117,7 +119,7 @@ std::string RightTrim(const std::string &text) {
   return std::string{text.begin(), iter.base()};
 }
 
-std::string Trim(const std::string &text) {
+std::string Trim(std::string const& text) {
   auto left = text.begin();
   while (left != text.end() && std::isspace(*left)) {
     ++left;
@@ -129,7 +131,7 @@ std::string Trim(const std::string &text) {
   return std::string{left, right.base()};
 }
 
-bool StartsWith(const std::string &text, const std::string &prefix) {
+bool StartsWith(std::string const& text, std::string const& prefix) {
   if (text.size() < prefix.size() || text.empty() || prefix.empty()) {
     return false;
   }
@@ -145,7 +147,7 @@ bool StartsWith(const std::string &text, const std::string &prefix) {
   return true;
 }
 
-bool EndsWith(const std::string &text, const std::string &suffix) {
+bool EndsWith(std::string const& text, std::string const& suffix) {
   if (text.size() < suffix.size() || text.empty() || suffix.empty()) {
     return false;
   }
@@ -161,15 +163,15 @@ bool EndsWith(const std::string &text, const std::string &suffix) {
   return true;
 }
 
-void SetBit(size_t &bits, size_t index) {
+void SetBit(size_t& bits, size_t index) {
   bits |= (static_cast<size_t>(1) << index);
 }
 
-void ResetBit(size_t &bits, size_t index) {
+void ResetBit(size_t& bits, size_t index) {
   bits &= ~(static_cast<size_t>(1) << index);
 }
 
-void FlipBit(size_t &bits, size_t index) {
+void FlipBit(size_t& bits, size_t index) {
   bits ^= (static_cast<size_t>(1) << index);
 }
-} // namespace base
+}  // namespace base

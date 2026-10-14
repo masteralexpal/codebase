@@ -23,19 +23,20 @@
 
 namespace base {
 
-template <typename T, typename Allocator> class VectorBase {
-public:
+template <typename T, typename Allocator>
+class VectorBase {
+ public:
   VectorBase() noexcept = default;
-  VectorBase(Allocator const &allocator) noexcept : allocator_(allocator) {}
+  VectorBase(Allocator const& allocator) noexcept : allocator_(allocator) {}
   Allocator allocator_;
 };
 
 template <typename T, typename Allocator = Allocator<T>>
 class Vector final : private VectorBase<T, Allocator> {
-public:
+ public:
   using Super = VectorBase<T, Allocator>;
-  using iterator = GenericIterator<T *>;
-  using const_iterator = GenericIterator<T const *>;
+  using iterator = GenericIterator<T*>;
+  using const_iterator = GenericIterator<T const*>;
   using reverse_iteraotr = GenericReverseIterator<iterator>;
   using const_reverse_iterator = GenericReverseIterator<const_iterator>;
 
@@ -43,8 +44,8 @@ public:
   using allocator_traits = std::allocator_traits<allocator_type>;
   using size_type = typename allocator_traits::size_type;
   using value_type = T;
-  using reference = value_type &;
-  using const_reference = const value_type &;
+  using reference = value_type&;
+  using const_reference = value_type const&;
   using difference_type = typename allocator_traits::difference_type;
   using pointer = typename allocator_traits::pointer;
   using const_pointer = typename allocator_traits::const_pointer;
@@ -62,7 +63,7 @@ public:
    *
    * @param allocator
    */
-  explicit Vector(Allocator const &alloc) : Super(alloc) {}
+  explicit Vector(Allocator const& alloc) : Super(alloc) {}
 
   /**
    * @brief Constructor (3) Constructs the container with n copies of
@@ -71,8 +72,9 @@ public:
    * @param n
    */
 
-  Vector(size_type n, const_reference value,
-         const allocator_type &alloc = Allocator())
+  Vector(size_type n,
+         const_reference value,
+         allocator_type const& alloc = Allocator())
       : Super(), data_(this->allocator_.allocate(n)), size_(0), capacity_(n) {
     std::ignore = alloc;
     while (size_ != capacity_) {
@@ -105,10 +107,12 @@ public:
 
   // TODO: Needs a real constraint for InputIterator.
   template <typename InputIterator,
-            typename = typename std::enable_if<
-                !std::is_integral<InputIterator>::value, InputIterator>::type>
-  Vector(InputIterator first, InputIterator last,
-         Allocator const &alloc = Allocator())
+            typename =
+                typename std::enable_if<!std::is_integral<InputIterator>::value,
+                                        InputIterator>::type>
+  Vector(InputIterator first,
+         InputIterator last,
+         Allocator const& alloc = Allocator())
       : Super(), data_(nullptr), size_(0), capacity_(0) {
     std::ignore = alloc;
     typename base::IteratorTraits<InputIterator>::difference_type diff =
@@ -129,8 +133,10 @@ public:
    *
    * @param other
    */
-  Vector(Vector const &other)
-      : Super(), data_(this->allocator_.allocate(other.Capacity())), size_(0),
+  Vector(Vector const& other)
+      : Super(),
+        data_(this->allocator_.allocate(other.Capacity())),
+        size_(0),
         capacity_(other.Capacity()) {
     for (size_type idx = 0; idx < other.Size(); ++idx) {
       data_[idx] = other.data_[idx];
@@ -145,9 +151,11 @@ public:
    * @param other
    * @param alloc
    */
-  Vector(const Vector &other, Allocator const &alloc)
-      : Super(alloc), data_(this->allocator_.allocate(other.Capacity())),
-        size_(0), capacity_(other.Capacity()) {
+  Vector(Vector const& other, Allocator const& alloc)
+      : Super(alloc),
+        data_(this->allocator_.allocate(other.Capacity())),
+        size_(0),
+        capacity_(other.Capacity()) {
     for (size_type idx = 0; idx < other.Size(); ++idx) {
       data_[idx] = other.data_[idx];
       ++size_;
@@ -162,9 +170,11 @@ public:
    *
    * @param other
    */
-  Vector(Vector &&other) noexcept
-      : Super(std::move(other.GetAllocator())), data_(other.Data()),
-        size_(other.Size()), capacity_(other.Capacity()) {
+  Vector(Vector&& other) noexcept
+      : Super(std::move(other.GetAllocator())),
+        data_(other.Data()),
+        size_(other.Size()),
+        capacity_(other.Capacity()) {
     other.data_ = nullptr;
     other.capacity_ = 0;
     other.size_ = 0;
@@ -179,7 +189,7 @@ public:
    * @param other
    * @param alloc
    */
-  Vector(Vector &&other, Allocator const &alloc) noexcept
+  Vector(Vector&& other, Allocator const& alloc) noexcept
       : Super(alloc), size_(other.Size()), capacity_(other.Capacity()) {
     if (alloc != other.GetAllocator()) {
       data_ = this->allocator_.allocate(capacity_);
@@ -200,10 +210,12 @@ public:
    * @param init
    * @param alloc
    */
-  Vector(std::initializer_list<T> init, Allocator const &alloc = Allocator())
-      : Super(alloc), data_(this->allocator_.allocate(init.size())), size_(0),
+  Vector(std::initializer_list<T> init, Allocator const& alloc = Allocator())
+      : Super(alloc),
+        data_(this->allocator_.allocate(init.size())),
+        size_(0),
         capacity_(init.size()) {
-    for (auto &&value : init) {
+    for (auto&& value : init) {
       data_[size_++] = std::move(value);
     }
   }
@@ -251,16 +263,16 @@ public:
   // ~Iterators.
 
   // Element Access
-  T &At(size_type index) { return data_[index]; }
-  T const &At(size_type index) const { return data_[index]; }
-  T &operator[](size_type index) { return data_[index]; }
-  T const &operator[](size_type index) const { return data_[index]; }
-  T &Front() { return data_[0]; }
-  T const &Front() const { return data_[0]; }
-  T &Back() { return data_[size_ - 1]; }
-  T const &Back() const { return data_[size_ - 1]; }
-  T *Data() noexcept { return data_; }
-  T const *Data() const noexcept { return data_; }
+  T& At(size_type index) { return data_[index]; }
+  T const& At(size_type index) const { return data_[index]; }
+  T& operator[](size_type index) { return data_[index]; }
+  T const& operator[](size_type index) const { return data_[index]; }
+  T& Front() { return data_[0]; }
+  T const& Front() const { return data_[0]; }
+  T& Back() { return data_[size_ - 1]; }
+  T const& Back() const { return data_[size_ - 1]; }
+  T* Data() noexcept { return data_; }
+  T const* Data() const noexcept { return data_; }
   // ~Element Access
   // Size
   bool Empty() const noexcept { return size_ == 0; }
@@ -278,25 +290,26 @@ public:
     }
   }
 
-  iterator Insert(const_iterator const_iter, T const &t) {
+  iterator Insert(const_iterator const_iter, T const& t) {
     std::ignore = const_iter;
     std::ignore = t;
   }
 
-  void Emplace(T &&t) { std::ignore = t; }
+  void Emplace(T&& t) { std::ignore = t; }
 
   iterator Erase() {}
-  void PushBack(T const &t) {
+  void PushBack(T const& t) {
     EnsureCapacity();
     data_[size_++] = t;
   }
 
-  void PushBack(T &&t) {
+  void PushBack(T&& t) {
     EnsureCapacity();
     data_[size_++] = std::move(t);
   }
 
-  template <typename... Args> void EmplaceBack(Args &&...args) {
+  template <typename... Args>
+  void EmplaceBack(Args&&... args) {
     EnsureCapacity();
     ++size_;
     base::Construct(data_ + size_, std::forward<Args>(args)...);
@@ -306,14 +319,14 @@ public:
   // ~Modifiers
 
   void Reserve(size_type n) { std::ignore = n; }
-  void Resize(size_type n, T const &t) {
+  void Resize(size_type n, T const& t) {
     std::ignore = t;
     capacity_ = n;
     size_ = n;
-    T *new_area = this->allocator_.allocate(n);
+    T* new_area = this->allocator_.allocate(n);
   }
 
-private:
+ private:
   // internal funcitons.
   friend class VectorTestHelper;
   void EnsureCapacity() {
@@ -324,7 +337,7 @@ private:
     }
     if (size_ == capacity_) {
       capacity_ <<= 1;
-      T *new_data = this->allocator_.allocate(capacity_);
+      T* new_data = this->allocator_.allocate(capacity_);
       for (size_type i = 0; i < size_; ++i) {
         new_data[i] = std::move(data_[i]);
       }
@@ -334,9 +347,9 @@ private:
   }
 
   // data members.
-  T *data_ = nullptr;
+  T* data_ = nullptr;
   size_type size_ = 0;
   size_type capacity_ = 0;
 };
-} // namespace base
+}  // namespace base
 #endif

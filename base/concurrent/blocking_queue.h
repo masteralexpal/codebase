@@ -20,14 +20,15 @@
 
 namespace base {
 
-template <typename T> class BlockingQueue {
-public:
+template <typename T>
+class BlockingQueue {
+ public:
   BlockingQueue() = default;
   DISABLE_COPY(BlockingQueue);
   DISABLE_MOVE(BlockingQueue);
   virtual ~BlockingQueue() = default;
 
-  void Enqueue(T &&t) {
+  void Enqueue(T&& t) {
     {
       MutexGuard<Mutex> guard(mutex_);
       queue_.emplace(t);
@@ -35,7 +36,7 @@ public:
     cv_.Broadcast();
   }
 
-  void Enqueue(T const &t) {
+  void Enqueue(T const& t) {
     {
       MutexGuard<Mutex> guard(mutex_);
       queue_.push(t);
@@ -43,12 +44,12 @@ public:
     cv_.Broadcast();
   }
 
-  T const &Front() const {
+  T const& Front() const {
     MutexGuard<Mutex> guard(mutex_);
     return queue_.front();
   }
 
-  T &Front() {
+  T& Front() {
     MutexGuard<Mutex> guard(mutex_);
     return queue_.front();
   }
@@ -69,10 +70,10 @@ public:
     return queue_.size();
   }
 
-private:
+ private:
   Mutex mutable mutex_;
   ConditionVariable mutable cv_;
   std::queue<T> queue_;
 };
-} // namespace base
-#endif //  BASE_CONCURRENT_BLOCKING_QUEUE_H_
+}  // namespace base
+#endif  //  BASE_CONCURRENT_BLOCKING_QUEUE_H_

@@ -21,9 +21,11 @@
 constexpr std::size_t kBufferSize = 16;
 char buffer[kBufferSize];
 
-void PrintHelp() { std::cout << "read tools."; }
+void PrintHelp() {
+  std::cout << "read tools.";
+}
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   base::CommandLine::Initialize(argc, argv);
   auto path = base::CommandLine::Get()->GetValue("file");
   if (path) {

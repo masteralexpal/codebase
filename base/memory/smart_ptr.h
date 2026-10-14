@@ -12,14 +12,17 @@
 #ifndef BASE_SMART_PTR_H_
 #define BASE_SMART_PTR_H_
 
-#include "base/memory/internal/shared_ptr.h"
 #include <cstddef>
+#include "base/memory/internal/shared_ptr.h"
 
 namespace base {
 
-template <typename Tp> class SharedPtr;
-template <typename Type> class WeakPtr;
-template <typename Type, typename Deleter> class UinquePtr;
+template <typename Tp>
+class SharedPtr;
+template <typename Type>
+class WeakPtr;
+template <typename Type, typename Deleter>
+class UinquePtr;
 
 /**
  * @brief Shared pointer.
@@ -28,7 +31,7 @@ template <typename Type, typename Deleter> class UinquePtr;
  */
 template <typename Tp>
 class SharedPtr final : private internal::SharedPtrBase<Tp> {
-public:
+ public:
 #if __cpluscplus < 201703L
   using element_type = Tp;
 #else
@@ -40,9 +43,9 @@ public:
    * i.e. empty shared_ptr.
    *
    */
-  constexpr SharedPtr() noexcept : internal::SharedPtrBase<Tp>() {} // 1
+  constexpr SharedPtr() noexcept : internal::SharedPtrBase<Tp>() {}  // 1
   constexpr SharedPtr(std::nullptr_t)
-      : internal::SharedPtrBase<Tp>(std::nullptr_t{}) {} // 2
+      : internal::SharedPtrBase<Tp>(std::nullptr_t{}) {}  // 2
 
   /**
    * @brief Constructor 3~7. Constructs a shared_ptr with ptr as the pointer to
@@ -51,13 +54,16 @@ public:
    * @tparam Up
    * @param p
    */
-  template <typename Up> explicit SharedPtr(Up *p);                     // 3
-  template <typename Up, typename Deleter> SharedPtr(Up *p, Deleter d); // 4
-  template <typename Deleter> SharedPtr(std::nullptr_t ptr, Deleter d); // 5
+  template <typename Up>
+  explicit SharedPtr(Up* p);  // 3
+  template <typename Up, typename Deleter>
+  SharedPtr(Up* p, Deleter d);  // 4
+  template <typename Deleter>
+  SharedPtr(std::nullptr_t ptr, Deleter d);  // 5
   template <typename Up, typename Deleter, typename Allocator>
-  SharedPtr(Up *ptr, Deleter d, Allocator alloc); // 6
+  SharedPtr(Up* ptr, Deleter d, Allocator alloc);  // 6
   template <typename Deleter, typename Allocator>
-  SharedPtr(std::nullptr_t ptr, Deleter d, Allocator alloc); // 7
+  SharedPtr(std::nullptr_t ptr, Deleter d, Allocator alloc);  // 7
 
   /**
    * @brief The aliasing constructor: constructs a shared_ptr which shares
@@ -73,7 +79,7 @@ public:
    *
    */
   template <typename Up>
-  SharedPtr(SharedPtr<Up> const &r, element_type *ptr) noexcept; // 8
+  SharedPtr(SharedPtr<Up> const& r, element_type* ptr) noexcept;  // 8
 
   /**
    * @brief Constructs a shared_ptr which shares ownership of the object managed
@@ -84,7 +90,8 @@ public:
    * @tparam Up
    * @param r
    */
-  template <typename Up> SharedPtr(SharedPtr<Up> const &r) noexcept; // 9
+  template <typename Up>
+  SharedPtr(SharedPtr<Up> const& r) noexcept;  // 9
 
   /**
    * @brief  Move-constructs a shared_ptr from r. After the construction, *this
@@ -95,20 +102,21 @@ public:
    * @tparam Up
    * @param r
    */
-  template <typename Up> SharedPtr(SharedPtr<Up> &&r) noexcept; // 10
+  template <typename Up>
+  SharedPtr(SharedPtr<Up>&& r) noexcept;  // 10
 
   template <typename Up>
-  explicit SharedPtr(base::WeakPtr<Up> const &r) noexcept; // 11
+  explicit SharedPtr(base::WeakPtr<Up> const& r) noexcept;  // 11
 
   template <typename Up, typename Deleter>
-  SharedPtr(base::UinquePtr<Up, Deleter> &&r); // 12
+  SharedPtr(base::UinquePtr<Up, Deleter>&& r);  // 12
 };
 
 template <typename T, typename... Args>
-SharedPtr<T> MakeShared(Args &&...args) {}
+SharedPtr<T> MakeShared(Args&&... args) {}
 
 template <typename T, typename... Args>
-SharedPtr<T> MakeUnique(Args &&...args) {}
+SharedPtr<T> MakeUnique(Args&&... args) {}
 
-} // namespace base
+}  // namespace base
 #endif

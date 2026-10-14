@@ -9,9 +9,9 @@
  *
  */
 
-#include <cerrno>
 #include <fcntl.h>
 #include <unistd.h>
+#include <cerrno>
 
 #include "experiment/helper.h"
 
@@ -20,12 +20,12 @@
  *
  */
 class RecordLock {
-public:
+ public:
   RecordLock() {}
-  RecordLock(RecordLock const &lock) = delete;
-  RecordLock &operator=(RecordLock const &lock) = delete;
-  RecordLock(RecordLock &&lock) = delete;
-  RecordLock &operator=(RecordLock &&lock) = delete;
+  RecordLock(RecordLock const& lock) = delete;
+  RecordLock& operator=(RecordLock const& lock) = delete;
+  RecordLock(RecordLock&& lock) = delete;
+  RecordLock& operator=(RecordLock&& lock) = delete;
   ~RecordLock() {}
 
   void Acquire() {}
@@ -35,7 +35,7 @@ public:
   bool TryAcquire() { return false; }
 };
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv) {
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
   char const record_lock_name[] = "/tmp/lipingan.lock";
   int flag = O_RDWR | O_CREAT | O_EXCL;
   mode_t mode = 0755;

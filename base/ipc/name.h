@@ -23,28 +23,28 @@ class IPCName;
 class IPCNameSpace;
 
 class IPCName {
-public:
-  explicit IPCName(std::string const &name);
+ public:
+  explicit IPCName(std::string const& name);
 
-  IPCNameSpace *GetNameSpace() const;
+  IPCNameSpace* GetNameSpace() const;
 
-private:
+ private:
   std::string ipc_name_;
-  IPCNameSpace *ipc_namespace_;
+  IPCNameSpace* ipc_namespace_;
 };
 
 class IPCNameSpace {
-public:
-  IPCNameSpace(std::string const &ipc_name_space);
+ public:
+  IPCNameSpace(std::string const& ipc_name_space);
 
-private:
+ private:
   std::set<std::string> ipc_names_;
 };
 
-std::string PosixIPCName(std::string const &name) {
+std::string PosixIPCName(std::string const& name) {
   if (name.empty())
     return {};
-  const char *px_ipc_name_env = getenv("PX_IPC_NAME");
+  char const* px_ipc_name_env = getenv("PX_IPC_NAME");
   std::string dir = !px_ipc_name_env ? "" : px_ipc_name_env;
   if (dir.empty()) {
 #ifdef POSIX_IPC_PREFIX
@@ -59,11 +59,11 @@ std::string PosixIPCName(std::string const &name) {
   return dir + name;
 }
 
-char *px_ipc_name(char const *name) {
-  const char *dir;
-  char *dst;
-  const char *slash;
-  if ((dst = static_cast<char *>(malloc(PATH_MAX))) == nullptr) {
+char* px_ipc_name(char const* name) {
+  char const* dir;
+  char* dst;
+  char const* slash;
+  if ((dst = static_cast<char*>(malloc(PATH_MAX))) == nullptr) {
     return nullptr;
   }
 
@@ -79,5 +79,5 @@ char *px_ipc_name(char const *name) {
   return dst;
 }
 
-} // namespace base
-#endif // BASE_IPC_NAME_H_
+}  // namespace base
+#endif  // BASE_IPC_NAME_H_

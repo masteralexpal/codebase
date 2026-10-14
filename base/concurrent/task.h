@@ -21,11 +21,13 @@ namespace base {
 
 using Task = std::function<void()>;
 
-template <typename Callable, typename... Args,
-          typename std::enable_if<std::is_void<typename std::invoke_result<
-                                      Callable, Args...>::type>::value,
-                                  bool>::type = true>
-Task MakeTask(Callable &&callable, Args &&...args) {
+template <typename Callable,
+          typename... Args,
+          typename std::enable_if<
+              std::is_void<
+                  typename std::invoke_result<Callable, Args...>::type>::value,
+              bool>::type = true>
+Task MakeTask(Callable&& callable, Args&&... args) {
   return Task([callable_ = std::move(callable),
                args_ = std::make_tuple(std::forward<Args>(args)...)]() -> void {
     std::apply(callable_, args_);
@@ -36,6 +38,6 @@ Task MakeTask(Callable &&callable, Args &&...args) {
 // class BindState {};
 // class TaskBase {};
 // class Task {};
-} // namespace base
+}  // namespace base
 
-#endif // BASE_CONCURRENT_TASK_H_
+#endif  // BASE_CONCURRENT_TASK_H_

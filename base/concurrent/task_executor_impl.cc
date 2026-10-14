@@ -11,9 +11,9 @@
 
 #include "base/concurrent/task_executor_impl.h"
 
+#include <pthread.h>
 #include <iostream>
 #include <mutex>
-#include <pthread.h>
 #include <tuple>
 #include <utility>
 
@@ -23,8 +23,11 @@
 namespace base {
 
 TaskExecutorImpl::TaskExecutorImpl()
-    : task_queue_{nullptr}, worker_threads_{}, is_running_{false},
-      number_of_idle_threads_{0}, number_of_total_threads_{0},
+    : task_queue_{nullptr},
+      worker_threads_{},
+      is_running_{false},
+      number_of_idle_threads_{0},
+      number_of_total_threads_{0},
       configuration_{} {
   task_queue_ = std::make_unique<TaskQueueImpl>(2);
 }
@@ -35,7 +38,7 @@ TaskExecutorImpl::~TaskExecutorImpl() {
   }
 }
 
-bool TaskExecutorImpl::Start(Configuration const &configuration) {
+bool TaskExecutorImpl::Start(Configuration const& configuration) {
   is_running_.store(true, std::memory_order_release);
 
   configuration_ = std::move(configuration);
@@ -43,7 +46,6 @@ bool TaskExecutorImpl::Start(Configuration const &configuration) {
   for (auto i = 0; i < configuration_.max_threads(); ++i) {
     this->worker_threads_.emplace_back([this]() -> void {
       while (true) {
-
         if (!this->is_running_.load(std::memory_order_acquire)) {
           return;
         }
@@ -59,7 +61,7 @@ bool TaskExecutorImpl::Start(Configuration const &configuration) {
   return true;
 }
 
-bool TaskExecutorImpl::Submit(Task task, TaskTraits const &task_traits) {
+bool TaskExecutorImpl::Submit(Task task, TaskTraits const& task_traits) {
   LOG(INFO) << __func__ << "() called!";
   task_queue_->Push(task);
   std::ignore = task_traits;
@@ -78,16 +80,14 @@ bool TaskExecutorImpl::Stop(Task callback) {
   LOG(WARNING)
       << "ThreadGroup is stopping, Waiting all worker threads to exit.";
 
-  Task stopping_task{[this]() -> void {
-    this->is_running_.store(false);
-  }};
+  Task stopping_task{[this]() -> void { this->is_running_.store(false); }};
 
   auto total = GetThreads();
   for (auto i = 0; i < total; ++i) {
     task_queue_->Push(stopping_task);
   }
 
-  for (auto &&thread : worker_threads_) {
+  for (auto&& thread : worker_threads_) {
     LOG(INFO) << "join()!";
     thread.join();
   }
@@ -99,6 +99,8 @@ bool TaskExecutorImpl::Stop(Task callback) {
   return true;
 }
 
-bool TaskExecutorImpl::IsRuning() const noexcept { return is_running_; }
+bool TaskExecutorImpl::IsRuning() const noexcept {
+  return is_running_;
+}
 
-} // namespace base
+}  // namespace base

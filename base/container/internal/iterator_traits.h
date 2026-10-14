@@ -48,8 +48,11 @@ struct BidirectionalIteratorTag : public ForwardIteratorTag {};
 
 struct RandomAccessIteratorTag : public BidirectionalIteratorTag {};
 
-template <typename Category, typename T, typename Diff = ptrdiff_t,
-          typename Ptr = T *, typename Ref = T &>
+template <typename Category,
+          typename T,
+          typename Diff = ptrdiff_t,
+          typename Ptr = T*,
+          typename Ref = T&>
 struct IteratorBase {
   using iterator_category = Category;
   using value_type = T;
@@ -58,7 +61,8 @@ struct IteratorBase {
   using reference = Ref;
 };
 
-template <typename Iterator> struct IteratorTraits {
+template <typename Iterator>
+struct IteratorTraits {
   using iterator_category = typename Iterator::iterator_category;
   using value_type = typename Iterator::value_type;
   using difference_type = typename Iterator::difference_type;
@@ -71,11 +75,12 @@ template <typename Iterator> struct IteratorTraits {
  *
  * @tparam T - value type.
  */
-template <typename T> struct IteratorTraits<T *> {
+template <typename T>
+struct IteratorTraits<T*> {
   using iterator_category = RandomAccessIteratorTag;
   using value_type = T;
-  using pointer = T *;
-  using reference = T &;
+  using pointer = T*;
+  using reference = T&;
   using difference_type = std::ptrdiff_t;
 };
 
@@ -84,15 +89,17 @@ template <typename T> struct IteratorTraits<T *> {
  *
  * @tparam T
  */
-template <typename T> struct IteratorTraits<T const *> {
+template <typename T>
+struct IteratorTraits<T const*> {
   using iterator_category = RandomAccessIteratorTag;
   using value_type = T;
-  using pointer = T const *;
-  using reference = T const &;
+  using pointer = T const*;
+  using reference = T const&;
   using difference_type = std::ptrdiff_t;
 };
 
-template <typename Iterator, typename = void> struct IsInputIterator {
+template <typename Iterator, typename = void>
+struct IsInputIterator {
   constexpr static bool value = false;
 };
 
@@ -116,5 +123,5 @@ struct IsInputIterator<
   constexpr static bool value = true;
 };
 
-} // namespace base
+}  // namespace base
 #endif

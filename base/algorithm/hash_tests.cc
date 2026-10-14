@@ -22,4 +22,4 @@ TEST(FNV1A, case0) {
   auto hash2 = fnv1a32(heck);
   ASSERT_EQ(hash, hash2);
 }
-} // namespace base
+}  // namespace base

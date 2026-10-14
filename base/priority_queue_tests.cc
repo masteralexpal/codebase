@@ -9,14 +9,14 @@
  *
  */
 
-#include "base/priority_queue.h"
 #include <gtest/gtest.h>
+#include "base/priority_queue.h"
 
 namespace base {
 TEST(PriorityQueue, case0) {
   PriorityQueue<int> priority_queue;
   std::vector<int> vector = {12, 22, 34, 14, 45, 62, 17, 84, 96};
-  for (auto &&i : vector) {
+  for (auto&& i : vector) {
     priority_queue.Insert(i);
   }
   while (!priority_queue.Empty()) {
@@ -30,7 +30,7 @@ TEST(PriorityQueue, case0) {
 TEST(MaxHeap, case0) {
   MaxHeap<int> max_heap(10);
   std::vector<int> vector = {12, 22, 34, 14, 45, 62, 17, 84, 96};
-  for (auto &&i : vector) {
+  for (auto&& i : vector) {
     max_heap.Insert(i);
   }
   while (!max_heap.Empty()) {
@@ -38,4 +38,4 @@ TEST(MaxHeap, case0) {
   }
   std::cout << std::endl;
 }
-} // namespace base
+}  // namespace base

@@ -91,7 +91,7 @@ void a() {
   thread2.join();
   thread3.join();
 }
-} // namespace a
+}  // namespace a
 
 namespace b {
 
@@ -128,7 +128,7 @@ void b() {
   thread2.join();
   thread3.join();
 }
-} // namespace b
+}  // namespace b
 
 namespace c {
 std::mutex mtx;
@@ -209,7 +209,7 @@ void c() {
   thread2.join();
   thread3.join();
 }
-} // namespace c
+}  // namespace c
 
 int main() {
   a::a();

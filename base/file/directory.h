@@ -13,5 +13,5 @@
 #define BASE_FILE_DIRECTORY_H_
 namespace base {
 class Directory {};
-} // namespace base
+}  // namespace base
 #endif

@@ -18,7 +18,7 @@
 
 namespace base {
 class ReferenceCountingBase {
-public:
+ public:
   ReferenceCountingBase() noexcept;
 
   explicit ReferenceCountingBase(int initial_count) noexcept;
@@ -60,16 +60,18 @@ public:
    */
   bool Unique() const noexcept;
 
-private:
+ private:
   int mutable count_;
 };
 
-template <typename Type> struct LifetimeTraits {
-  template <typename... Args> static Type *New(Args &&...args) {
+template <typename Type>
+struct LifetimeTraits {
+  template <typename... Args>
+  static Type* New(Args&&... args) {
     return new Type(std::forward<Args>(args)...);
   }
 
-  static void Delete(Type const *pointer) { delete pointer; }
+  static void Delete(Type const* pointer) { delete pointer; }
 };
 
 /**
@@ -80,7 +82,7 @@ template <typename Type> struct LifetimeTraits {
  */
 template <typename Type, typename Traits = LifetimeTraits<Type>>
 class ReferenceCounting : public ReferenceCountingBase {
-public:
+ public:
   using value_type = Type;
   using traits_type = Traits;
 
@@ -89,8 +91,8 @@ public:
   explicit ReferenceCounting(int initial_value) noexcept
       : ReferenceCountingBase(initial_value) {}
 
-  ReferenceCounting(ReferenceCounting const &other) = delete;
-  ReferenceCounting &operator=(ReferenceCounting const &other) = delete;
+  ReferenceCounting(ReferenceCounting const& other) = delete;
+  ReferenceCounting& operator=(ReferenceCounting const& other) = delete;
 
   void Add() const noexcept { ReferenceCountingBase::Add(); }
 
@@ -98,9 +100,9 @@ public:
   // "noexcept"
   void Sub() const noexcept {
     if (ReferenceCountingBase::Sub()) {
-      Traits::Delete(static_cast<value_type const *>(this));
+      Traits::Delete(static_cast<value_type const*>(this));
     }
   }
 };
-} // namespace base
-#endif //  BASE_MEMORY_REFERENCE_COUNTING_H_
+}  // namespace base
+#endif  //  BASE_MEMORY_REFERENCE_COUNTING_H_

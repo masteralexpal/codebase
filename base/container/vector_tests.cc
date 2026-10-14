@@ -15,9 +15,9 @@
 #include <gtest/gtest.h>
 
 class VectorTestHelper : public testing::Test {
-public:
-  void SetUp() override{};
-  void TearDown() override{};
+ public:
+  void SetUp() override {};
+  void TearDown() override {};
 };
 
 TEST_F(VectorTestHelper, Constructor_1) {
@@ -50,7 +50,7 @@ TEST_F(VectorTestHelper, Constructor_3) {
   base::Vector<int> vector(10, 10);
   ASSERT_EQ(vector.Capacity(), 10ULL);
   ASSERT_EQ(vector.Size(), 10ULL);
-  for (auto &&i : vector) {
+  for (auto&& i : vector) {
     ASSERT_EQ(i, 10);
   }
 }
@@ -59,7 +59,7 @@ TEST_F(VectorTestHelper, Constructor_4) {
   base::Vector<int> vector(10);
   ASSERT_EQ(vector.Capacity(), 10ULL);
   ASSERT_EQ(vector.Size(), 10ULL);
-  for (auto &&i : vector) {
+  for (auto&& i : vector) {
     ASSERT_EQ(i, 0);
   }
 }

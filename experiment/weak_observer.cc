@@ -16,7 +16,7 @@
 class Subject;
 
 class Observer {
-public:
+ public:
   Observer() = default;
 
   void SetSubject(std::weak_ptr<Subject> subject) { subject_ = subject; }
@@ -25,12 +25,12 @@ public:
 
   void OnNotified() { std::cout << "OnNotified" << std::endl; }
 
-private:
+ private:
   std::weak_ptr<Subject> subject_;
 };
 
 class Subject {
-public:
+ public:
   Subject() = default;
 
   virtual ~Subject() = default;
@@ -40,7 +40,7 @@ public:
   }
 
   void Notify() {
-    for (auto &&observer : observers_) {
+    for (auto&& observer : observers_) {
       if (!observer.expired()) {
         auto ptr = observer.lock();
         ptr->OnNotified();
@@ -51,7 +51,7 @@ public:
     }
   }
 
-private:
+ private:
   std::vector<std::weak_ptr<Observer>> observers_;
 };
 

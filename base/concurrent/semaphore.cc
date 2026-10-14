@@ -32,4 +32,4 @@ void Semaphore::Signal() {
   cv_.Signal();
 };
 
-} // namespace base
+}  // namespace base

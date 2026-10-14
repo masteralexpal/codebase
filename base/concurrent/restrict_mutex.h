@@ -22,7 +22,7 @@ namespace base {
 // Restrict mutex has private Acquire and Release.
 // Must be used with base::MutextGuard<RestrictMutex>.
 class API RestrictMutex final {
-public:
+ public:
   RestrictMutex();
 
   DISABLE_COPY(RestrictMutex);
@@ -30,7 +30,7 @@ public:
 
   ~RestrictMutex();
 
-private:
+ private:
   friend class MutexGuard<RestrictMutex>;
   void Acquire();
 
@@ -38,5 +38,5 @@ private:
 
   pthread_mutex_t pm_;
 };
-} // namespace base
+}  // namespace base
 #endif

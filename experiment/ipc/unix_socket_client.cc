@@ -12,9 +12,9 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include <unistd.h>
 #include <cstdlib>
 #include <cstring>
-#include <unistd.h>
 
 #include "experiment/helper.h"
 
@@ -32,7 +32,7 @@ int Clinet() {
     std::exit(EXIT_FAILURE);
   }
 
-  if ((connect(socket_fd, reinterpret_cast<sockaddr *>(&client_socket_address),
+  if ((connect(socket_fd, reinterpret_cast<sockaddr*>(&client_socket_address),
                sizeof(client_socket_address))) == -1) {
     LOG_ERR_MSG();
     std::exit(EXIT_FAILURE);

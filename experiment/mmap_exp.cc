@@ -12,18 +12,18 @@
 #include "fcntl.h"
 #include "unistd.h"
 
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <fcntl.h>
 #include <iostream>
-#include <sys/mman.h>
-#include <sys/stat.h>
 
 int main() {
   int fd;
   struct stat sb;
-  char *mapped;
+  char* mapped;
 
   // 打开文件
   mode_t mode = 0755;
@@ -40,7 +40,7 @@ int main() {
   }
 
   // 将文件映射到内存
-  mapped = static_cast<char *>(
+  mapped = static_cast<char*>(
       mmap(nullptr, sb.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0));
   if (mapped == MAP_FAILED) {
     perror("mmap");

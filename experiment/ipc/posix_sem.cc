@@ -9,13 +9,13 @@
  *
  */
 
-#include <cstdio>
 #include <fcntl.h>
-#include <random>
 #include <semaphore.h>
 #include <sys/wait.h>
-#include <thread>
 #include <unistd.h>
+#include <cstdio>
+#include <random>
+#include <thread>
 
 #include <cerrno>
 #include <cstdlib>
@@ -27,7 +27,7 @@
 char const semaphore_server[] = "/semaphore.server";
 char const semaphore_client[] = "/semaphore.client";
 
-int Server(sem_t *sem_server, sem_t *sem_client) {
+int Server(sem_t* sem_server, sem_t* sem_client) {
   while (true) {
     // std::this_thread::sleep_for(std::chrono::seconds{1});
     sem_wait(sem_server);
@@ -37,7 +37,7 @@ int Server(sem_t *sem_server, sem_t *sem_client) {
   return 0;
 }
 
-int Client(sem_t *sem_client, sem_t *sem_server) {
+int Client(sem_t* sem_client, sem_t* sem_server) {
   while (true) {
     // std::this_thread::sleep_for(std::chrono::seconds{1});
     sem_wait(sem_client);
@@ -52,12 +52,12 @@ int main() {
   mode_t mode = 0755;
   unlink(semaphore_client);
   unlink(semaphore_server);
-  sem_t *sem_server = sem_open(semaphore_server, flag, mode, 1);
+  sem_t* sem_server = sem_open(semaphore_server, flag, mode, 1);
   if (!sem_server) {
     LOG_ERR_MSG();
     return errno;
   }
-  sem_t *sem_client = sem_open(semaphore_client, flag, mode, 1);
+  sem_t* sem_client = sem_open(semaphore_client, flag, mode, 1);
   if (!sem_client) {
     LOG_ERR_MSG();
     return errno;

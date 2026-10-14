@@ -16,7 +16,7 @@
 
 namespace base {
 class TaskQueue {
-public:
+ public:
   TaskQueue() = default;
 
   virtual ~TaskQueue() = default;
@@ -29,6 +29,6 @@ public:
 
   virtual std::size_t GetTaskLimit() noexcept = 0;
 };
-} // namespace base
+}  // namespace base
 
 #endif

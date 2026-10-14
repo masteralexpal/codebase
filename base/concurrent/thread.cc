@@ -44,20 +44,24 @@ bool CurrentThread::IsMainThread() noexcept {
 #endif
 }
 
-Thread::Thread(std::string const &name)
-    : platform_thread_handle_(), platform_process_handle_(getpid()),
-      state_{kCreated}, joined_(false), name_(name) {
+Thread::Thread(std::string const& name)
+    : platform_thread_handle_(),
+      platform_process_handle_(getpid()),
+      state_{kCreated},
+      joined_(false),
+      name_(name) {
   platform_thread_handle_.kernel_space_handle = kInvalidKernelSpaceHandle;
   platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
 }
 
-Thread::Thread(Thread &&other) noexcept
+Thread::Thread(Thread&& other) noexcept
     : platform_thread_handle_(std::move(other.platform_thread_handle_)),
       platform_process_handle_(std::move(other.platform_process_handle_)),
-      state_(std::move(other.state_)), joined_(std::move(other.joined_)),
+      state_(std::move(other.state_)),
+      joined_(std::move(other.joined_)),
       name_(std::move(other.name_)) {}
 
-Thread &Thread::operator=(Thread &&other) noexcept {
+Thread& Thread::operator=(Thread&& other) noexcept {
   platform_thread_handle_ = std::move(other.platform_thread_handle_);
   platform_process_handle_ = std::move(other.platform_process_handle_);
   state_ = std::move(other.state_);
@@ -81,14 +85,18 @@ void Thread::Join() noexcept {
   }
 }
 
-std::string Thread::GetName() const noexcept { return name_; }
+std::string Thread::GetName() const noexcept {
+  return name_;
+}
 
-Thread::State Thread::GetSate() const noexcept { return state_; }
+Thread::State Thread::GetSate() const noexcept {
+  return state_;
+}
 
 // private
 // static
-void *Thread::StartInternal(void *args) {
-  auto *parameters = static_cast<StartRoutineParameters *>(args);
+void* Thread::StartInternal(void* args) {
+  auto* parameters = static_cast<StartRoutineParameters*>(args);
 #if IS_LINUX
   parameters->thread->platform_thread_handle_.kernel_space_handle = gettid();
   pthread_setname_np(
@@ -122,34 +130,34 @@ void Thread::SwitchState(State next_state) {
 
 void Thread::CheckState(State currnet_state, State next_state) {
   switch (currnet_state) {
-  case kCreated: {
-    if (next_state != kStarted) {
-      // TODO, Using stack strace.
-      std::abort();
+    case kCreated: {
+      if (next_state != kStarted) {
+        // TODO, Using stack strace.
+        std::abort();
+      }
+      break;
     }
-    break;
-  }
-  case kStarted: {
-    if (next_state == kCreated) {
-      std::abort();
+    case kStarted: {
+      if (next_state == kCreated) {
+        std::abort();
+      }
+      break;
     }
-    break;
-  }
-  case kSleeping: {
-    if (next_state == kCreated) {
-      std::abort();
+    case kSleeping: {
+      if (next_state == kCreated) {
+        std::abort();
+      }
+      break;
     }
-    break;
-  }
-  case kFinished: {
-    std::abort();
-    break;
-  }
-  default: {
-    std::abort();
-    break;
-  }
+    case kFinished: {
+      std::abort();
+      break;
+    }
+    default: {
+      std::abort();
+      break;
+    }
   }
 }
 
-} // namespace base
+}  // namespace base

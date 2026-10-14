@@ -12,8 +12,8 @@
 #include <sys/time.h>
 #include <sys/timerfd.h>
 
-#include "base/log.h"
 #include <gtest/gtest.h>
+#include "base/log.h"
 
 class TimeTestEnviroment : public testing::Environment {
  public:

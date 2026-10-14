@@ -18,22 +18,23 @@
 #include <stdexcept>
 
 namespace base {
-template <typename T, std::size_t N> class Array {
-public:
+template <typename T, std::size_t N>
+class Array {
+ public:
   using value_type = T;
   using size_type = std::size_t;
   using difference_type = std::ptrdiff_t;
-  using reference = value_type &;
-  using const_reference = value_type const &;
-  using pointer = value_type *;
-  using const_pointer = value_type const *;
+  using reference = value_type&;
+  using const_reference = value_type const&;
+  using pointer = value_type*;
+  using const_pointer = value_type const*;
   using iterator = GenericIterator<pointer>;
   using const_iterator = GenericIterator<const_pointer>;
   using reverse_iterator = GenericReverseIterator<iterator>;
   using const_reverse_iterator = GenericReverseIterator<const_iterator>;
 
   template <typename... Types>
-  Array(Types &&...values) : data_{std::forward<Types>(values)...} {}
+  Array(Types&&... values) : data_{std::forward<Types>(values)...} {}
 
   // Element access
   reference At(size_type pos) {
@@ -108,7 +109,7 @@ public:
     }
   }
 
-  void Swap(Array &other) {
+  void Swap(Array& other) {
     if (this != &other) {
       std::swap(data_, other.data_);
     }
@@ -116,7 +117,7 @@ public:
 
   // ~operations
 
-private:
+ private:
   inline constexpr void BoundsCheck(size_type index) const {
     if (!(index < Size())) {
       throw std::out_of_range("Index out of range.");
@@ -125,5 +126,5 @@ private:
 
   value_type data_[N];
 };
-} // namespace base
-#endif // BASE_CONTAINER_ARRAY_H_
+}  // namespace base
+#endif  // BASE_CONTAINER_ARRAY_H_

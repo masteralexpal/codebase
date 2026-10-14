@@ -20,14 +20,14 @@
 
 namespace base {
 
-static CommandLine *g_instance = nullptr;
+static CommandLine* g_instance = nullptr;
 
 CommandLine::CommandLine() = default;
 
 CommandLine::~CommandLine() = default;
 
 // static
-void CommandLine::Initialize(int argc, char *argv[]) {
+void CommandLine::Initialize(int argc, char* argv[]) {
   // Only initialize once.
   static std::once_flag flag;
   std::call_once(flag, [argc, argv]() noexcept -> void {
@@ -77,7 +77,7 @@ void CommandLine::Initialize(int argc, char *argv[]) {
   });
   // TEST Code: dump to std::out
   // TODO: Using LOG instead.
-  for (auto &&[key, val] : g_instance->args_) {
+  for (auto&& [key, val] : g_instance->args_) {
     std::cerr << "[ " << key;
     if (val) {
       std::cerr << ", " << val.value();
@@ -87,15 +87,17 @@ void CommandLine::Initialize(int argc, char *argv[]) {
 }
 
 // static
-CommandLine *CommandLine::Get() noexcept { return g_instance; }
+CommandLine* CommandLine::Get() noexcept {
+  return g_instance;
+}
 
-bool CommandLine::HasKey(Key const &key) const {
+bool CommandLine::HasKey(Key const& key) const {
   return args_.find(key) != args_.cend();
 }
 
-std::optional<CommandLine::Value> CommandLine::GetValue(Key const &key) const {
+std::optional<CommandLine::Value> CommandLine::GetValue(Key const& key) const {
   auto const iter = args_.find(key);
   return iter != args_.cend() ? iter->second : std::nullopt;
 }
 
-} // namespace base
+}  // namespace base

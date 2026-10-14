@@ -17,8 +17,8 @@
 
 namespace base {
 class Timestamp {
-public:
-  static const std::int64_t kMicroSecondsPerSecond = 1000'000;
+ public:
+  static std::int64_t const kMicroSecondsPerSecond = 1000'000;
   Timestamp() noexcept;
 
   explicit Timestamp(std::int64_t ticks_since_epoch) noexcept;
@@ -27,7 +27,7 @@ public:
 
   std::string ToFormattedString() const;
 
-  void Swap(Timestamp &other);
+  void Swap(Timestamp& other);
 
   bool IsValid() const noexcept;
 
@@ -45,8 +45,8 @@ public:
 
   bool operator>(Timestamp other);
 
-private:
+ private:
   std::int64_t ticks_since_epoch_ = 0;
 };
-} // namespace base
+}  // namespace base
 #endif

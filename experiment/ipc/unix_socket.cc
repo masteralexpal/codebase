@@ -9,14 +9,14 @@
  *
  */
 
-#include <chrono>
 #include <sys/socket.h>
+#include <chrono>
 
+#include <sys/wait.h>
+#include <unistd.h>
 #include <cerrno>
 #include <cstdlib>
-#include <sys/wait.h>
 #include <thread>
-#include <unistd.h>
 
 #include "experiment/helper.h"
 

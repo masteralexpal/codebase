@@ -24,36 +24,36 @@ sem_t endSema;
 int X, Y;
 int r1, r2;
 
-void *thread1Func(void *param) {
-  for (;;) // Loop indefinitely
+void* thread1Func(void* param) {
+  for (;;)  // Loop indefinitely
   {
-    sem_wait(&beginSema1); // Wait for signal from main thread
+    sem_wait(&beginSema1);  // Wait for signal from main thread
 
     // ----- THE TRANSACTION! -----
     X = 1;
-    compiler_reordering(); // Prevent compiler reordering
+    compiler_reordering();  // Prevent compiler reordering
     mem_barrier();
     r1 = Y;
 
-    sem_post(&endSema); // Notify transaction complete
+    sem_post(&endSema);  // Notify transaction complete
   }
-  return NULL; // Never returns
+  return NULL;  // Never returns
 };
 
-void *thread2Func(void *param) {
-  for (;;) // Loop indefinitely
+void* thread2Func(void* param) {
+  for (;;)  // Loop indefinitely
   {
-    sem_wait(&beginSema2); // Wait for signal from main thread
+    sem_wait(&beginSema2);  // Wait for signal from main thread
 
     // ----- THE TRANSACTION! -----
     Y = 1;
-    compiler_reordering(); // Prevent compiler reordering
+    compiler_reordering();  // Prevent compiler reordering
     mem_barrier();
     r2 = X;
 
-    sem_post(&endSema); // Notify transaction complete
+    sem_post(&endSema);  // Notify transaction complete
   }
-  return NULL; // Never returns
+  return NULL;  // Never returns
 };
 
 int main() {
@@ -86,5 +86,5 @@ int main() {
              iterations);
     }
   }
-  return 0; // Never returns
+  return 0;  // Never returns
 }

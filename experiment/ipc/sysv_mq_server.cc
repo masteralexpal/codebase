@@ -9,13 +9,13 @@
  *
  */
 
+#include <fcntl.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include <cerrno>
 #include <chrono>
 #include <cstdlib>
 #include <cstring>
-#include <fcntl.h>
-#include <sys/ipc.h>
-#include <sys/msg.h>
 #include <thread>
 
 #include "experiment/helper.h"

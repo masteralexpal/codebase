@@ -9,8 +9,8 @@
  *
  */
 
-#include "base/container/__vector.h"
 #include <gtest/gtest.h>
+#include "base/container/__vector.h"
 
 TEST(Vector, Constructor) {
   base::Vector<int> vector;

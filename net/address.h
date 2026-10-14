@@ -18,16 +18,16 @@
 
 namespace net {
 class InetAddress {
-public:
+ public:
   InetAddress(std::string const addess_literal, in_port_t port);
 
   in_port_t GetPort() const noexcept;
 
-private:
+ private:
   union InetAddressInternal {
     sockaddr_in inet4_;
     sockaddr_in6 inet6_;
   };
 };
-} // namespace net
+}  // namespace net
 #endif

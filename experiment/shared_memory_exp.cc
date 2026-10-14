@@ -9,17 +9,17 @@
  *
  */
 
-#include <cassert>
-#include <cerrno>
-#include <cstdlib>
-#include <cstring>
 #include <fcntl.h>
-#include <iostream>
 #include <semaphore.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <cassert>
+#include <cerrno>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
 
 #include <cstdint>
 #include <string>
@@ -40,7 +40,7 @@ int main() {
   sem_init(&inter_process_block.semaphore, 1, 1);
   inter_process_block.count = 0;
   write(fd, &inter_process_block, sizeof(inter_process_block));
-  InterProcessBlock *ipb = static_cast<InterProcessBlock *>(
+  InterProcessBlock* ipb = static_cast<InterProcessBlock*>(
       mmap(nullptr, sizeof(inter_process_block), PROT_READ | PROT_WRITE,
            MAP_SHARED, fd, 0));
   pid_t child_pid;

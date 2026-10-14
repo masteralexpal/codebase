@@ -8,13 +8,13 @@
 
 namespace base {
 class API ConditionVariable final {
-public:
+ public:
   ConditionVariable();
 
   DISABLE_COPY(ConditionVariable);
   DISABLE_MOVE(ConditionVariable);
 
-  void Wait(base::Mutex &mutex);
+  void Wait(base::Mutex& mutex);
 
   void Signal();
 
@@ -22,8 +22,8 @@ public:
 
   ~ConditionVariable();
 
-private:
+ private:
   pthread_cond_t cv_;
 };
-} // namespace base
+}  // namespace base
 #endif

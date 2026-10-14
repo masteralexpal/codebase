@@ -47,4 +47,4 @@ TEST(CountdownLatch, Wait) {
   thread1.join();
 }
 
-} // namespace base
+}  // namespace base

@@ -9,4 +9,4 @@
  *
  */
 
-namespace base {} // namespace base
+namespace base {}  // namespace base

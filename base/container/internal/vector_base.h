@@ -16,16 +16,17 @@
 
 namespace base {
 namespace internal {
-template <typename Tp> class VectorBase : public Allocator<Tp> {
-public:
+template <typename Tp>
+class VectorBase : public Allocator<Tp> {
+ public:
   constexpr VectorBase() noexcept
       : begin_(nullptr), last_(nullptr), end_(nullptr) {}
 
-private:
-  Tp *begin_;
-  Tp *last_;
-  Tp *end_;
+ private:
+  Tp* begin_;
+  Tp* last_;
+  Tp* end_;
 };
-} // namespace internal
-} // namespace base
+}  // namespace internal
+}  // namespace base
 #endif

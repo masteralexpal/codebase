@@ -30,19 +30,19 @@ namespace base {
  */
 
 class API CommandLine final {
-public:
+ public:
   using Key = std::string;
   using Value = std::string;
 
-  static void Initialize(int argc, char *argv[]);
+  static void Initialize(int argc, char* argv[]);
 
-  static CommandLine *Get() noexcept;
+  static CommandLine* Get() noexcept;
 
-  bool HasKey(Key const &key) const;
+  bool HasKey(Key const& key) const;
 
-  std::optional<Value> GetValue(Key const &key) const;
+  std::optional<Value> GetValue(Key const& key) const;
 
-private:
+ private:
   CommandLine();
 
   DISABLE_COPY(CommandLine);
@@ -53,6 +53,6 @@ private:
   // TODO split args_ to args_ an kwargs_;
   std::map<Key, std::optional<Value>> args_;
 };
-} // namespace base
+}  // namespace base
 
 #endif

@@ -17,23 +17,29 @@
 
 namespace base {
 namespace meta {
-template <typename... Types> struct TypeList;
+template <typename... Types>
+struct TypeList;
 
-template <typename List> struct Front;
+template <typename List>
+struct Front;
 template <typename Head, typename... Tail>
 struct Front<TypeList<Head, Tail...>> {
   using Type = Head;
 };
-template <typename List> using FrontType = typename Front<List>::Type;
+template <typename List>
+using FrontType = typename Front<List>::Type;
 
-template <typename List> struct PopFront;
+template <typename List>
+struct PopFront;
 template <typename Head, typename... Tail>
 struct PopFront<TypeList<Head, Tail...>> {
   using Type = TypeList<Tail...>;
 };
-template <typename List> using PopFrontType = typename PopFront<List>::Type;
+template <typename List>
+using PopFrontType = typename PopFront<List>::Type;
 
-template <typename Head, typename List> struct PushFront;
+template <typename Head, typename List>
+struct PushFront;
 template <typename Head, typename... Tail>
 struct PushFront<Head, TypeList<Tail...>> {
   using Type = TypeList<Head, Tail...>;
@@ -42,45 +48,55 @@ struct PushFront<Head, TypeList<Tail...>> {
 template <typename List, std::size_t N>
 struct GetListElement
     : public GetListElement<typename PopFront<List>::Type, N - 1> {};
-template <typename List> struct GetListElement<List, 0> : public Front<List> {};
+template <typename List>
+struct GetListElement<List, 0> : public Front<List> {};
 
-template <typename List> struct Length;
+template <typename List>
+struct Length;
 template <typename Head, typename... Tail>
 struct Length<TypeList<Head, Tail...>> {
   static constexpr std::size_t value = 1 + Length<TypeList<Tail...>>::value;
 };
-template <> struct Length<TypeList<>> {
+template <>
+struct Length<TypeList<>> {
   static constexpr std::size_t value = 0;
 };
 
-template <typename List> struct IsEmpty {
+template <typename List>
+struct IsEmpty {
   static constexpr bool value = false;
 };
-template <> struct IsEmpty<TypeList<>> {
+template <>
+struct IsEmpty<TypeList<>> {
   static constexpr bool value = true;
 };
 
-template <typename List> struct IsCopyable;
+template <typename List>
+struct IsCopyable;
 template <typename Head, typename... Tail>
 struct IsCopyable<TypeList<Head, Tail...>> {
   static constexpr bool const value = std::is_copy_assignable<Head>::value &&
                                       IsCopyable<TypeList<Tail...>>::value;
 };
-template <typename Last> struct IsCopyable<TypeList<Last>> {
+template <typename Last>
+struct IsCopyable<TypeList<Last>> {
   static constexpr bool const value = std::is_copy_assignable<Last>::value;
 };
 
 // Variable template partial specialization.
-template <typename Type> constexpr std::size_t Size = sizeof(Type);
-template <typename Type> constexpr std::size_t Size<Type &> = sizeof(Type);
-template <typename Type> constexpr std::size_t Size<Type &&> = sizeof(Type);
+template <typename Type>
+constexpr std::size_t Size = sizeof(Type);
+template <typename Type>
+constexpr std::size_t Size<Type&> = sizeof(Type);
+template <typename Type>
+constexpr std::size_t Size<Type&&> = sizeof(Type);
 
-} // namespace meta
-} // namespace base
+}  // namespace meta
+}  // namespace base
 
 class TypeListTest : public testing::Test {
-public:
-private:
+ public:
+ private:
 };
 
 TEST_F(TypeListTest, Front) {
@@ -126,8 +142,7 @@ TEST_F(TypeListTest, IsEmpty) {
 
 TEST_F(TypeListTest, Size) {
   static_assert(base::meta::Size<int> == sizeof(int), "OK");
-  static_assert(base::meta::Size<double &> == base::meta::Size<double &&>,
-                "OK");
+  static_assert(base::meta::Size<double&> == base::meta::Size<double&&>, "OK");
 }
 
 TEST_F(TypeListTest, Length) {

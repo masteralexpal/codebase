@@ -37,7 +37,7 @@
 // }
 
 struct DeleterBase {
-  virtual void Delete(void *ptr) = 0;
+  virtual void Delete(void* ptr) = 0;
   virtual ~DeleterBase() { std::cout << "~DeleterBase()" << std::endl; }
 };
 
@@ -45,28 +45,28 @@ template <typename Type, typename Deleter>
 struct DeleterImpl : public DeleterBase {
   DeleterImpl(Deleter deleter) : deleter_(std::move(deleter)) {}
 
-  void Delete(void *ptr) override { deleter_(static_cast<Type *>(ptr)); }
+  void Delete(void* ptr) override { deleter_(static_cast<Type*>(ptr)); }
 
   ~DeleterImpl() override { std::cout << "~DeleterImpl()" << std::endl; }
 
   Deleter deleter_;
 };
 
-void Delete(int *ptr) {
+void Delete(int* ptr) {
   std::cout << "delete by plain function." << std::endl;
   delete ptr;
 }
 int main() {
-  auto lambda = [](int *ptr) -> void {
+  auto lambda = [](int* ptr) -> void {
     std::cout << "delete by lambda." << std::endl;
     delete (ptr);
   };
-  DeleterBase *d = new DeleterImpl<int, decltype(lambda)>(lambda);
-  int *x = new int(1);
+  DeleterBase* d = new DeleterImpl<int, decltype(lambda)>(lambda);
+  int* x = new int(1);
   d->Delete(x);
   delete d;
-  d = new DeleterImpl<int, void (*)(int *ptr)>(Delete);
-  int *y = new int(2);
+  d = new DeleterImpl<int, void (*)(int* ptr)>(Delete);
+  int* y = new int(2);
   d->Delete(y);
   delete d;
 }

@@ -39,8 +39,8 @@ struct API CurrentThread {
   static bool IsMainThread() noexcept;
 
   template <typename Rep, typename Period>
-  static void
-  SleepFor(std::chrono::duration<Rep, Period> const &sleep_duration) {
+  static void SleepFor(
+      std::chrono::duration<Rep, Period> const& sleep_duration) {
     if (sleep_duration <= sleep_duration.zero()) {
       return;
     }
@@ -56,7 +56,7 @@ struct API CurrentThread {
 
   template <typename Clock, typename Duration>
   static void SleepUntil(
-      std::chrono::time_point<Clock, Duration> const &wakeup_time_point) {
+      std::chrono::time_point<Clock, Duration> const& wakeup_time_point) {
     auto now = Clock::now();
     if (Clock::is_steady) {
       if (now < wakeup_time_point)
@@ -93,7 +93,7 @@ struct PlatformProcessHandle {
   inline PlatformProcessHandle() = default;
 
   inline explicit PlatformProcessHandle(
-      ProcessHandle const &process_handle) noexcept
+      ProcessHandle const& process_handle) noexcept
       : process_handle(process_handle) {}
   ProcessHandle process_handle{};
 #endif
@@ -104,7 +104,7 @@ struct PlatformProcessHandle {
  *
  */
 class API Thread {
-public:
+ public:
   // using PlatformThread = pthread_t;
 
   enum State {
@@ -120,22 +120,21 @@ public:
     kFinished,
   };
 
-  explicit Thread(std::string const &name = "Anonymous");
+  explicit Thread(std::string const& name = "Anonymous");
 
   // Disable copy.
   DISABLE_COPY(Thread);
   // Support move.
-  Thread(Thread &&) noexcept;
-  Thread &operator=(Thread &&) noexcept;
+  Thread(Thread&&) noexcept;
+  Thread& operator=(Thread&&) noexcept;
 
   virtual ~Thread();
 
   template <typename Callable, typename... Args>
-  void Start(Callable &&callable, Args &&...args) {
-
+  void Start(Callable&& callable, Args&&... args) {
     SwitchState(kStarted);
 
-    StartRoutineParameters *parameters = new StartRoutineParameters;
+    StartRoutineParameters* parameters = new StartRoutineParameters;
 
     parameters->start_routine = new StartRoutine(
         // explicitly copy callable and args...
@@ -157,18 +156,18 @@ public:
 
   State GetSate() const noexcept;
 
-private:
+ private:
   // Test helper function.
   friend class ThreadTestHelper;
 
   using StartRoutine = std::function<void()>;
 
   struct StartRoutineParameters {
-    Thread *thread;
-    StartRoutine *start_routine;
+    Thread* thread;
+    StartRoutine* start_routine;
   };
 
-  static void *StartInternal(void *args);
+  static void* StartInternal(void* args);
   /**
    * @brief Switch thread state.
    *
@@ -195,5 +194,5 @@ private:
   std::string name_;
 };
 
-} // namespace base
+}  // namespace base
 #endif

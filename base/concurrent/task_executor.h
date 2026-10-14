@@ -18,11 +18,11 @@
 namespace base {
 
 class TaskExecutor {
-public:
+ public:
   enum class TaskPriority { LOWEST, NROMAL, HIGHEST };
 
   class TaskTraits {
-  public:
+   public:
     inline TaskTraits() : task_priority_(TaskPriority::NROMAL) {}
 
     explicit inline TaskTraits(TaskPriority task_priority)
@@ -30,7 +30,7 @@ public:
 
     TaskPriority task_priority() const noexcept { return task_priority_; }
 
-  private:
+   private:
     TaskPriority task_priority_;
   };
 
@@ -41,8 +41,8 @@ public:
 
   virtual ~TaskExecutor() = default;
 
-  virtual bool Submit(Task task, TaskTraits const &task_traits = {}) = 0;
+  virtual bool Submit(Task task, TaskTraits const& task_traits = {}) = 0;
 };
 
-} // namespace base
+}  // namespace base
 #endif

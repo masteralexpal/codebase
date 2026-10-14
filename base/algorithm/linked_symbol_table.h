@@ -11,20 +11,20 @@
 
 #ifndef BASE_ALGORITHM_LINKED_SYMBOL_TABLE_H_
 #define BASE_ALGORITHM_LINKED_SYMBOL_TABLE_H_
-#include "base/algorithm/symbol_table.h"
 #include <utility>
+#include "base/algorithm/symbol_table.h"
 namespace base {
 template <typename K, typename V>
 class LinkedSymbolTable : public SymbolTable<K, V> {
-public:
+ public:
   LinkedSymbolTable() {}
 
-  bool Put(K const &key, V const &value) override {
+  bool Put(K const& key, V const& value) override {
     if (!root) {
       root = new Node(key, value, nullptr);
       return true;
     }
-    Node *current = root;
+    Node* current = root;
     while (current->next) {
       if (current->data.first == key) {
         current->data.second = value;
@@ -34,14 +34,14 @@ public:
     }
   }
 
-private:
+ private:
   using Data = std::pair<K, V>;
   struct Node {
     Data data = {};
-    Node *next = nullptr;
+    Node* next = nullptr;
   };
 
-  Node *root = nullptr;
+  Node* root = nullptr;
 };
-} // namespace base
+}  // namespace base
 #endif

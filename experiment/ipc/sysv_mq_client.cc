@@ -9,10 +9,10 @@
  *
  */
 
-#include <cstdlib>
-#include <iostream>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <cstdlib>
+#include <iostream>
 
 #include "experiment/helper.h"
 

@@ -27,4 +27,4 @@ TEST(Timestamp, case1) {
   std::cout << timestamp.ToFormattedString() << std::endl;
 }
 
-}; // namespace base
+};  // namespace base

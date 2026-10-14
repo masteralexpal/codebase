@@ -24,7 +24,7 @@
 constexpr std::size_t kBufferSize = 4u;
 constexpr int kPort = 15672;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   base::CommandLine::Initialize(argc, argv);
 
   int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -55,9 +55,9 @@ int main(int argc, char *argv[]) {
   }
   server_addr.sin_port = htons(port);
 
-  if (connect(socket_fd, reinterpret_cast<sockaddr *>(&server_addr),
+  if (connect(socket_fd, reinterpret_cast<sockaddr*>(&server_addr),
               sizeof(server_addr)) == -1) {
-    std::cerr << "connect() failed. Error " << std ::strerror(errno)
+    std::cerr << "connect() failed. Error " << std::strerror(errno)
               << std::endl;
     return errno;
   }

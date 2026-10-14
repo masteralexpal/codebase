@@ -8,28 +8,29 @@
 
 namespace base {
 class ThreadPool {
-public:
+ public:
   struct CreationParams {
     int number_of_threads = 0;
     int thread_stack_size = 0;
   };
-  static void Create(CreationParams const &params);
+  static void Create(CreationParams const& params);
 
   static void Destroy();
 
-  static ThreadPool *Get();
+  static ThreadPool* Get();
 
   ThreadPool() = delete;
   // non-copyable
-  ThreadPool(ThreadPool const &) = delete;
-  ThreadPool &operator=(ThreadPool const &) = delete;
+  ThreadPool(ThreadPool const&) = delete;
+  ThreadPool& operator=(ThreadPool const&) = delete;
   // non-movable
-  ThreadPool(ThreadPool &&) = delete;
-  ThreadPool &operator=(ThreadPool &&) = delete;
+  ThreadPool(ThreadPool&&) = delete;
+  ThreadPool& operator=(ThreadPool&&) = delete;
 
   template <typename F, typename... Args>
-  std::future<typename std::invoke_result<F, Args...>::type>
-  Submit(F &&f, Args &&...args) {
+  std::future<typename std::invoke_result<F, Args...>::type> Submit(
+      F&& f,
+      Args&&... args) {
     auto packaged_task = std::make_shared<
         std::packaged_task<typename std::invoke_result<F, Args...>::type()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
@@ -43,8 +44,8 @@ public:
     return future;
   }
 
-private:
-  explicit ThreadPool(CreationParams const &params);
+ private:
+  explicit ThreadPool(CreationParams const& params);
 
   virtual ~ThreadPool();
 
@@ -54,5 +55,5 @@ private:
   std::queue<std::function<void()>> task_queue_;
   std::atomic_bool is_stopped;
 };
-} // namespace base
+}  // namespace base
 #endif

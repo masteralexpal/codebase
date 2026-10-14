@@ -14,14 +14,13 @@
 #include <utility>
 #include <vector>
 
-#include "base/concurrent/spin_lock.h"
 #include <gtest/gtest.h>
+#include "base/concurrent/spin_lock.h"
 
 inline constexpr int kNumOfThreads = 10;
 inline constexpr int kMax = 100000;
 
 TEST(SpinLock, Counting) {
-
   int count = 0;
 
   base::SpinLock spin_lock;
@@ -36,7 +35,7 @@ TEST(SpinLock, Counting) {
         }
       });
     }
-    for (auto &&thread : threads) {
+    for (auto&& thread : threads) {
       thread.join();
     }
   }
@@ -44,7 +43,6 @@ TEST(SpinLock, Counting) {
 }
 
 TEST(StdMutex, Counting) {
-
   int count = 0;
 
   std::mutex mutex;
@@ -59,7 +57,7 @@ TEST(StdMutex, Counting) {
         }
       });
     }
-    for (auto &&thread : threads) {
+    for (auto&& thread : threads) {
       thread.join();
     }
   }
@@ -67,7 +65,6 @@ TEST(StdMutex, Counting) {
 }
 
 TEST(Atomic, Counting) {
-
   std::atomic<int> count = 0;
 
   {
@@ -79,7 +76,7 @@ TEST(Atomic, Counting) {
         }
       });
     }
-    for (auto &&thread : threads) {
+    for (auto&& thread : threads) {
       thread.join();
     }
   }

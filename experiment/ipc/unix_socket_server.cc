@@ -9,11 +9,11 @@
  *
  */
 
-#include <cerrno>
-#include <ostream>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <cerrno>
+#include <ostream>
 
 #include <cstdlib>
 #include <cstring>
@@ -35,7 +35,7 @@ int ServerMain() {
     std::exit(EXIT_FAILURE);
   }
 
-  if (bind(listen_fd, reinterpret_cast<sockaddr *>(&server_socket),
+  if (bind(listen_fd, reinterpret_cast<sockaddr*>(&server_socket),
            sizeof(server_socket)) == -1) {
     LOG_ERR_MSG();
     std::exit(EXIT_FAILURE);

@@ -18,15 +18,18 @@
 
 #include "base/algorithm/comparator.h"
 namespace base {
-template <typename T, typename Comparator> class Heap {
-public:
+template <typename T, typename Comparator>
+class Heap {
+ public:
   Heap(std::size_t initial_size)
       : data_(new T[initial_size + 1]), size_(0), capacity_(initial_size + 1) {}
 
   // copy constructor.
-  Heap(Heap const &heap)
-      : data_(new T[heap.capacity_]), size_(heap.size_),
-        capacity_(heap.capacity_), comparator_(heap.comparator_) {
+  Heap(Heap const& heap)
+      : data_(new T[heap.capacity_]),
+        size_(heap.size_),
+        capacity_(heap.capacity_),
+        comparator_(heap.comparator_) {
     for (std::size_t i = 1; i <= size_; ++size_) {
       // copy.
       data_[i] = heap.data_[i];
@@ -35,7 +38,7 @@ public:
 
   // copy assigment.
   // copy and sawp.
-  Heap &operator=(Heap const &heap) {
+  Heap& operator=(Heap const& heap) {
     if (this != &heap) {
       Heap temp = heap;
       Swap(temp);
@@ -44,15 +47,17 @@ public:
   }
 
   // move constructor.
-  Heap(Heap &&heap) noexcept
-      : data_(heap.data_), size_(heap.size_), capacity_(heap.capacity_),
+  Heap(Heap&& heap) noexcept
+      : data_(heap.data_),
+        size_(heap.size_),
+        capacity_(heap.capacity_),
         comparator_(std::move(comparator_)) {
     heap.data_ = nullptr;
     heap.size_ = 0u;
     heap.capacity_ = 0u;
   }
   // move assigment.
-  Heap &operator=(Heap &&heap) noexcept {
+  Heap& operator=(Heap&& heap) noexcept {
     // swap the data_ to heap,
     // and then heap's destructor will free data_.
     std::swap(data_, heap.data_);
@@ -67,7 +72,7 @@ public:
 
   // void Push(T &&value) {}
 
-  void Push(T const &value) {
+  void Push(T const& value) {
     data_[++size_] = value;
     Swin(size_);
     if (size_ == capacity_) {
@@ -85,8 +90,8 @@ public:
 
   virtual ~Heap() { delete[] data_; }
 
-private:
-  void Swap(Heap &heap) {
+ private:
+  void Swap(Heap& heap) {
     std::swap(data_, heap.data_);
     std::swap(size_, heap.size_);
     std::swap(capacity_, heap.capacity_);
@@ -122,14 +127,16 @@ private:
 
   void Extend() {}
 
-  T *data_ = nullptr;         // T[0] is not used.
-  std::size_t size_ = 0u;     // element count.
-  std::size_t capacity_ = 0u; // data_ size.
-  Comparator comparator_;     // element comparetor.
+  T* data_ = nullptr;          // T[0] is not used.
+  std::size_t size_ = 0u;      // element count.
+  std::size_t capacity_ = 0u;  // data_ size.
+  Comparator comparator_;      // element comparetor.
 };
 
-template <typename T> using MaxHeap = Heap<T, LessThan<T, T>>;
+template <typename T>
+using MaxHeap = Heap<T, LessThan<T, T>>;
 
-template <typename T> using MinHeap = Heap<T, GreaterThan<T, T>>;
-} // namespace base
+template <typename T>
+using MinHeap = Heap<T, GreaterThan<T, T>>;
+}  // namespace base
 #endif

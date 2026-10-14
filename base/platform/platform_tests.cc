@@ -56,4 +56,4 @@ TEST(GetPlatformProcessHandle, Thread) {
   thread.join();
 }
 
-} // namespace base
+}  // namespace base

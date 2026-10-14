@@ -13,8 +13,8 @@
 #define BASE_CONCURRENT_PROMISE_H_
 namespace base {
 class Promise {
-public:
+ public:
   // TODO
 };
-} // namespace base
+}  // namespace base
 #endif

@@ -18,15 +18,17 @@ class B : public A {};
 
 class C {};
 
-template <typename T, typename std::enable_if<std::is_base_of<A, T>::value,
-                                              bool>::type = true>
-void Function(T const &val) {
+template <
+    typename T,
+    typename std::enable_if<std::is_base_of<A, T>::value, bool>::type = true>
+void Function(T const& val) {
   std::cout << "Only A or A's derived classes are permitted." << std::endl;
 }
 
-template <typename T, typename std::enable_if<std::is_integral<T>::value,
-                                              bool>::type = true>
-void Function(T const &val) {
+template <
+    typename T,
+    typename std::enable_if<std::is_integral<T>::value, bool>::type = true>
+void Function(T const& val) {
   std::cout << "Only integer types are permitted." << std::endl;
 }
 

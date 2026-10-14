@@ -22,7 +22,7 @@ Timestamp::Timestamp() noexcept = default;
 Timestamp::Timestamp(std::int64_t ticks_since_epoch) noexcept
     : ticks_since_epoch_(ticks_since_epoch) {}
 
-void Timestamp::Swap(Timestamp &other) {
+void Timestamp::Swap(Timestamp& other) {
   std::swap(ticks_since_epoch_, other.ticks_since_epoch_);
 }
 
@@ -53,7 +53,9 @@ std::string Timestamp::ToFormattedString() const {
   return buf;
 }
 
-bool Timestamp::IsValid() const noexcept { return ticks_since_epoch_ > 0; }
+bool Timestamp::IsValid() const noexcept {
+  return ticks_since_epoch_ > 0;
+}
 
 std::int64_t Timestamp::MicroSecondsSinceEpoch() const {
   return ticks_since_epoch_;
@@ -90,4 +92,4 @@ bool Timestamp::operator==(Timestamp other) {
 bool Timestamp::operator>(Timestamp other) {
   return ticks_since_epoch_ > other.ticks_since_epoch_;
 }
-} // namespace base
+}  // namespace base

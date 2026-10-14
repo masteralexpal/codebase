@@ -21,13 +21,13 @@
 #include <tuple>
 #include <utility>
 
-#include "base/log.h"
 #include <gtest/gtest.h>
+#include "base/log.h"
 
 class DeleagteImpl : public base::PlatformThread::Delegate {
-public:
+ public:
   template <typename ForwardFunctor, typename... ForwardArguments>
-  DeleagteImpl(ForwardFunctor &&f, ForwardArguments &&...args)
+  DeleagteImpl(ForwardFunctor&& f, ForwardArguments&&... args)
       : closure_([f = std::forward<ForwardFunctor>(f),
                   args_ = std::make_tuple(
                       std::forward<ForwardArguments>(args)...)]() -> void {
@@ -40,11 +40,11 @@ public:
     closure_();
   }
 
-private:
+ private:
   std::function<void()> closure_;
 };
 
-void TestThreadName(std::string const &name) {
+void TestThreadName(std::string const& name) {
   base::log::LogConfiguration config;
   config.SetMinLogSeverity(base::log::LOG_INFO);
   base::log::Initialize(config);
@@ -101,12 +101,14 @@ TEST(PlatformThreadLinux, Spawn) {
   auto delegate = std::make_unique<DeleagteImpl>(add, 1, 2);
 
   base::PlatformThread::Spawn(
-      static_cast<base::PlatformThread::Delegate *>(delegate.get()), &handle);
+      static_cast<base::PlatformThread::Delegate*>(delegate.get()), &handle);
 
   base::PlatformThread::Join(handle);
 }
 
-TEST(PlatformThreadLinux, Yield) { base::PlatformThread::Current::Yield(); }
+TEST(PlatformThreadLinux, Yield) {
+  base::PlatformThread::Current::Yield();
+}
 
 TEST(PlatformThreadLinux, SleepFor) {
   base::PlatformThread::Current::SleepFor(std::chrono::seconds{1});
@@ -114,11 +116,11 @@ TEST(PlatformThreadLinux, SleepFor) {
 
 TEST(PlatformThreadLinux, SleepUntil) {
   base::PlatformThread::Current::SleepUntil(std::chrono::seconds{1} +
-                                            std::chrono::system_clock ::now());
+                                            std::chrono::system_clock::now());
 }
 
 class DeleagteImpl2 : public base::PlatformThread::Delegate {
-public:
+ public:
   void ThreadMain() override {
     LOG(INFO) << "This = " << this;
     LOG(INFO) << "tls_delegate = "
@@ -126,7 +128,6 @@ public:
   }
 };
 TEST(PlatformThreadLinux, GetDelegate) {
-
   DeleagteImpl2 d1;
   DeleagteImpl2 d2;
 

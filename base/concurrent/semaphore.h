@@ -18,7 +18,7 @@
 
 namespace base {
 class API Semaphore final {
-public:
+ public:
   Semaphore();
   Semaphore(int count);
 
@@ -31,10 +31,10 @@ public:
 
   void Signal();
 
-private:
+ private:
   int count_;
   Mutex mtx_;
   ConditionVariable cv_;
 };
-} // namespace base
+}  // namespace base
 #endif

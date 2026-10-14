@@ -25,7 +25,7 @@ static std::size_t constexpr kBufferSize = 4096;
 static in_port_t constexpr kPort = 15672;
 static std::size_t constexpr kMaxEvents = 128;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   base::CommandLine::Initialize(argc, argv);
 
   sockaddr_in server_addr = {};
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     return errno;
   }
 
-  if (bind(listen_fd, reinterpret_cast<sockaddr *>(&server_addr),
+  if (bind(listen_fd, reinterpret_cast<sockaddr*>(&server_addr),
            sizeof(server_addr)) == -1) {
     std::cerr << "bind failed. Error: " << std::strerror(errno) << std::endl;
   }

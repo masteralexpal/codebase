@@ -15,5 +15,5 @@ namespace base {
 class ThreadTestHelper {
   // TODO
 };
-} // namespace base
+}  // namespace base
 #endif

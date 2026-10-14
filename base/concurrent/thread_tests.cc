@@ -20,7 +20,9 @@ TEST(Thread, Creation) {
   ASSERT_STREQ(thread.GetName().c_str(), "Anonymous");
   ASSERT_EQ(thread.GetSate(), Thread::kCreated);
 }
-void PlainFunction0() { std::cout << __func__ << "() called!"; }
+void PlainFunction0() {
+  std::cout << __func__ << "() called!";
+}
 
 TEST(Thread, StartWithPlainFunction0) {
   Thread thread("Main");
@@ -31,7 +33,9 @@ TEST(Thread, StartWithPlainFunction0) {
   thread.Join();
 }
 
-void PlainFunction1(int a, int b, int *c) { *c = a + b; }
+void PlainFunction1(int a, int b, int* c) {
+  *c = a + b;
+}
 
 TEST(Thread, StartWithPlainFunction1) {
   int a = 1;
@@ -96,4 +100,4 @@ TEST(std__function, lvalue) {
   }
   function();
 }
-} // namespace base
+}  // namespace base

@@ -23,26 +23,28 @@ enum Color { RED, BLACK };
  *
  * @tparam T
  */
-template <typename T> struct Node {
-  T data;       // data
-  Color color;  // cloor
-  Node *left;   // left child
-  Node *right;  // right child
-  Node *parent; // parent
+template <typename T>
+struct Node {
+  T data;        // data
+  Color color;   // cloor
+  Node* left;    // left child
+  Node* right;   // right child
+  Node* parent;  // parent
 
-  Node(T const &val)
+  Node(T const& val)
       : data(val), color(RED), left(nullptr), right(nullptr), parent(nullptr) {}
 };
 
-template <typename T> class RedBlackTree {
-public:
+template <typename T>
+class RedBlackTree {
+ public:
   using TreeNode = Node<T>;
   RedBlackTree() : root_(nullptr) {}
 
-  RedBlackTree(RedBlackTree const &) = delete;
-  RedBlackTree &operator=(RedBlackTree const &) = delete;
-  RedBlackTree(RedBlackTree &&) = delete;
-  RedBlackTree &operator=(RedBlackTree &&) = delete;
+  RedBlackTree(RedBlackTree const&) = delete;
+  RedBlackTree& operator=(RedBlackTree const&) = delete;
+  RedBlackTree(RedBlackTree&&) = delete;
+  RedBlackTree& operator=(RedBlackTree&&) = delete;
 
   virtual ~RedBlackTree() = default;
   /**
@@ -50,10 +52,10 @@ public:
    *
    * @param val
    */
-  void Insert(T const &val) {
-    TreeNode *new_node = new TreeNode(val);
-    TreeNode *parent = nullptr;
-    TreeNode *current = root_;
+  void Insert(T const& val) {
+    TreeNode* new_node = new TreeNode(val);
+    TreeNode* parent = nullptr;
+    TreeNode* current = root_;
 
     // find a position to insert.
     while (current) {
@@ -103,8 +105,8 @@ public:
     if (!root_) {
       return;
     }
-    std::stack<TreeNode *> stack;
-    TreeNode *current = root_;
+    std::stack<TreeNode*> stack;
+    TreeNode* current = root_;
     stack.push(current);
     while (!stack.empty()) {
       current = stack.top();
@@ -122,8 +124,8 @@ public:
     if (!root_) {
       return;
     }
-    std::stack<TreeNode *> stack;
-    TreeNode *current = root_;
+    std::stack<TreeNode*> stack;
+    TreeNode* current = root_;
     while (!stack.empty() || current) {
       if (current) {
         stack.push(current);
@@ -142,9 +144,9 @@ public:
     if (!root_) {
       return;
     }
-    std::stack<TreeNode *> main_stack;
-    std::stack<TreeNode *> right_child_stack;
-    TreeNode *current = root_;
+    std::stack<TreeNode*> main_stack;
+    std::stack<TreeNode*> right_child_stack;
+    TreeNode* current = root_;
     while (!main_stack.empty() || current) {
       if (current) {
         if (current->right) {
@@ -173,15 +175,15 @@ public:
       return;
     }
 
-    std::stack<TreeNode *> stack;
-    TreeNode *current = root_;
-    TreeNode *previous = nullptr;
+    std::stack<TreeNode*> stack;
+    TreeNode* current = root_;
+    TreeNode* previous = nullptr;
     while (!stack.empty() || current) {
       if (current) {
         stack.push(current);
         current = current->left;
       } else {
-        TreeNode *top_node = stack.top();
+        TreeNode* top_node = stack.top();
         if (top_node->right && top_node->right != previous) {
           current = top_node->right;
         } else {
@@ -198,10 +200,10 @@ public:
     if (!root_) {
       return;
     }
-    std::queue<TreeNode *> queue;
+    std::queue<TreeNode*> queue;
     queue.push(root_);
     while (!queue.empty()) {
-      TreeNode *node = queue.front();
+      TreeNode* node = queue.front();
       queue.pop();
       std::cout << node->data << ", ";
       if (node->left) {
@@ -213,11 +215,11 @@ public:
     }
   }
 
-private:
-  TreeNode *root_;
+ private:
+  TreeNode* root_;
 
-  void RotateLeft(TreeNode *node) {
-    TreeNode *right_child = node->right;
+  void RotateLeft(TreeNode* node) {
+    TreeNode* right_child = node->right;
     node->right = right_child->left;
     if (right_child->left) {
       right_child->left->parent = node;
@@ -234,8 +236,8 @@ private:
     node->parent = right_child;
   }
 
-  void RotateRight(TreeNode *node) {
-    TreeNode *left_child = node->left;
+  void RotateRight(TreeNode* node) {
+    TreeNode* left_child = node->left;
     node->left = left_child->right;
     if (left_child->right) {
       left_child->right->parent = node;
@@ -256,46 +258,46 @@ private:
    *
    * @param node
    */
-  void FixInsertion(TreeNode *node) {
+  void FixInsertion(TreeNode* node) {
     while (node != root_ && node->parent->color == RED) {
       if (node->parent == node->parent->parent->left) {
-        TreeNode *uncle = node->parent->parent->right;
-        if (uncle && uncle->color == RED) { // Case 1:  uncle node is red
+        TreeNode* uncle = node->parent->parent->right;
+        if (uncle && uncle->color == RED) {  // Case 1:  uncle node is red
           node->parent->color = BLACK;
           uncle->color = BLACK;
           node->parent->parent->color = RED;
           node = node->parent->parent;
-        } else { // Case 2: uncle node is black or null
+        } else {  // Case 2: uncle node is black or null
           if (node == node->parent->right) {
             node = node->parent;
-            RotateLeft(node); // RotateLeft
+            RotateLeft(node);  // RotateLeft
           }
           node->parent->color = BLACK;
           node->parent->parent->color = RED;
-          RotateRight(node->parent->parent); // RotateRight
+          RotateRight(node->parent->parent);  // RotateRight
         }
       } else {
-        TreeNode *uncle = node->parent->parent->left;
-        if (uncle && uncle->color == RED) { // Case 1: uncle node is red
+        TreeNode* uncle = node->parent->parent->left;
+        if (uncle && uncle->color == RED) {  // Case 1: uncle node is red
           node->parent->color = BLACK;
           uncle->color = BLACK;
           node->parent->parent->color = RED;
           node = node->parent->parent;
-        } else { // Case 2: uncle node is black or null
+        } else {  // Case 2: uncle node is black or null
           if (node == node->parent->left) {
             node = node->parent;
-            RotateRight(node); // RotateRight
+            RotateRight(node);  // RotateRight
           }
           node->parent->color = BLACK;
           node->parent->parent->color = RED;
-          RotateLeft(node->parent->parent); // RotateLeft
+          RotateLeft(node->parent->parent);  // RotateLeft
         }
       }
     }
-    root_->color = BLACK; // the root node is always black.
+    root_->color = BLACK;  // the root node is always black.
   }
 
-  void PreOrder(TreeNode *node) const {
+  void PreOrder(TreeNode* node) const {
     if (node) {
       std::cout << node->data << ", ";
       PreOrder(node->left);
@@ -303,7 +305,7 @@ private:
     }
   }
 
-  void InOrder(TreeNode *node) const {
+  void InOrder(TreeNode* node) const {
     if (node) {
       InOrder(node->left);
       std::cout << node->data << ", ";
@@ -311,7 +313,7 @@ private:
     }
   }
 
-  void PostOrder(TreeNode *node) const {
+  void PostOrder(TreeNode* node) const {
     if (node) {
       PostOrder(node->left);
       PostOrder(node->right);

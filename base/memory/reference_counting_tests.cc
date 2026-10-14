@@ -15,17 +15,17 @@
 
 namespace base {
 class Base : public ReferenceCounting<Base> {
-public:
+ public:
   virtual int Do() { return 1; }
 };
 
 class Derived : public Base {
-public:
+ public:
   int Do() override { return 2; }
 };
 
 TEST(ReferenceCounting, Construction) {
-  Base *base = new Derived;
+  Base* base = new Derived;
   ASSERT_EQ(base->Do(), 2);
   ASSERT_EQ(base->Count(), 1);
   ASSERT_TRUE(base->Unique());
@@ -39,4 +39,4 @@ TEST(ReferenceCounting, Construction) {
   ASSERT_TRUE(base->Unique());
   ASSERT_FALSE(base->Shared());
 }
-} // namespace base
+}  // namespace base

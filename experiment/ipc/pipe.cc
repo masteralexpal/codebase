@@ -9,11 +9,11 @@
  *
  */
 
+#include <sys/wait.h>
+#include <unistd.h>
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
-#include <sys/wait.h>
-#include <unistd.h>
 
 #include "experiment/helper.h"
 
@@ -52,7 +52,7 @@ int main() {
                 << std::endl;
 
       write(pipe_1[1], buffer, ret);
-      for (auto &&c : buffer) {
+      for (auto&& c : buffer) {
         if (c == '\0')
           break;
         if (c == 'Q')

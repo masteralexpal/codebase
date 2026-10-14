@@ -9,13 +9,13 @@
  *
  */
 
-#include <cstring>
 #include <dirent.h>
+#include <cstring>
 #include <iostream>
 
-int main(int argc, char **argv) {
-  DIR *dir;
-  struct dirent *directory_entity;
+int main(int argc, char** argv) {
+  DIR* dir;
+  struct dirent* directory_entity;
   if (argc == 1) {
     dir = opendir(".");
   } else {

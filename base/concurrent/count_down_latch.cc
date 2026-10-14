@@ -14,7 +14,7 @@
 #include "base/concurrent/mutex_guard.h"
 
 namespace base {
-CountdownLatch::CountdownLatch(int const &count)
+CountdownLatch::CountdownLatch(int const& count)
     : count_(count), mtx_(), cv_() {}
 
 void CountdownLatch::CountDown() {
@@ -35,5 +35,7 @@ void CountdownLatch::Wait() {
   mtx_.Release();
 }
 
-int CountdownLatch::GetCount() { return count_; }
-} // namespace base
+int CountdownLatch::GetCount() {
+  return count_;
+}
+}  // namespace base

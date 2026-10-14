@@ -14,8 +14,8 @@
 
 namespace base {
 class File {
-public:
+ public:
   File();
 };
-} // namespace base
+}  // namespace base
 #endif

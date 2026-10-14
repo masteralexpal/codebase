@@ -9,9 +9,9 @@
  *
  */
 
+#include <gtest/gtest.h>
 #include "base/concurrent/blocking_queue.h"
 #include "base/concurrent/thread.h"
-#include <gtest/gtest.h>
 
 namespace base {
 TEST(BlockingQueue, case0) {
@@ -46,4 +46,4 @@ TEST(BlockingQueue, case1) {
   thread1.Join();
   thread2.Join();
 }
-} // namespace base
+}  // namespace base

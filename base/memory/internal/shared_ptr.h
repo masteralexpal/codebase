@@ -19,40 +19,42 @@ namespace base {
 
 namespace internal {
 
-template <typename Tp> class SharedPtrBase {
-public:
+template <typename Tp>
+class SharedPtrBase {
+ public:
   constexpr SharedPtrBase() noexcept = default;
   constexpr SharedPtrBase(std::nullptr_t) noexcept = default;
 
-private:
+ private:
   using reference_counting_type = std::atomic<int>;
   struct __deleter_base {
-    virtual void __delete(void *p) = 0;
+    virtual void __delete(void* p) = 0;
     virtual ~__deleter_base() noexcept = default;
   };
 
-  template <typename Deleter> struct __deleter : public __deleter_base {
+  template <typename Deleter>
+  struct __deleter : public __deleter_base {
     using element_type = Tp;
-    void __delete(void *p) { deleter_(static_cast<element_type *>(p)); }
+    void __delete(void* p) { deleter_(static_cast<element_type*>(p)); }
     Deleter deleter_;
   };
 
   reference_counting_type shared_count_{0};
   reference_counting_type weak_count_{0};
-  __deleter_base *deleter_{nullptr};
+  __deleter_base* deleter_{nullptr};
 };
 
-template <typename Tp> class ReferenceCounter {
-
-public:
-private:
+template <typename Tp>
+class ReferenceCounter {
+ public:
+ private:
   using reference_counting_type = std::atomic<int>;
 
   reference_counting_type shared_reference_count_{0};
   reference_counting_type weak_reference_count_{0};
-  Tp *object{nullptr};
+  Tp* object{nullptr};
 };
-} // namespace internal
-} // namespace base
+}  // namespace internal
+}  // namespace base
 
-#endif // BASE_MEMORY_INTERNAL_SHARED_PTR_H_
+#endif  // BASE_MEMORY_INTERNAL_SHARED_PTR_H_

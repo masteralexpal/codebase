@@ -15,14 +15,14 @@
 namespace base {
 template <typename T, typename Allocator = SimpleAllocator<T>>
 class RedBlackTree {
-
-public:
+ public:
   // STL style operations:
   // TODO
-  template <typename U = T> class iterator {};
-  void Insert(T const &t);
-  void Insert(T &&t);
+  template <typename U = T>
+  class iterator {};
+  void Insert(T const& t);
+  void Insert(T&& t);
   // STL style operations:
 };
-} // namespace base
+}  // namespace base
 #endif

@@ -17,8 +17,8 @@
 #include "base/concurrent/task.h"
 #include "base/concurrent/task_executor_impl.h"
 
-#include "base/log.h"
 #include <gtest/gtest.h>
+#include "base/log.h"
 
 void Add(int a, int b) {
   LOG(INFO) << "LWPID = " << base::PlatformThread::Current::GetKernelHandle()

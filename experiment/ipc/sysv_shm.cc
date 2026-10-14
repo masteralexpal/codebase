@@ -9,12 +9,12 @@
  *
  */
 
-#include <cstdlib>
 #include <pthread.h>
 #include <sys/shm.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <cstdlib>
 
 #include "experiment/helper.h"
 
@@ -23,7 +23,7 @@ struct CountBlock {
   pthread_mutex_t mutex;
 };
 
-int Server(CountBlock *count_block, int loop) {
+int Server(CountBlock* count_block, int loop) {
   for (int i = 0; i < loop; ++i) {
     pthread_mutex_lock(&(count_block->mutex));
     ++(count_block->count);
@@ -32,7 +32,7 @@ int Server(CountBlock *count_block, int loop) {
   return 0;
 }
 
-int Client(CountBlock *count_block, int loop) {
+int Client(CountBlock* count_block, int loop) {
   for (int i = 0; i < loop; ++i) {
     pthread_mutex_lock(&(count_block->mutex));
     ++(count_block->count);
@@ -48,7 +48,7 @@ int main() {
     std::exit(EXIT_FAILURE);
   }
 
-  CountBlock *cb = static_cast<CountBlock *>(shmat(shmid, nullptr, 0));
+  CountBlock* cb = static_cast<CountBlock*>(shmat(shmid, nullptr, 0));
   if (!cb) {
     LOG_ERR_MSG();
     std::exit(EXIT_FAILURE);

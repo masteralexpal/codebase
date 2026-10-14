@@ -6,4 +6,4 @@
 
 namespace base {
 TEST(Monitor, case0) {}
-} // namespace base
+}  // namespace base

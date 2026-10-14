@@ -27,15 +27,15 @@
 namespace base {
 
 class TaskExecutorImpl : public TaskExecutor, public ThreadGroup {
-public:
+ public:
   TaskExecutorImpl();
 
   DISABLE_COPY(TaskExecutorImpl);
   DISABLE_MOVE(TaskExecutorImpl);
 
-  bool Start(Configuration const &configuration) override;
+  bool Start(Configuration const& configuration) override;
 
-  bool Submit(Task task, TaskTraits const &task_traits = {}) override;
+  bool Submit(Task task, TaskTraits const& task_traits = {}) override;
 
   int GetThreads() const noexcept override;
 
@@ -47,7 +47,7 @@ public:
 
   ~TaskExecutorImpl() override;
 
-private:
+ private:
   // std::deque<Task> task_queue_;
   // std::mutex queue_mutex_;
   // std::condition_variable queue_cv_;
@@ -59,5 +59,5 @@ private:
   Configuration configuration_;
 };
 
-} // namespace base
-#endif // BASE_CONCURRENT_TASK_EXECUTOR_IMPL_H_
+}  // namespace base
+#endif  // BASE_CONCURRENT_TASK_EXECUTOR_IMPL_H_

@@ -14,4 +14,4 @@
 namespace base {
 TEST(LinkedSymbolTable, case0) {}
 
-} // namespace base
+}  // namespace base

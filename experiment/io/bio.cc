@@ -19,20 +19,20 @@
 
 #include <gtest/gtest.h>
 
-#define PRINT_STANDARD_ERROR_CODE_AND_MESSAGE()                                \
-  std::cerr << "[" << __FILE__ << "(" << __LINE__ << ")@" << __func__          \
-            << "()] "                                                          \
-            << "Error " << errno << " Occured: " << std::strerror(errno)       \
+#define PRINT_STANDARD_ERROR_CODE_AND_MESSAGE()                          \
+  std::cerr << "[" << __FILE__ << "(" << __LINE__ << ")@" << __func__    \
+            << "()] "                                                    \
+            << "Error " << errno << " Occured: " << std::strerror(errno) \
             << std::endl;
 
-bool FileExists(std::string const &file_path) {
+bool FileExists(std::string const& file_path) {
   if (file_path.empty())
     return false;
   struct stat sb;
   return stat(file_path.c_str(), &sb) == 0 && !(sb.st_mode & S_IFDIR);
 }
 
-bool DirectoryExists(std::string const &directory_path) {
+bool DirectoryExists(std::string const& directory_path) {
   if (directory_path.empty())
     return false;
   struct stat sb;

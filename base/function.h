@@ -10,5 +10,6 @@
  */
 
 namespace base {
-template <typename T> class Function {};
-} // namespace base
+template <typename T>
+class Function {};
+}  // namespace base

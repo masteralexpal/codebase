@@ -13,5 +13,5 @@
 #define BASE_CONCURRENT_PLATFORM_THREAD_H_
 namespace base {
 namespace platform {}
-} // namespace base
-#endif // BASE_CONCURRENT_PLATFORM_THREAD_H_
+}  // namespace base
+#endif  // BASE_CONCURRENT_PLATFORM_THREAD_H_

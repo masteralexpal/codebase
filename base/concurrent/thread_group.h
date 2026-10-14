@@ -17,12 +17,12 @@
 
 namespace base {
 class ThreadGroup {
-public:
+ public:
   class Configuration {
-  public:
+   public:
     Configuration() = default;
 
-    Configuration(std::string const &name, int max_threads, int max_tasks)
+    Configuration(std::string const& name, int max_threads, int max_tasks)
         : name_(name), max_threads_(max_threads), max_tasks_(max_tasks) {}
 
     std::string name() { return name_; }
@@ -31,7 +31,7 @@ public:
 
     int max_tasks() { return max_tasks_; }
 
-  private:
+   private:
     std::string name_ = "Anonymous";
     int max_threads_;
     int max_tasks_;
@@ -44,7 +44,7 @@ public:
 
   virtual ~ThreadGroup() = default;
 
-  virtual bool Start(Configuration const &configuration) = 0;
+  virtual bool Start(Configuration const& configuration) = 0;
 
   virtual bool Stop(Task callback) = 0;
 
@@ -57,5 +57,5 @@ public:
   virtual int GetIdleThreads() const noexcept = 0;
 };
 
-} // namespace base
+}  // namespace base
 #endif

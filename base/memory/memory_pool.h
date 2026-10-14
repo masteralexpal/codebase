@@ -15,5 +15,5 @@ namespace base {
 class MemoryPool {
   // TODO
 };
-} // namespace base
+}  // namespace base
 #endif

@@ -9,10 +9,10 @@
  *
  */
 
-#include <cstddef>
-#include <cstring>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <cstddef>
+#include <cstring>
 
 #include <iostream>
 
@@ -28,7 +28,7 @@ constexpr int kDefaultPort = 15672;
  * @param argv
  * @return int return code.
  */
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   base::CommandLine::Initialize(argc, argv);
   int listen_fd = 0;
   int connect_fd = 0;
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
   server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
   server_addr.sin_port = htons(port);
 
-  if (-1 == bind(listen_fd, reinterpret_cast<sockaddr *>(&server_addr),
+  if (-1 == bind(listen_fd, reinterpret_cast<sockaddr*>(&server_addr),
                  sizeof(server_addr))) {
     std::cout << "bind error! " << std::strerror(errno) << std::endl;
   }

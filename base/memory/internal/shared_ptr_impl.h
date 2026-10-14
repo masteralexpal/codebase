@@ -9,21 +9,22 @@
  *
  */
 
+#include <setjmp.h>
 #include <algorithm>
 #include <atomic>
 #include <cstddef>
 #include <memory>
-#include <setjmp.h>
 #include <type_traits>
 #include <utility>
 
 #include "base/cxx.h"
 
 namespace base {
-namespace internal {} // namespace internal
+namespace internal {}  // namespace internal
 
-template <typename Type> class SharedPtr {
-public:
+template <typename Type>
+class SharedPtr {
+ public:
 #if SINCE(CXX_17)
   using element_type = std::remove_extent_t<Type>;
   using weak_type = std::weak_ptr<Type>;
@@ -50,20 +51,22 @@ public:
    * @tparam U - U* must be convertible to Type*.
    * @param ptr
    */
-  template <typename U, typename std::enable_if<
-                            std::is_convertible<U *, element_type *>::value,
-                            bool>::type = true>
-  explicit SharedPtr(U *ptr) : storage_(new Storage(ptr, 1, 0)) {
+  template <
+      typename U,
+      typename std::enable_if<std::is_convertible<U*, element_type*>::value,
+                              bool>::type = true>
+  explicit SharedPtr(U* ptr) : storage_(new Storage(ptr, 1, 0)) {
     // C.3
   }
 
   template <
-      typename U, typename Deleter,
-      typename std::enable_if<std::is_convertible<U *, element_type *>::value,
+      typename U,
+      typename Deleter,
+      typename std::enable_if<std::is_convertible<U*, element_type*>::value,
                               bool>::type = true,
       typename std::enable_if<std::is_copy_constructible<Deleter>::value,
                               bool>::type = true>
-  SharedPtr(U *ptr, Deleter deleter)
+  SharedPtr(U* ptr, Deleter deleter)
       : storage_(new Storage(ptr, 1, 0)),
         deleter_(new DeleterImpl<Deleter>(std::move(deleter))) {
     // C.4
@@ -78,19 +81,22 @@ public:
   }
 
   template <
-      class U, class Deleter, class Alloc,
-      typename std::enable_if<std::is_convertible<U *, element_type *>::value,
+      class U,
+      class Deleter,
+      class Alloc,
+      typename std::enable_if<std::is_convertible<U*, element_type*>::value,
                               bool>::type = true,
       typename std::enable_if<std::is_copy_constructible<Deleter>::value,
                               bool>::type = true>
-  SharedPtr(U *ptr, Deleter deleter, Alloc alloc)
+  SharedPtr(U* ptr, Deleter deleter, Alloc alloc)
       : storage_(new Storage(ptr, 1, 0), deleter_(std::move(deleter))) {
     // C.6
     // TODO
     std::ignore = alloc;
   }
 
-  template <class Deleter, class Alloc,
+  template <class Deleter,
+            class Alloc,
             typename std::enable_if<std::is_copy_constructible<Deleter>::value,
                                     bool>::type = true>
   SharedPtr(std::nullptr_t, Deleter d, Alloc alloc)
@@ -117,9 +123,9 @@ public:
    * @param ptr
    */
   template <typename U,
-            typename std::enable_if<std::is_convertible<U *, Type *>::value,
+            typename std::enable_if<std::is_convertible<U*, Type*>::value,
                                     bool>::type = true>
-  SharedPtr(SharedPtr<U> const &r, element_type *ptr) noexcept {
+  SharedPtr(SharedPtr<U> const& r, element_type* ptr) noexcept {
     // C.8
     // TODO
     std::ignore = r;
@@ -136,38 +142,39 @@ public:
    * @param r
    * @param ptr
    */
-  template <class U> SharedPtr(SharedPtr<U> &&r, element_type *ptr) noexcept {
+  template <class U>
+  SharedPtr(SharedPtr<U>&& r, element_type* ptr) noexcept {
     // C.8
     // TODO
     std::ignore = r;
     std::ignore = ptr;
   }
 
-  SharedPtr(SharedPtr const &r) noexcept
+  SharedPtr(SharedPtr const& r) noexcept
       : storage_(r.storage_), deleter_(deleter_) {
     // C.9
     storage_->AddSharedRef();
   }
 
   template <class U,
-            typename std::enable_if<std::is_convertible<U *, Type *>::value,
+            typename std::enable_if<std::is_convertible<U*, Type*>::value,
                                     bool>::type = true>
-  SharedPtr(SharedPtr<U> const &r) noexcept
+  SharedPtr(SharedPtr<U> const& r) noexcept
       : storage_(r.storage_), deleter_(r.deleter_) {
     // C.9
     storage_->AddSharedRef();
   }
 
-  SharedPtr(SharedPtr &&r) noexcept {
+  SharedPtr(SharedPtr&& r) noexcept {
     // C.10
     std::swap(storage_, r.storage_);
     std::swap(deleter_, r.deleter_);
   }
 
   template <class U,
-            typename std::enable_if<std::is_convertible<U *, Type *>::value,
+            typename std::enable_if<std::is_convertible<U*, Type*>::value,
                                     bool>::type = true>
-  SharedPtr(SharedPtr<U> &&r) noexcept {
+  SharedPtr(SharedPtr<U>&& r) noexcept {
     // C.10
     std::swap(storage_, r.storage_);
     std::swap(deleter_, r.deleter_);
@@ -186,9 +193,9 @@ public:
    * @param r
    */
   template <typename U,
-            typename std::enable_if<std::is_convertible<U *, Type *>::value,
+            typename std::enable_if<std::is_convertible<U*, Type*>::value,
                                     bool>::type = true>
-  explicit SharedPtr(std::weak_ptr<U> const &r) {
+  explicit SharedPtr(std::weak_ptr<U> const& r) {
     // C.11
     // TODO
     std::ignore = r;
@@ -203,12 +210,13 @@ public:
    * @tparam Deleter
    * @param r
    */
-  template <typename U, typename Deleter,
-            typename std::enable_if<std::is_convertible<U *, Type *>::value,
+  template <typename U,
+            typename Deleter,
+            typename std::enable_if<std::is_convertible<U*, Type*>::value,
                                     bool>::type = true,
             typename std::enable_if<std::is_copy_constructible<Deleter>::value,
                                     bool>::type = true>
-  SharedPtr(std::unique_ptr<U, Deleter> &&r) {
+  SharedPtr(std::unique_ptr<U, Deleter>&& r) {
     // C.13
     // TODO
     std::ignore = r;
@@ -216,12 +224,12 @@ public:
 
   ~SharedPtr() {}
 
-private:
+ private:
   class Storage {
-  public:
+   public:
     Storage() noexcept = default;
 
-    Storage(element_type *pointer, int shared_ref, int weak_ref)
+    Storage(element_type* pointer, int shared_ref, int weak_ref)
         : pointer_(pointer), shared_ref_(shared_ref), weak_ref_(weak_ref) {}
 
     inline void AddWeakRef() noexcept { ++weak_ref_; }
@@ -232,26 +240,27 @@ private:
     inline int GetWeakRef() const noexcept { return weak_ref_; }
     inline int GetSharedRef() const noexcept { return shared_ref_; }
 
-    inline void Set(element_type *pointer) noexcept { pointer_ = pointer; }
-    inline element_type *Get() const noexcept { return pointer_; }
+    inline void Set(element_type* pointer) noexcept { pointer_ = pointer; }
+    inline element_type* Get() const noexcept { return pointer_; }
 
-  private:
-    element_type *pointer_{nullptr};
+   private:
+    element_type* pointer_{nullptr};
     int shared_ref_{0};
     int weak_ref_{0};
   };
 
   struct Deleter {
-    virtual void Delete(element_type *pointer) = 0;
+    virtual void Delete(element_type* pointer) = 0;
   };
 
-  template <typename _Deleter> class DeleterImpl : Deleter {
-    DeleterImpl(_Deleter &&d) : deleter_(d) {}
-    void Delete(element_type *pointer) override { deleter_(pointer); }
+  template <typename _Deleter>
+  class DeleterImpl : Deleter {
+    DeleterImpl(_Deleter&& d) : deleter_(d) {}
+    void Delete(element_type* pointer) override { deleter_(pointer); }
     _Deleter deleter_;
   };
 
-  Storage *storage_{nullptr};
-  Deleter *deleter_{nullptr};
+  Storage* storage_{nullptr};
+  Deleter* deleter_{nullptr};
 };
-} // namespace base
+}  // namespace base

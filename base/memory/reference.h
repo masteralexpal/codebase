@@ -11,18 +11,19 @@
 
 #include <cstddef>
 
-template <typename Type, typename Traits> class Pointer {
-public:
+template <typename Type, typename Traits>
+class Pointer {
+ public:
   using value_type = Type;
-  using reference = value_type &;
-  using const_reference = value_type const &;
-  using pointer = value_type *;
-  using const_pointer = value_type const *;
+  using reference = value_type&;
+  using const_reference = value_type const&;
+  using pointer = value_type*;
+  using const_pointer = value_type const*;
   using traits_type = Traits;
 
   Pointer() noexcept : pointer_(nullptr) {}
   explict Pointer(std::nullptr_t) noexcept : pointer_(nullptr) {}
 
-private:
+ private:
   pointer pointer_;
 };

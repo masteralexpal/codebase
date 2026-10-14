@@ -20,13 +20,17 @@ template <typename Tp>
 struct IsCallable<Tp, std::void_t<decltype(&Tp::operator())>> : std::true_type {
 };
 
-template <typename Functor, typename Sfinae> struct FunctorTraits;
-template <typename Functor, typename Sfinae = void> struct FunctorTraits;
+template <typename Functor, typename Sfinae>
+struct FunctorTraits;
+template <typename Functor, typename Sfinae = void>
+struct FunctorTraits;
 template <typename Functor>
 struct FunctorTraits<
-    Functor, typename std::enable_if<IsCallable<Functor>::value>::type> {};
+    Functor,
+    typename std::enable_if<IsCallable<Functor>::value>::type> {};
 
-template <typename Functor, typename... BoundArgs> struct BindTraits {
+template <typename Functor, typename... BoundArgs>
+struct BindTraits {
   static constexpr size_t number_of_bound_arguments = sizeof...(BoundArgs);
   using functor_traits = FunctorTraits<Functor>;
   using invoke_type = typename functor_traits::invoke_type;
@@ -37,22 +41,26 @@ template <typename Functor, typename... BoundArgs> struct BindTraits {
 };
 
 class A {
-public:
+ public:
   int operator()(int, int);
 };
 
 class B {};
 
-template <typename... Types> struct TypeList;
+template <typename... Types>
+struct TypeList;
 
-template <size_t n, typename List> struct DropTypeListItemImpl;
+template <size_t n, typename List>
+struct DropTypeListItemImpl;
 
 template <size_t n, typename T, typename... List>
 struct DropTypeListItemImpl<n, TypeList<T, List...>>
     : DropTypeListItemImpl<n - 1, TypeList<List...>> {};
 
-template <typename Signature> struct __functor_traits {};
-template <typename R, typename... Args> struct __functor_traits<R(Args...)> {
+template <typename Signature>
+struct __functor_traits {};
+template <typename R, typename... Args>
+struct __functor_traits<R(Args...)> {
   using return_type = R;
   using arguments_typelist = TypeList<Args...>;
 };

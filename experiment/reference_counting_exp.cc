@@ -17,13 +17,14 @@
 #include <utility>
 
 namespace base {
-template <typename Type> class Reference {
-public:
+template <typename Type>
+class Reference {
+ public:
   using value_type = Type;
-  using pointer = value_type *;
-  using const_pointer = value_type const *;
-  using reference = value_type &;
-  using const_reference = value_type const &;
+  using pointer = value_type*;
+  using const_pointer = value_type const*;
+  using reference = value_type&;
+  using const_reference = value_type const&;
 
   /**
    * @brief Default constructor of Reference.
@@ -49,7 +50,7 @@ public:
   }
 
   template <typename... Args>
-  Reference(Args &&...args) : pointer_(new Type(std::forward<Args>(args)...)) {}
+  Reference(Args&&... args) : pointer_(new Type(std::forward<Args>(args)...)) {}
 
   explicit Reference(std::nullptr_t) noexcept {}
 
@@ -60,12 +61,12 @@ public:
    *
    * @param other
    */
-  Reference(Reference const &other) : pointer_(other.pointer_) {
+  Reference(Reference const& other) : pointer_(other.pointer_) {
     if (pointer_) {
       pointer_->Increase();
     }
   }
-  Reference &operator=(Reference const &other) {
+  Reference& operator=(Reference const& other) {
     if (this != &other) {
       if (pointer_) {
         pointer_->Decrease();
@@ -77,10 +78,10 @@ public:
     }
     return *this;
   }
-  Reference(Reference &&other) : pointer_(other.pointer_) {
+  Reference(Reference&& other) : pointer_(other.pointer_) {
     other.pointer_ = nullptr;
   }
-  Reference &operator=(Reference &&other) {
+  Reference& operator=(Reference&& other) {
     pointer_ = other.pointer_;
     other.pointer_->Decrease();
     other.pointer_ = nullptr;
@@ -101,16 +102,18 @@ public:
 
   bool operator==(std::nullptr_t) const noexcept { return pointer_ == nullptr; }
 
-  template <typename U> bool operator==(Reference<U> ptr) {
+  template <typename U>
+  bool operator==(Reference<U> ptr) {
     return pointer_ == ptr.pointer_;
   }
 
-private:
+ private:
   pointer pointer_ = nullptr;
 };
 
-template <typename Type> class RefCnt {
-public:
+template <typename Type>
+class RefCnt {
+ public:
   RefCnt() noexcept : cnt_(1) {}
 
   explicit RefCnt(std::int32_t initial_value) noexcept : cnt_(initial_value) {}
@@ -123,16 +126,17 @@ public:
 
   ~RefCnt() { std::cout << "Bye-bye~\n"; }
 
-private:
-  template <typename U> friend class Pointer;
+ private:
+  template <typename U>
+  friend class Pointer;
   std::int32_t mutable cnt_;
 };
 
 class A : public RefCnt<A> {
-public:
+ public:
   A() noexcept {}
 
-private:
+ private:
   ~A();
 };
 
@@ -166,58 +170,61 @@ struct T {
   template <
       typename Floating,
       std::enable_if_t<std::is_floating_point<Floating>::value, bool> = true>
-  T(Floating) : type(float_t) {} // OK
+  T(Floating) : type(float_t) {}  // OK
 };
 
 template <typename Type,
           typename std::enable_if<std::is_base_of<RefCnt<Type>, Type>::value,
                                   bool>::type _ = true>
-void TestRefCntEnableIf(Type const &value) {
+void TestRefCntEnableIf(Type const& value) {
   return;
 }
 
-template <typename Type, typename std::enable_if<std::is_integral<Type>::value,
-                                                 bool>::type _ = true>
-void TestRefCntEnableIf(Type const &value) {
+template <
+    typename Type,
+    typename std::enable_if<std::is_integral<Type>::value, bool>::type _ = true>
+void TestRefCntEnableIf(Type const& value) {
   return;
 }
 
-template <typename Type, typename... Args,
+template <typename Type,
+          typename... Args,
           typename std::enable_if<std::is_base_of<RefCnt<Type>, Type>::value,
                                   bool>::type _ = true>
-auto MakeRefCnt(Args &&...args) -> Reference<Type> {
+auto MakeRefCnt(Args&&... args) -> Reference<Type> {
   return Reference<Type>(new Type(std::forward<Args>(args)...));
 }
 
-template <typename Type, typename... Args,
+template <typename Type,
+          typename... Args,
           typename std::enable_if<std::is_base_of<RefCnt<Type>, Type>::value,
                                   bool>::type _ = true>
-auto MakeReference(Args &&...args) -> Reference<Type> {
+auto MakeReference(Args&&... args) -> Reference<Type> {
   return Reference<Type>(std::forward<Args>(args)...);
 }
 
 template <typename Type,
           typename std::enable_if<std::is_base_of<RefCnt<Type>, Type>::value,
                                   bool>::type = true>
-auto WrapRefCnt(Type const &type) -> Reference<Type> {
+auto WrapRefCnt(Type const& type) -> Reference<Type> {
   return Reference<Type>{&type};
 }
 
 class B : public RefCnt<B> {
-public:
+ public:
   B() = default;
   ~B() = default;
 };
-} // namespace base
+}  // namespace base
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   base::Reference<base::A> ptr = base::MakeRefCnt<base::A>();
   assert(ptr->Count() == 1);
   ptr->Increase();
   ptr->Decrease();
   // Oops
   std::cout << (*ptr).Count() << std::endl;
-  base::A *a = new base::A();
+  base::A* a = new base::A();
   base::B b;
   base::TestRefCntEnableIf(b);
   int c = 1;

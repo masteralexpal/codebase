@@ -1,10 +1,10 @@
 #include "base/concurrent/thread_pool.h"
 
 namespace base {
-static ThreadPool *g_thread_pool = nullptr;
+static ThreadPool* g_thread_pool = nullptr;
 static std::once_flag g_once_flag;
 // static
-void ThreadPool::Create(CreationParams const &params) {
+void ThreadPool::Create(CreationParams const& params) {
   std::call_once(g_once_flag, [&params]() -> void {
     // creation params adjustments.
     CreationParams mutable_params = params;
@@ -21,9 +21,11 @@ void ThreadPool::Destroy() {
   g_thread_pool = nullptr;
 }
 
-ThreadPool *ThreadPool::Get() { return g_thread_pool; }
+ThreadPool* ThreadPool::Get() {
+  return g_thread_pool;
+}
 
-ThreadPool::ThreadPool(CreationParams const &params) {
+ThreadPool::ThreadPool(CreationParams const& params) {
   (void)params;
   worker_thread_ = std::make_unique<std::thread>([this]() -> void {
     std::function<void()> currnet_task;
@@ -50,4 +52,4 @@ ThreadPool::~ThreadPool() {
   is_stopped = true;
   this->thread_pool_cv_.notify_all();
 }
-} // namespace base
+}  // namespace base

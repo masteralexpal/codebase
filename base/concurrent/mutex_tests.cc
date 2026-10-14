@@ -1,8 +1,8 @@
+#include <gtest/gtest.h>
 #include "base/concurrent/mutex.h"
 #include "base/concurrent/mutex_guard.h"
 #include "base/concurrent/restrict_mutex.h"
 #include "base/concurrent/thread.h"
-#include <gtest/gtest.h>
 
 #include <chrono>
 #include <cstddef>
@@ -72,4 +72,4 @@ TEST(Mutex, MutexGuard) {
   std::this_thread::sleep_for(std::chrono::seconds{5});
   ASSERT_EQ(count, thread_count * accumulation_per_thread);
 }
-} // namespace base
+}  // namespace base

@@ -71,7 +71,7 @@ void a() {
   thread1.join();
   thread2.join();
 };
-} // namespace a
+}  // namespace a
 /**
  * @brief - solution b. using semaphore.
  *
@@ -126,7 +126,7 @@ void b() {
 #else
 #endif
 };
-} // namespace b
+}  // namespace b
 
 /**
  * @brief using atomic int.
@@ -165,7 +165,7 @@ void c() {
   thread1.join();
   thread2.join();
 }
-} // namespace c
+}  // namespace c
 
 namespace d {
 std::atomic<int> counter = 0;
@@ -206,7 +206,7 @@ void d() {
   thread1.join();
   thread2.join();
 }
-} // namespace d
+}  // namespace d
 
 int main() {
   // a::a();

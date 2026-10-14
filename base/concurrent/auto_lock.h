@@ -13,5 +13,5 @@
 #define BASE_CONCURRENT_AUTO_LOCK_H_
 namespace base {
 class AutoLock {};
-} // namespace base
-#endif // BASE_CONCURRENT_AUTO_LOCK_H_
+}  // namespace base
+#endif  // BASE_CONCURRENT_AUTO_LOCK_H_

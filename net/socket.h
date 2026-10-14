@@ -20,12 +20,12 @@ enum class SocketType { kSTREAM, kDGRAM };
 enum class SocketState { kINITIAL, kCONNECTED, kCLOSED };
 
 class Socket {
-public:
+ public:
   Socket(AddressFamily address_family, SocketType socket_type);
 
   SocketState GetSocketState() const noexcept;
 
-private:
+ private:
   bool ChangeState(SocketState const next);
 
   // native socket handle.
@@ -33,5 +33,5 @@ private:
   SocketHandle socket_;
   SocketState socket_state_;
 };
-} // namespace net
+}  // namespace net
 #endif

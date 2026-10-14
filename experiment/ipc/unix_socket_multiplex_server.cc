@@ -31,7 +31,7 @@ constexpr int const kMaxEpollEvents = 1024;
 constexpr int const kBufferSize = 4096;
 
 class IOTaskQueue {
-public:
+ public:
   IOTaskQueue() = default;
 
   virtual ~IOTaskQueue() = default;
@@ -63,13 +63,13 @@ public:
 
   bool Empty() const noexcept { return fds_queue_.empty(); }
 
-private:
+ private:
   std::mutex queue_lock_;
   std::condition_variable condition_variable_;
   std::deque<int> fds_queue_;
 };
 
-void IOThreadTask(IOTaskQueue *io_task_queue) {
+void IOThreadTask(IOTaskQueue* io_task_queue) {
   std::cout << "Startd IO Thread" << std::endl;
   static char buffer[kBufferSize];
   int nbytes;
@@ -113,7 +113,7 @@ int ServerMain() {
     std::exit(EXIT_FAILURE);
   }
 
-  if ((bind(listen_fd, reinterpret_cast<sockaddr *>(&socket_address),
+  if ((bind(listen_fd, reinterpret_cast<sockaddr*>(&socket_address),
             sizeof(socket_address))) == -1) {
     LOG_ERR_MSG();
     std::exit(EXIT_FAILURE);

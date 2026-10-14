@@ -11,8 +11,8 @@
 
 #include <fcntl.h>
 
-#include "experiment/helper.h"
 #include <gtest/gtest.h>
+#include "experiment/helper.h"
 
 TEST(fcntl, dupfd) {
   std::string file_path = "test_file";

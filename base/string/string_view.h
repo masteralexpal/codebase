@@ -20,7 +20,7 @@ namespace base {
 namespace string {
 
 class StringView {
-public:
+ public:
   static constexpr std::size_t npos = std::numeric_limits<std::size_t>::max();
 
   StringView(std::nullptr_t) = delete;
@@ -29,7 +29,7 @@ public:
   constexpr StringView(char const (&literal)[N]) noexcept
       : cstr_{&literal}, size_(N), begin_(0), end_(0) {}
 
-  constexpr StringView(char const *str, std::size_t size) noexcept
+  constexpr StringView(char const* str, std::size_t size) noexcept
       : cstr_(str), size_(size), begin_(0), end_(size_ - 1) {}
 
   constexpr std::size_t FindFirstOf(char c) noexcept {
@@ -53,13 +53,13 @@ public:
 
   constexpr void RemoteSuffix(std::size_t n) noexcept { end_ = n; }
 
-private:
-  char const *cstr_;
+ private:
+  char const* cstr_;
   std::size_t size_;
   std::size_t begin_;
   std::size_t end_;
 };
 
-} // namespace string
-} // namespace base
-#endif // BASE_STRINGS_STRING_VIEW_H_
+}  // namespace string
+}  // namespace base
+#endif  // BASE_STRINGS_STRING_VIEW_H_

@@ -4,4 +4,4 @@
 #include "base/concurrent/mutex_guard.h"
 #include "base/concurrent/thread.h"
 
-namespace base {} // namespace base
+namespace base {}  // namespace base

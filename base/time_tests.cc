@@ -9,13 +9,13 @@
  *
  */
 
-#include "base/concurrent/thread.h"
 #include <gtest/gtest.h>
+#include <time.h>
 #include <chrono>
 #include <cstdlib>
 #include <ctime>
 #include <ostream>
-#include <time.h>
+#include "base/concurrent/thread.h"
 
 namespace base {
 /**
@@ -49,7 +49,7 @@ TEST(Time, time1) {
 TEST(Time, ctime0) {
   time_t tt;
   time(&tt);
-  char const *time_str = ctime(&tt);
+  char const* time_str = ctime(&tt);
   std::cout << tt << std::endl;
   std::cout << time_str << std::endl;
 }
@@ -63,7 +63,7 @@ TEST(Time, ctime0) {
 TEST(Time, asctime0) {
   time_t tt;
   time(&tt);
-  char const *time_str = asctime(localtime(&tt));
+  char const* time_str = asctime(localtime(&tt));
   std::cout << tt << std::endl;
   std::cout << time_str << std::endl;
 }
@@ -71,7 +71,7 @@ TEST(Time, asctime0) {
 TEST(Time, asctime1) {
   time_t tt;
   time(&tt);
-  char const *time_str = ctime(&tt);
+  char const* time_str = ctime(&tt);
   std::cout << tt << std::endl;
   std::cout << time_str << std::endl;
 }
@@ -97,7 +97,9 @@ TEST(Time, clock) {
  *
  *
  */
-TEST(Time, sleep) { sleep(1); }
+TEST(Time, sleep) {
+  sleep(1);
+}
 
 /**
  * @brief POSIX Clock API
@@ -106,4 +108,4 @@ TEST(Time, sleep) { sleep(1); }
 
 TEST(POSIX_Clock, clock_gettime) {}
 
-} // namespace base
+}  // namespace base

@@ -15,13 +15,13 @@
 namespace base {
 template <typename Tp, typename Allocator = base::Allocator<Tp>>
 class Vector final : public base::internal::VectorBase<Tp> {
-public:
+ public:
   using value_type = Tp;
   using allocator_type = Allocator;
   using allocator_traits = std::allocator_traits<allocator_type>;
   using size_type = typename allocator_traits::size_type;
-  using reference = value_type &;
-  using const_reference = const value_type &;
+  using reference = value_type&;
+  using const_reference = value_type const&;
   using difference_type = typename allocator_traits::difference_type;
   using pointer = typename allocator_traits::pointer;
   using const_pointer = typename allocator_traits::const_pointer;
@@ -33,7 +33,7 @@ public:
 
   constexpr Vector() noexcept : Super() {}
 
-private:
+ private:
   using Super = internal::VectorBase<Tp>;
 };
-} // namespace base
+}  // namespace base

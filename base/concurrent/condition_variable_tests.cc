@@ -1,9 +1,9 @@
 #include "base/concurrent/condition_variable.h"
 
+#include <gtest/gtest.h>
 #include "base/concurrent/mutex.h"
 #include "base/concurrent/mutex_guard.h"
 #include "base/concurrent/thread.h"
-#include <gtest/gtest.h>
 
 #include <chrono>
 #include <queue>
@@ -55,4 +55,4 @@ TEST(ConditionVariable, Queue) {
   producer_thread.Join();
   consumer_thread.Join();
 }
-} // namespace base
+}  // namespace base

@@ -46,6 +46,8 @@ std::size_t TaskQueueImpl::CurrentTasks() noexcept {
   return task_queue_.size();
 }
 
-std::size_t TaskQueueImpl::GetTaskLimit() noexcept { return task_limit_; }
+std::size_t TaskQueueImpl::GetTaskLimit() noexcept {
+  return task_limit_;
+}
 
-} // namespace base
+}  // namespace base

@@ -16,7 +16,7 @@
 
 namespace base {
 class WorkerThread : public PlatformThread::Delegate {
-public:
+ public:
   enum WokerThreadState {
     IDLE = 0,
     BUSY = 1,
@@ -28,5 +28,5 @@ public:
 
   bool IsStop() override;
 };
-} // namespace base
+}  // namespace base
 #endif

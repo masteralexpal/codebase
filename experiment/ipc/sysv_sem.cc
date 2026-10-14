@@ -9,14 +9,14 @@
  *
  */
 
-#include <cerrno>
-#include <cstdio>
-#include <cstdlib>
 #include <sched.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
 
 #include "experiment/helper.h"
 
@@ -25,14 +25,14 @@ constexpr int const kMode = 00755;
 
 union semun {
   int val;
-  struct semid_ds *buf;
-  unsigned short *array;
+  struct semid_ds* buf;
+  unsigned short* array;
 #if defined(__linux__)
-  struct seminfo *__buf;
+  struct seminfo* __buf;
 #endif
 };
 
-int Server(int semid, sembuf *sops, int loop) {
+int Server(int semid, sembuf* sops, int loop) {
   for (int i = 0; i < loop; ++i) {
     if (semop(semid, &sops[1], 1)) {
       LOG_ERR_MSG();
@@ -47,7 +47,7 @@ int Server(int semid, sembuf *sops, int loop) {
   return 0;
 }
 
-int Client(int semid, sembuf *sops, int loop) {
+int Client(int semid, sembuf* sops, int loop) {
   for (int i = 0; i < loop; ++i) {
     if (semop(semid, &sops[3], 1) == -1) {
       LOG_ERR_MSG();

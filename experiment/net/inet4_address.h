@@ -18,12 +18,12 @@
 
 namespace net {
 class Inet4Address {
-public:
+ public:
   Inet4Address();
 
-  Inet4Address(std::string const &address, std::uint16_t port);
+  Inet4Address(std::string const& address, std::uint16_t port);
 
-private:
+ private:
   union __packed_address {
     sockaddr_in inet4_;
     sockaddr_in6 inet6_;
@@ -31,5 +31,5 @@ private:
 
   __packed_address address_;
 };
-} // namespace net
+}  // namespace net
 #endif

@@ -24,12 +24,16 @@ void Monitor::Wait() {
   pthread_cond_wait(&cv_, &mtx_);
 }
 
-void Monitor::NotifyAll() { pthread_cond_signal(&cv_); }
+void Monitor::NotifyAll() {
+  pthread_cond_signal(&cv_);
+}
 
-void Monitor::NotifyOne() { pthread_cond_broadcast(&cv_); }
+void Monitor::NotifyOne() {
+  pthread_cond_broadcast(&cv_);
+}
 
 Monitor::~Monitor() {
   pthread_cond_destroy(&cv_);
   pthread_mutex_destroy(&mtx_);
 }
-} // namespace base
+}  // namespace base

@@ -9,8 +9,8 @@
  *
  */
 
-#include "base/algorithm/heap.h"
 #include <gtest/gtest.h>
+#include "base/algorithm/heap.h"
 
 #include <algorithm>
 #include <random>
@@ -22,7 +22,7 @@ TEST(Heap, MaxHeap) {
   std::random_device rd;
   std::mt19937 g(rd());
   std::shuffle(vector.begin(), vector.end(), g);
-  for (auto &&i : vector) {
+  for (auto&& i : vector) {
     std::cout << i;
   }
   std::cout << std::endl;
@@ -40,7 +40,7 @@ TEST(Heap, MinHeap) {
   std::random_device rd;
   std::mt19937 g(rd());
   std::shuffle(vector.begin(), vector.end(), g);
-  for (auto &&i : vector) {
+  for (auto&& i : vector) {
     std::cout << i;
   }
   std::cout << std::endl;

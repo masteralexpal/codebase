@@ -16,14 +16,14 @@
 #include <tuple>
 #include <utility>
 
-int thread_entry_point(void *(*start_routine)(void *args), void *args) {
+int thread_entry_point(void* (*start_routine)(void* args), void* args) {
   start_routine(args);
   return 0;
 }
 
 // experiment 1.
-void *start(void *args) {
-  std::function<void()> *functor = static_cast<std::function<void()> *>(args);
+void* start(void* args) {
+  std::function<void()>* functor = static_cast<std::function<void()>*>(args);
   if (functor) {
     functor->operator()();
   }
@@ -33,22 +33,25 @@ void *start(void *args) {
 void experiment1() {
   std::function<void()> f =
       std::bind([]() -> void { std::cout << "hello!" << std::endl; });
-  thread_entry_point(start, static_cast<void *>(&f));
+  thread_entry_point(start, static_cast<void*>(&f));
 }
 
 // experiment 2. TODO
-template <typename... Args> struct ArgumentsPack {
+template <typename... Args>
+struct ArgumentsPack {
   using Tuple = std::tuple<Args...>;
-  ArgumentsPack(Args &&...args) : tuple(std::forward<Args>(args)...) {}
+  ArgumentsPack(Args&&... args) : tuple(std::forward<Args>(args)...) {}
   Tuple tuple;
 };
 
-template <typename... Args> void Wrapper(Args &&...args) {
+template <typename... Args>
+void Wrapper(Args&&... args) {
   ArgumentsPack ap{std::forward_as_tuple(args...)};
 }
 void experiment2() {}
 
-template <typename F, typename... Args> void Start(F &&f, Args &&...args) {
+template <typename F, typename... Args>
+void Start(F&& f, Args&&... args) {
   std::ignore(f);
   std::ignore(args...);
 }

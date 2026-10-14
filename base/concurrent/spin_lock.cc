@@ -25,4 +25,4 @@ void SpinLock::Release() noexcept {
   is_exclusive_.clear(std::memory_order_release);
 }
 
-} // namespace base
+}  // namespace base

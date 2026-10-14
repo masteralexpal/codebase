@@ -1,6 +1,6 @@
-#include "base/algorithm/find.h"
 #include <gtest/gtest.h>
 #include <cstddef>
+#include "base/algorithm/find.h"
 
 namespace base {
 TEST(Find, case0) {
@@ -32,4 +32,4 @@ TEST(FindBack, case2) {
   std::size_t index = base::FindBack("const T (&array)[N]", 'z');
   ASSERT_EQ(index, static_cast<std::size_t>(-1));
 }
-} // namespace base
+}  // namespace base

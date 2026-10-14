@@ -20,7 +20,7 @@
 
 namespace base {
 class TaskQueueImpl : public TaskQueue {
-public:
+ public:
   inline TaskQueueImpl(std::size_t task_limit)
       : task_limit_(task_limit), queue_mutex_(), queue_cv_(), task_queue_() {}
 
@@ -34,11 +34,11 @@ public:
 
   std::size_t GetTaskLimit() noexcept override;
 
-private:
+ private:
   std::size_t const task_limit_;
   std::mutex queue_mutex_;
   std::condition_variable queue_cv_;
   std::queue<Task> task_queue_;
 };
-} // namespace base
+}  // namespace base
 #endif

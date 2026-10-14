@@ -12,8 +12,8 @@
 #include <iostream>
 #include <type_traits>
 
-#include "base/closure.h"
 #include <gtest/gtest.h>
+#include "base/closure.h"
 
 int PlainFunction1(int a, int b) {
   std::cout << a << " + " << b << " = " << a + b;
@@ -23,7 +23,7 @@ int PlainFunction1(int a, int b) {
 TEST(TestPlainfunction, Case0) {
   auto closure = base::MakeClosure(PlainFunction1, 4, 2);
   auto result = std::move(closure)();
-  std::cout << (std::is_same<decltype(result), int &>::value);
+  std::cout << (std::is_same<decltype(result), int&>::value);
   std::invoke_result<int (&)(int, int), int, int>::type a = 1;
   std::cout << a;
 }

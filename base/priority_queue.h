@@ -17,13 +17,14 @@
 #include <string>
 
 namespace base {
-template <typename T> class PriorityQueue {
-public:
+template <typename T>
+class PriorityQueue {
+ public:
   PriorityQueue() = default;
 
   virtual ~PriorityQueue() = default;
 
-  void Insert(T const &t) {
+  void Insert(T const& t) {
     auto iter = list_.begin();
     while (iter != list_.end() && t < *iter) {
       ++iter;
@@ -33,20 +34,21 @@ public:
 
   void PopMax() { list_.pop_front(); }
 
-  T &Max() { return list_.front(); }
+  T& Max() { return list_.front(); }
 
-  T const &Max() const { return list_.front(); }
+  T const& Max() const { return list_.front(); }
 
   std::size_t Size() const noexcept { return list_.size(); }
 
   bool Empty() const noexcept { return list_.empty(); }
 
-private:
+ private:
   std::list<T> list_;
 };
 
-template <typename T> class MaxHeap {
-public:
+template <typename T>
+class MaxHeap {
+ public:
   explicit MaxHeap(std::size_t size) : nodes_(new T[size + 1]) {}
 
   virtual ~MaxHeap() { delete[] nodes_; }
@@ -55,7 +57,7 @@ public:
 
   std::size_t Size() const { return size_; }
 
-  void Insert(T const &t) {
+  void Insert(T const& t) {
     nodes_[++size_] = t;
     Swim(size_);
   }
@@ -68,7 +70,7 @@ public:
     return max;
   }
 
-private:
+ private:
   bool Less(std::size_t i, std::size_t j) { return nodes_[i] < nodes_[j]; }
 
   void Exchange(std::size_t i, std::size_t j) {
@@ -98,10 +100,11 @@ private:
     }
   }
 
-  T *nodes_;
+  T* nodes_;
   std::size_t size_ = 0;
 };
 
-template <typename T> class MinHeap {};
-} // namespace base
-#endif // BASE_PRIORITY_QUEUE_H_
+template <typename T>
+class MinHeap {};
+}  // namespace base
+#endif  // BASE_PRIORITY_QUEUE_H_

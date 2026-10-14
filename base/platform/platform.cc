@@ -32,4 +32,4 @@ PlatformThreadHandle GetPlatformThreadHandle() noexcept {
 #endif
 }
 
-} // namespace base
+}  // namespace base

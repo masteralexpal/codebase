@@ -33,7 +33,7 @@ TEST(Volatile, Accumulate) {
     worker_threads.emplace_back(Accumulate);
   }
 
-  for (auto &&thread : worker_threads) {
+  for (auto&& thread : worker_threads) {
     thread.join();
   }
 
@@ -52,7 +52,7 @@ TEST(Atomic, Accumulate) {
     worker_threads.emplace_back(AtomicAccumulate);
   }
 
-  for (auto &&thread : worker_threads) {
+  for (auto&& thread : worker_threads) {
     thread.join();
   }
   ASSERT_EQ(atomic_value, kThreadCount * kMax);

@@ -15,7 +15,7 @@
 
 namespace base {
 class LogTestHelper : public testing::Test {
-public:
+ public:
   void SetUp() override {}
 
   void TearDown() override {}
@@ -33,4 +33,4 @@ TEST(LogMessage, Macro) {
   LOG(FATAL) << "FATAL";
 }
 
-} // namespace base
+}  // namespace base

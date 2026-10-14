@@ -17,25 +17,26 @@
 #include <set>
 
 namespace base {
-template <typename K, typename V> class SymbolTable {
-public:
+template <typename K, typename V>
+class SymbolTable {
+ public:
   SymbolTable() = default;
 
   virtual ~SymbolTable() = default;
 
-  virtual bool Put(K const &key, V const &value) = 0;
+  virtual bool Put(K const& key, V const& value) = 0;
 
-  virtual std::optional<V> Get(K const &key) = 0;
+  virtual std::optional<V> Get(K const& key) = 0;
 
-  virtual bool Delete(K const &key) = 0;
+  virtual bool Delete(K const& key) = 0;
 
-  virtual bool Contains(K const &key) const = 0;
+  virtual bool Contains(K const& key) const = 0;
 
-  virtual bool IsEmpty(K const &key) const = 0;
+  virtual bool IsEmpty(K const& key) const = 0;
 
   virtual std::size_t Size() const = 0;
 
   virtual std::set<K> Keys() const = 0;
 };
-} // namespace base
+}  // namespace base
 #endif

@@ -9,18 +9,18 @@
  *
  */
 
-#include <map>
 #include <unistd.h>
+#include <map>
 
 struct ProcessId {
   pid_t process_id;
 };
 
 class Process {
-public:
-  static Process const &GetCurrentProcess() {}
+ public:
+  static Process const& GetCurrentProcess() {}
 
-private:
+ private:
   ProcessId process_id_;
   std::map<ProcessId, Process> child_process_;
 };

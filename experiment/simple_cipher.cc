@@ -9,8 +9,6 @@
  *
  */
 
-#include "base/command_line.h"
-#include "base/log.h"
 #include <cerrno>
 #include <cstddef>
 #include <cstdint>
@@ -19,10 +17,13 @@
 #include <iostream>
 #include <optional>
 #include <vector>
+#include "base/command_line.h"
+#include "base/log.h"
 
 namespace crypto {
-void EncryptBuffer(std::uint8_t *buffer, std::size_t size,
-                   std::vector<std::uint8_t> const &passphrase) {
+void EncryptBuffer(std::uint8_t* buffer,
+                   std::size_t size,
+                   std::vector<std::uint8_t> const& passphrase) {
   std::size_t round = 1;
   std::size_t phrase_index = 0;
   std::uint8_t phrase_char = passphrase[0];
@@ -44,9 +45,9 @@ void EncryptBuffer(std::uint8_t *buffer, std::size_t size,
   }
 }
 
-} // namespace crypto
+}  // namespace crypto
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   base::CommandLine::Initialize(argc, argv);
   base::CommandLine::Initialize(argc, argv);
   std::optional<std::string> in = base::CommandLine::Get()->GetValue("in");
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  FILE *fp = fopen(in->c_str(), "r");
+  FILE* fp = fopen(in->c_str(), "r");
   if (!fp) {
     std::cerr << "Input file open failed!" << std::strerror(errno) << "\n";
     return errno;
@@ -64,7 +65,7 @@ int main(int argc, char **argv) {
   fseek(fp, 0, SEEK_END);
   auto size = static_cast<std::size_t>(ftell(fp));
   fseek(fp, 0, SEEK_SET);
-  std::uint8_t *buffer = new std::uint8_t[size + 1];
+  std::uint8_t* buffer = new std::uint8_t[size + 1];
   std::memset(buffer, 0, size + 1);
   if (!(fread(buffer, size, 1, fp) == size) == 0) {
     std::cerr << "Failed to read file correctly! " << std::strerror(errno)
@@ -79,6 +80,6 @@ int main(int argc, char **argv) {
     std::cout << "No output path, will print to standard output." << '\n';
     std::cout << buffer;
   }
-  FILE *out = fopen("enc_private_key.bin", "w+");
+  FILE* out = fopen("enc_private_key.bin", "w+");
   fwrite(buffer, size, 1, out);
 }

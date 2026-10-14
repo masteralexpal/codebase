@@ -20,7 +20,7 @@ namespace base {
 // A monitor consists of a mutex (lock) object and condition variables.
 // https://en.wikipedia.org/wiki/Monitor_(synchronization)
 class API Monitor final {
-public:
+ public:
   Monitor();
 
   DISABLE_COPY(Monitor);
@@ -34,9 +34,9 @@ public:
 
   ~Monitor();
 
-private:
+ private:
   pthread_mutex_t mtx_;
   pthread_cond_t cv_;
 };
-} // namespace base
+}  // namespace base
 #endif

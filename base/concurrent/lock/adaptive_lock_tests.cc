@@ -14,8 +14,8 @@
 #include <thread>
 #include <vector>
 
-#include "base/concurrent/lock/adaptive_lock.h"
 #include <gtest/gtest.h>
+#include "base/concurrent/lock/adaptive_lock.h"
 
 class AdaptiveLockTests : public testing::Test {
  public:

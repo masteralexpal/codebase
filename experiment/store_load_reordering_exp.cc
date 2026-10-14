@@ -9,12 +9,12 @@
  *
  */
 
+#include <semaphore.h>
 #include <atomic>
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
-#include <semaphore.h>
 #include <thread>
 
 #include "base/cxx.h"
@@ -134,4 +134,4 @@ int main() {
   thread0.join();
   thread1.join();
 }
-#endif // SINCE(CXX_20)
+#endif  // SINCE(CXX_20)

@@ -23,7 +23,7 @@ void func0() {
 void func1() {
   while (b == 0)
     continue;
-  assert(a == 1); // Never fires on x86, but it will fail on ARM.
+  assert(a == 1);  // Never fires on x86, but it will fail on ARM.
 }
 
 int main() {

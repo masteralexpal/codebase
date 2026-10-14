@@ -20,7 +20,7 @@ namespace base {
 class ConditionVariable;
 
 class API Mutex final {
-public:
+ public:
   Mutex();
 
   // Once a mutex is created, it cannot be validly copied or moved to a new
@@ -41,9 +41,9 @@ public:
   // Not virtual as base::Mutex is final.
   ~Mutex();
 
-private:
+ private:
   friend base::ConditionVariable;
   pthread_mutex_t mtx_;
 };
-} // namespace base
+}  // namespace base
 #endif
