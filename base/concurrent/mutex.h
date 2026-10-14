@@ -25,8 +25,8 @@ class API Mutex final {
 
   // Once a mutex is created, it cannot be validly copied or moved to a new
   // location.
-  DISABLE_COPY(Mutex);
-  DISABLE_MOVE(Mutex);
+  Mutex(Mutex const&) = delete;
+  Mutex& operator=(Mutex const&) = delete;
 
   // Acquire the ownership of this mutex.
   void Acquire();

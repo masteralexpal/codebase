@@ -14,16 +14,13 @@
 
 #include <atomic>
 
-#include "base/macro.h"
-
 namespace base {
 class SpinLock final {
  public:
   SpinLock() noexcept;
 
-  DISABLE_COPY(SpinLock);
-
-  DISABLE_MOVE(SpinLock);
+  SpinLock(SpinLock const&) = delete;
+  SpinLock& operator=(SpinLock const&) = delete;
 
   ~SpinLock() noexcept = default;
 

@@ -25,8 +25,8 @@ class API RestrictMutex final {
  public:
   RestrictMutex();
 
-  DISABLE_COPY(RestrictMutex);
-  DISABLE_MOVE(RestrictMutex);
+  RestrictMutex(RestrictMutex const&) = delete;
+  RestrictMutex& operator=(RestrictMutex const&) = delete;
 
   ~RestrictMutex();
 

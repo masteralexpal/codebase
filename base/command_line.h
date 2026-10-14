@@ -17,7 +17,6 @@
 #include <string>
 
 #include "base/base_exports.h"
-#include "base/macro.h"
 
 namespace base {
 /**
@@ -46,8 +45,8 @@ class BASE_EXPORT CommandLine final {
  private:
   CommandLine();
 
-  DISABLE_COPY(CommandLine);
-  DISABLE_MOVE(CommandLine);
+  CommandLine(CommandLine const&) = delete;
+  CommandLine& operator=(CommandLine const&) = delete;
 
   ~CommandLine();
 

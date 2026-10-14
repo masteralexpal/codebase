@@ -6,7 +6,6 @@
 #include "base/concurrent/mutex_guard.h"
 #include "base/concurrent/task.h"
 #include "base/concurrent/thread.h"
-#include "base/macro.h"
 
 #include <functional>
 #include <future>
@@ -39,8 +38,8 @@ class ThreadGroup {
 
   ThreadGroup() = default;
 
-  DISABLE_COPY(ThreadGroup);
-  DISABLE_MOVE(ThreadGroup);
+  ThreadGroup(ThreadGroup const&) = delete;
+  ThreadGroup& operator=(ThreadGroup const&) = delete;
 
   virtual ~ThreadGroup() = default;
 

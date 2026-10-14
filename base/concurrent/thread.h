@@ -123,7 +123,8 @@ class API Thread {
   explicit Thread(std::string const& name = "Anonymous");
 
   // Disable copy.
-  DISABLE_COPY(Thread);
+  Thread(Thread const&) = delete;
+  Thread& operator=(Thread const&) = delete;
   // Support move.
   Thread(Thread&&) noexcept;
   Thread& operator=(Thread&&) noexcept;

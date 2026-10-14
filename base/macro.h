@@ -44,14 +44,6 @@ constexpr bool const kIsWin64 = 1;
 constexpr bool const kIsWin64 = 1;
 #endif  // defined(_WIN64)
 
-#define DISABLE_COPY(ClassName)         \
-  ClassName(ClassName const&) = delete; \
-  ClassName& operator=(ClassName const&) = delete
-
-#define DISABLE_MOVE(ClassName)    \
-  ClassName(ClassName&&) = delete; \
-  ClassName& operator=(ClassName&&) = delete
-
 // Symbols.
 #if IS_LINUX
 #define API __attribute__((visibility("default")))

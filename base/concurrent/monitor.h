@@ -23,8 +23,8 @@ class API Monitor final {
  public:
   Monitor();
 
-  DISABLE_COPY(Monitor);
-  DISABLE_MOVE(Monitor);
+  Monitor(Monitor const&) = delete;
+  Monitor& operator=(Monitor const&) = delete;
 
   void Wait();
 

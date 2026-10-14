@@ -13,7 +13,6 @@
 #define BASE_CONCURRENT_TASK_EXECUTOR_H_
 
 #include "base/concurrent/task.h"
-#include "base/macro.h"
 
 namespace base {
 
@@ -36,8 +35,8 @@ class TaskExecutor {
 
   TaskExecutor() = default;
 
-  DISABLE_COPY(TaskExecutor);
-  DISABLE_MOVE(TaskExecutor);
+  TaskExecutor(TaskExecutor const&) = delete;
+  TaskExecutor& operator=(TaskExecutor const&) = delete;
 
   virtual ~TaskExecutor() = default;
 

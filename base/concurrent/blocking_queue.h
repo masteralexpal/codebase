@@ -24,8 +24,8 @@ template <typename T>
 class BlockingQueue {
  public:
   BlockingQueue() = default;
-  DISABLE_COPY(BlockingQueue);
-  DISABLE_MOVE(BlockingQueue);
+  BlockingQueue(BlockingQueue const&) = delete;
+  BlockingQueue& operator=(BlockingQueue const&) = delete;
   virtual ~BlockingQueue() = default;
 
   void Enqueue(T&& t) {

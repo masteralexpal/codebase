@@ -11,8 +11,8 @@ class API ConditionVariable final {
  public:
   ConditionVariable();
 
-  DISABLE_COPY(ConditionVariable);
-  DISABLE_MOVE(ConditionVariable);
+  ConditionVariable(ConditionVariable const&) = delete;
+  ConditionVariable& operator=(ConditionVariable const&) = delete;
 
   void Wait(base::Mutex& mutex);
 

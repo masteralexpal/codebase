@@ -12,17 +12,19 @@
 #ifndef BASE_CONCURRENT_TASK_EXECUTOR_IMPL_H_
 #define BASE_CONCURRENT_TASK_EXECUTOR_IMPL_H_
 
+#include "base/concurrent/task.h"
 #include "base/concurrent/task_executor.h"
 
+#include <atomic>
 #include <condition_variable>
 #include <deque>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <vector>
 
 #include "base/concurrent/task_queue.h"
 #include "base/concurrent/thread_group.h"
-#include "base/macro.h"
 
 namespace base {
 
@@ -30,8 +32,8 @@ class TaskExecutorImpl : public TaskExecutor, public ThreadGroup {
  public:
   TaskExecutorImpl();
 
-  DISABLE_COPY(TaskExecutorImpl);
-  DISABLE_MOVE(TaskExecutorImpl);
+  TaskExecutorImpl(TaskExecutorImpl const&) = delete;
+  TaskExecutorImpl& operator=(TaskExecutorImpl const&) = delete;
 
   bool Start(Configuration const& configuration) override;
 

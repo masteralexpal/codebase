@@ -22,8 +22,8 @@ class API Semaphore final {
   Semaphore();
   Semaphore(int count);
 
-  DISABLE_COPY(Semaphore);
-  DISABLE_MOVE(Semaphore);
+  Semaphore(Semaphore const&) = delete;
+  Semaphore& operator=(Semaphore const&) = delete;
 
   ~Semaphore();
 
