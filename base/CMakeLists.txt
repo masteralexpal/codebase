@@ -4,7 +4,7 @@
 #
 # Sources with std-only dependencies build on every supported platform. The
 # pthread/POSIX-based components (mutex, condition_variable, thread, log,
-# platform, ...) are Linux-only for now. TODO: port them to Win32
+# ...) are Linux-only for now. TODO: port them to Win32
 # (platform_thread_win, SRWLOCK, CONDITION_VARIABLE, ...).
 # -------------------
 
@@ -24,7 +24,6 @@ add_library(base ${_base_library_type}
   "concurrent/spin_lock.cc"
   "concurrent/task_queue_impl.cc"
   "file/path.cc"
-  "memory/atomic_reference_counting.cc"
   "memory/reference_counting.cc"
   "string_aux.cc"
   )
@@ -42,7 +41,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     "concurrent/thread_group.cc"
     "concurrent/task_executor_impl.cc"
     "log.cc"
-    "platform/platform.cc"
     )
 endif()
 
@@ -70,12 +68,6 @@ target_link_libraries(spin_lock PRIVATE base codebase::config third_party::gtest
 add_executable(reference_counting_tests "memory/reference_counting_tests.cc")
 target_link_libraries(reference_counting_tests PRIVATE base codebase::config third_party::gtest)
 
-add_executable(utility_tests "utility_tests.cc")
-target_link_libraries(utility_tests PRIVATE base codebase::config third_party::gtest)
-
-add_executable(shared_ptr_tests "memory/shared_ptr_tests.cc")
-target_link_libraries(shared_ptr_tests PRIVATE base codebase::config third_party::gtest)
-
 add_executable(path_tests "file/path_tests.cc")
 target_link_libraries(path_tests PRIVATE base codebase::config third_party::gtest)
 
@@ -83,7 +75,6 @@ target_link_libraries(path_tests PRIVATE base codebase::config third_party::gtes
 # the release CRT (ASan does not support /MDd), which clashes with the
 # debug-CRT base.lib in Debug configs (lld-link /failifmismatch).
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  enable_asan(shared_ptr_tests)
   enable_asan(path_tests)
 endif()
 
@@ -106,9 +97,4 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
   add_executable(count_down_latch_tests "concurrent/count_down_latch_tests.cc")
   target_link_libraries(count_down_latch_tests PRIVATE base codebase::config third_party::gtest)
-
-  # platform tests
-  add_executable(platform_tests "platform/platform_tests.cc")
-  target_link_libraries(platform_tests PRIVATE base codebase::config third_party::gtest)
-  enable_asan(platform_tests)
 endif()
