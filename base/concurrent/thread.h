@@ -12,11 +12,13 @@
 #ifndef BASE_CONCURRENT_THREAD_H_
 #define BASE_CONCURRENT_THREAD_H_
 
+#include "base/build_config.h"
+
+#if IS_LINUX
 #include <pthread.h>
-#include <time.h>
+#endif
 
 #include <atomic>
-#include <cerrno>
 #include <chrono>
 #include <cstdlib>
 #include <functional>
@@ -24,6 +26,7 @@
 #include <semaphore>
 #include <string>
 #include <system_error>
+#include <thread>
 #include <tuple>
 #include <utility>
 
@@ -32,14 +35,20 @@
 namespace base {
 
 /**
- * @brief pthread identity of a spawned thread: the user-space handle
- * (pthread_t, valid until join/detach) plus the kernel-space thread id
- * (as in gettid(2)).
+ * @brief OS identity of a thread: the user-space handle (valid until
+ * join/detach) plus the kernel-space thread id.
  *
  */
 struct PlatformThreadHandle {
-  using KernelSpaceHandle = pid_t;
+#if IS_WINDOWS
+  // HANDLE and DWORD, spelled out so that this header does not have to drag
+  // in <windows.h>.
+  using UserSpaceHandle = void*;
+  using KernelSpaceHandle = unsigned long;
+#elif IS_LINUX
   using UserSpaceHandle = pthread_t;
+  using KernelSpaceHandle = pid_t;
+#endif
   KernelSpaceHandle kernel_space_handle{};
   UserSpaceHandle user_space_handle{};
 };
@@ -57,49 +66,44 @@ struct BASE_EXPORT CurrentThread {
    */
   static bool IsMainThread() noexcept;
 
+#if IS_LINUX
   /**
    * @brief The pthread_t of the calling thread.
    *
+   * Deliberately Linux-only: the Win32 GetCurrentThread() returns a
+   * *pseudo*-handle (a constant meaning "this thread") that can neither be
+   * handed to another thread nor waited on. Exposing it as a real handle is
+   * a classic Win32 bug; GetKernelHandle() is the portable identity.
+   *
    */
   static PlatformThreadHandle::UserSpaceHandle GetHandle() noexcept;
+#endif
 
   /**
-   * @brief The kernel-space thread id (gettid(2)) of the calling thread.
-   * Cached per thread: gettid() is a real syscall.
+   * @brief The kernel-space thread id of the calling thread (gettid(2) /
+   * GetCurrentThreadId()).
    *
    */
   static PlatformThreadHandle::KernelSpaceHandle GetKernelHandle() noexcept;
 
+  /**
+   * @brief Names the calling thread (best effort). Linux truncates to 15
+   * bytes (pthread_setname_np's 16-byte limit); Windows uses
+   * SetThreadDescription (Windows 10 version 1607+).
+   *
+   */
+  static void SetName(std::string const& name) noexcept;
+
   template <typename Rep, typename Period>
   static void SleepFor(
       std::chrono::duration<Rep, Period> const& sleep_duration) {
-    if (sleep_duration <= sleep_duration.zero()) {
-      return;
-    }
-    auto seconds =
-        std::chrono::duration_cast<std::chrono::seconds>(sleep_duration);
-    auto nano_seconds = std::chrono::duration_cast<std::chrono::nanoseconds>(
-        sleep_duration - seconds);
-    timespec time_spec = {static_cast<std::time_t>(seconds.count()),
-                          static_cast<long>(nano_seconds.count())};
-    while (::nanosleep(&time_spec, &time_spec) == -1 && errno == EINTR) {
-    }
+    std::this_thread::sleep_for(sleep_duration);
   }
 
   template <typename Clock, typename Duration>
   static void SleepUntil(
       std::chrono::time_point<Clock, Duration> const& wakeup_time_point) {
-    auto now = Clock::now();
-    if (Clock::is_steady) {
-      if (now < wakeup_time_point)
-        SleepFor(wakeup_time_point - now);
-      return;
-    }
-    // using while-loop to deal with the unsteady clock.
-    while (now < wakeup_time_point) {
-      SleepFor(wakeup_time_point - now);
-      now = Clock::now();
-    }
+    std::this_thread::sleep_until(wakeup_time_point);
   }
 };
 
@@ -107,12 +111,12 @@ struct BASE_EXPORT CurrentThread {
  * @brief A naive wrapper of platform thread.
  *
  * Ownership policy:
- *  - A successfully Start()ed Thread owns a joinable pthread. Exactly one of
- *    Join(), Detach() or the destructor reclaims it.
+ *  - A successfully Start()ed Thread owns a joinable OS thread. Exactly one
+ *    of Join(), Detach() or the destructor reclaims it.
  *  - The destructor joins (unlike std::thread, which terminates): a
- *    finished-but-unjoined pthread still holds resources that only
- *    pthread_join() releases. Joining from the owned thread itself aborts
- *    (it would deadlock).
+ *    finished-but-unjoined thread still holds resources that only the join
+ *    releases. Joining from the owned thread itself aborts (it would
+ *    deadlock).
  *  - Join()/Detach() on a non-joinable thread (never started, already
  *    joined/detached, moved-from) aborts: that is a logic error, not a
  *    runtime condition.
@@ -124,6 +128,11 @@ struct BASE_EXPORT CurrentThread {
  *    is therefore safe.
  *  - Start() blocks until the child has published its kernel-space handle
  *    and its name, so both are valid as soon as Start() returns.
+ *
+ * Portability:
+ *  - The class logic is platform-neutral; only four small hooks (Spawn,
+ *    PlatformJoin, PlatformDetach, PlatformIsSelf) plus CurrentThread are
+ *    implemented per platform in thread_linux.cc and thread_win.cc.
  *
  */
 class BASE_EXPORT Thread final {
@@ -166,21 +175,22 @@ class BASE_EXPORT Thread final {
              args)...))]() mutable -> void { std::apply(callable_, args_); });
 
     state_->store(kStarted, std::memory_order_relaxed);
-    int const result =
-        pthread_create(&platform_thread_handle_.user_space_handle, nullptr,
-                       &StartInternal, parameters);
-    if (result != 0) {
+    try {
+      // Platform hook: spawns StartInternal(parameters) and publishes the
+      // user-space handle into parameters->user_handle.
+      Spawn(parameters);
+    } catch (...) {
       // Roll back to kCreated so Start() may be retried.
       state_->store(kCreated, std::memory_order_relaxed);
       delete parameters;
-      throw std::system_error(result, std::generic_category(),
-                              "pthread_create");
+      throw;
     }
     joinable_ = true;
 
     // Wait until the child has published its kernel-space handle and name.
     // StartInternal() must not touch `parameters` after releasing `started`.
     parameters->started.acquire();
+    platform_thread_handle_.user_space_handle = parameters->user_handle;
     platform_thread_handle_.kernel_space_handle = parameters->kernel_handle;
     delete parameters;
   }
@@ -197,17 +207,35 @@ class BASE_EXPORT Thread final {
   using StartRoutine = std::function<void()>;
 
   // Everything the child thread needs at startup. Owned by Start(), except
-  // between pthread_create() and the `started` handshake, when it is lent to
+  // between Spawn() and the `started` handshake, when it is lent to
   // StartInternal().
   struct StartRoutineParameters {
     std::shared_ptr<std::atomic<State>> state;
     std::string name;
     StartRoutine start_routine;
     std::binary_semaphore started{0};
+    PlatformThreadHandle::UserSpaceHandle user_handle{};
     PlatformThreadHandle::KernelSpaceHandle kernel_handle{};
   };
 
   static void* StartInternal(void* args);
+
+  // Platform hooks, defined in thread_linux.cc / thread_win.cc.
+  // Spawn() throws std::system_error on failure.
+  static void Spawn(StartRoutineParameters* parameters);
+  // PlatformJoin() blocks until the thread exits and releases the handle.
+  static void PlatformJoin(
+      PlatformThreadHandle::UserSpaceHandle handle) noexcept;
+  static void PlatformDetach(
+      PlatformThreadHandle::UserSpaceHandle handle) noexcept;
+  static bool PlatformIsSelf(
+      PlatformThreadHandle::UserSpaceHandle handle) noexcept;
+
+#if IS_WINDOWS
+  // _beginthreadex entry bridge: it requires an unsigned __stdcall(void*)
+  // routine, StartInternal() uses the pthread signature.
+  static unsigned int __stdcall StartInternalAdapter(void* args);
+#endif
 
   PlatformThreadHandle platform_thread_handle_{};
   // Shared with the child thread so it can report kFinished even after this

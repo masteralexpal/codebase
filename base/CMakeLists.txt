@@ -23,10 +23,18 @@ add_library(base ${_base_library_type}
   "concurrent/promise.cc"
   "concurrent/spin_lock.cc"
   "concurrent/task_queue_impl.cc"
+  "concurrent/thread.cc"
   "file/path.cc"
   "memory/reference_counting.cc"
   "string_aux.cc"
   )
+
+# The platform seam of Thread lives in per-platform backends.
+if(WIN32)
+  target_sources(base PRIVATE "concurrent/thread_win.cc")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  target_sources(base PRIVATE "concurrent/thread_linux.cc")
+endif()
 
 # pthread/POSIX-only sources.
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -36,7 +44,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     "concurrent/count_down_latch.cc"
     "concurrent/mutex.cc"
     "concurrent/restrict_mutex.cc"
-    "concurrent/thread.cc"
     "concurrent/thread_group.cc"
     "concurrent/task_executor_impl.cc"
     "log.cc"
@@ -70,19 +77,19 @@ target_link_libraries(reference_counting_tests PRIVATE base codebase::config thi
 add_executable(path_tests "file/path_tests.cc")
 target_link_libraries(path_tests PRIVATE base codebase::config third_party::gtest)
 
+add_executable(thread_tests "concurrent/thread_tests.cc")
+target_link_libraries(thread_tests PRIVATE base codebase::config third_party::gtest)
+
 # ASan only on Linux for tests that link base: on Windows enable_asan forces
 # the release CRT (ASan does not support /MDd), which clashes with the
 # debug-CRT base.lib in Debug configs (lld-link /failifmismatch).
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   enable_asan(path_tests)
+  enable_asan(thread_tests)
 endif()
 
 # Linux-only tests (they exercise the pthread/POSIX-based components).
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  add_executable(thread_tests "concurrent/thread_tests.cc")
-  target_link_libraries(thread_tests PRIVATE base codebase::config third_party::gtest)
-  enable_asan(thread_tests)
-
   add_executable(task_executor_tests "concurrent/task_executor_tests.cc")
   target_link_libraries(task_executor_tests PRIVATE base codebase::config third_party::gtest)
 

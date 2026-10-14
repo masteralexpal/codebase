@@ -26,6 +26,15 @@
 #define IS_MACOS 0
 #endif  // defined(__APPLE__) || defined(__MACH__)
 
+// Windows, any bitness. _WIN32 is defined on both 32- and 64-bit Windows
+// (the "Win32" API name covers both); use IS_WINDOWS for "are we on
+// Windows" and IS_WIN32/IS_WIN64 below only when the bitness matters.
+#if defined(_WIN32)
+#define IS_WINDOWS 1
+#else
+#define IS_WINDOWS 0
+#endif  // defined(_WIN32)
+
 #if defined(_WIN32) && !defined(_WIN64)
 #define IS_WIN32 1
 #else

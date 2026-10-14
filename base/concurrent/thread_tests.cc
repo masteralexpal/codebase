@@ -12,6 +12,13 @@
 #include "base/concurrent/thread.h"
 
 #include <gtest/gtest.h>
+
+#include "base/build_config.h"
+
+#if IS_LINUX
+#include <unistd.h>
+#endif
+
 #include <atomic>
 #include <chrono>
 #include <functional>
@@ -33,7 +40,9 @@ TEST(Thread, StartWithPlainFunction0) {
   ASSERT_EQ(thread.GetState(), Thread::kCreated);
   ASSERT_STREQ(thread.GetName().c_str(), "Main");
   thread.Start(PlainFunction0);
-  ASSERT_EQ(thread.GetState(), Thread::kStarted);
+  // By the time Start() returns, the child may already have run to
+  // completion: kStarted and kFinished are both legal here.
+  ASSERT_NE(thread.GetState(), Thread::kCreated);
   thread.Join();
   // Join() returns after the start routine, hence after the kFinished store.
   ASSERT_EQ(thread.GetState(), Thread::kFinished);
@@ -117,10 +126,12 @@ TEST(CurrentThread, IsMainThread) {
   thread.Join();
 }
 
+#if IS_LINUX
 TEST(CurrentThread, Handles) {
   ASSERT_EQ(CurrentThread::GetHandle(), pthread_self());
   ASSERT_EQ(CurrentThread::GetKernelHandle(), ::gettid());
 }
+#endif
 
 TEST(CurrentThread, KernelHandleDiffersAcrossThreads) {
   auto const main_tid = CurrentThread::GetKernelHandle();

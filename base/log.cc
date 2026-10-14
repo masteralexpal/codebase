@@ -18,7 +18,7 @@
 #include "base/build_config.h"
 #include "base/concurrent/thread.h"
 
-#if IS_WIN32 || IS_WIN64
+#if IS_WINDOWS
 constexpr char const kSlash = '\\';
 #else
 constexpr char const kSlash = '/';

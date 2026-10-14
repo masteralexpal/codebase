@@ -1,7 +1,9 @@
 /**
  * @file thread.cc
  * @author Li Pingan (lipingan.dev@outlook.com)
- * @brief
+ * @brief Platform-neutral thread logic. The OS-specific pieces (Spawn,
+ * PlatformJoin/PlatformDetach/PlatformIsSelf, CurrentThread) live in
+ * thread_linux.cc and thread_win.cc.
  * @version 0.1
  * @date 2023-07-30
  *
@@ -10,9 +12,6 @@
  */
 
 #include "base/concurrent/thread.h"
-
-#include <pthread.h>
-#include <unistd.h>
 
 #include <atomic>
 #include <cstdlib>
@@ -23,60 +22,18 @@
 
 namespace base {
 
-namespace {
-
-constexpr PlatformThreadHandle::KernelSpaceHandle const
-    kInvalidKernelSpaceHandle = 0;
-constexpr PlatformThreadHandle::UserSpaceHandle const kInvalidUserSpaceHandle =
-    0LU;
-
-// pthread_setname_np(3) limits thread names to 16 bytes including the
-// terminating NUL.
-constexpr std::size_t const kMaxThreadNameLength = 15;
-
-void SetCurrentThreadName(std::string const& name) {
-  std::string const truncated = name.substr(0, kMaxThreadNameLength);
-  // Best effort: a naming failure must not kill the child thread.
-  static_cast<void>(pthread_setname_np(pthread_self(), truncated.c_str()));
-}
-
-}  // namespace
-
-// static
-bool CurrentThread::IsMainThread() noexcept {
-  return ::getpid() == ::gettid();
-}
-
-// static
-PlatformThreadHandle::UserSpaceHandle CurrentThread::GetHandle() noexcept {
-  return pthread_self();
-}
-
-// static
-PlatformThreadHandle::KernelSpaceHandle CurrentThread::GetKernelHandle()
-    noexcept {
-  // gettid(2) is a real syscall (no vDSO); cache it per thread.
-  thread_local PlatformThreadHandle::KernelSpaceHandle const kernel_handle =
-      ::gettid();
-  return kernel_handle;
-}
-
 Thread::Thread(std::string const& name)
     : platform_thread_handle_{},
       state_(std::make_shared<std::atomic<State>>(kCreated)),
       joinable_(false),
-      name_(name) {
-  platform_thread_handle_.kernel_space_handle = kInvalidKernelSpaceHandle;
-  platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
-}
+      name_(name) {}
 
 Thread::Thread(Thread&& other) noexcept
     : platform_thread_handle_(other.platform_thread_handle_),
       state_(std::move(other.state_)),
       joinable_(other.joinable_),
       name_(std::move(other.name_)) {
-  other.platform_thread_handle_.kernel_space_handle = kInvalidKernelSpaceHandle;
-  other.platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
+  other.platform_thread_handle_ = {};
   other.joinable_ = false;
 }
 
@@ -85,19 +42,16 @@ Thread& Thread::operator=(Thread&& other) noexcept {
     // Give up the currently owned thread first, with the same policy as the
     // destructor.
     if (joinable_) {
-      if (pthread_equal(pthread_self(),
-                        platform_thread_handle_.user_space_handle)) {
+      if (PlatformIsSelf(platform_thread_handle_.user_space_handle)) {
         std::abort();
       }
-      pthread_join(platform_thread_handle_.user_space_handle, nullptr);
+      PlatformJoin(platform_thread_handle_.user_space_handle);
     }
     platform_thread_handle_ = other.platform_thread_handle_;
     state_ = std::move(other.state_);
     joinable_ = other.joinable_;
     name_ = std::move(other.name_);
-    other.platform_thread_handle_.kernel_space_handle =
-        kInvalidKernelSpaceHandle;
-    other.platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
+    other.platform_thread_handle_ = {};
     other.joinable_ = false;
   }
   return *this;
@@ -107,14 +61,13 @@ Thread::~Thread() {
   if (!joinable_) {
     return;
   }
-  if (pthread_equal(pthread_self(),
-                    platform_thread_handle_.user_space_handle)) {
+  if (PlatformIsSelf(platform_thread_handle_.user_space_handle)) {
     // Joining ourselves would deadlock.
     std::abort();
   }
-  // Also reclaims a kFinished thread: its resources are held until
-  // pthread_join().
-  pthread_join(platform_thread_handle_.user_space_handle, nullptr);
+  // Also reclaims a kFinished thread: its resources are held until the
+  // join.
+  PlatformJoin(platform_thread_handle_.user_space_handle);
 }
 
 void Thread::Join() noexcept {
@@ -122,14 +75,13 @@ void Thread::Join() noexcept {
     // Never started, already joined/detached, or moved-from.
     std::abort();
   }
-  if (pthread_equal(pthread_self(),
-                    platform_thread_handle_.user_space_handle)) {
+  if (PlatformIsSelf(platform_thread_handle_.user_space_handle)) {
     // Self-join deadlocks.
     std::abort();
   }
-  pthread_join(platform_thread_handle_.user_space_handle, nullptr);
+  PlatformJoin(platform_thread_handle_.user_space_handle);
   joinable_ = false;
-  platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
+  platform_thread_handle_.user_space_handle = {};
 }
 
 void Thread::Detach() noexcept {
@@ -137,10 +89,10 @@ void Thread::Detach() noexcept {
     // Never started, already joined/detached, or moved-from.
     std::abort();
   }
-  // Detaching ourselves (pthread_detach(pthread_self())) is fine.
-  pthread_detach(platform_thread_handle_.user_space_handle);
+  // Detaching ourselves is fine on both platforms.
+  PlatformDetach(platform_thread_handle_.user_space_handle);
   joinable_ = false;
-  platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
+  platform_thread_handle_.user_space_handle = {};
 }
 
 std::string Thread::GetName() const noexcept {
@@ -165,8 +117,8 @@ void* Thread::StartInternal(void* args) {
       std::move(parameters->state);
   StartRoutine const start_routine = std::move(parameters->start_routine);
 
-  parameters->kernel_handle = ::gettid();
-  SetCurrentThreadName(parameters->name);
+  parameters->kernel_handle = CurrentThread::GetKernelHandle();
+  CurrentThread::SetName(parameters->name);
   parameters->started.release();
 
   try {
