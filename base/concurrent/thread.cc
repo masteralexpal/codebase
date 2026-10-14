@@ -11,155 +11,159 @@
 
 #include "base/concurrent/thread.h"
 
-#include "base/build_config.h"
-
 #include <pthread.h>
-#include <sys/syscall.h>
 #include <unistd.h>
+
+#include <atomic>
+#include <cstdlib>
+#include <exception>
+#include <memory>
+#include <string>
 #include <utility>
 
 namespace base {
 
-#if IS_LINUX && not defined(SYS_gettid)
-#error "SYS_gettid unavailable on this system"
-#endif
-#define gettid() ((pid_t)syscall(SYS_gettid))
+namespace {
 
-#if IS_LINUX
 constexpr PlatformThreadHandle::KernelSpaceHandle const
     kInvalidKernelSpaceHandle = 0;
 constexpr PlatformThreadHandle::UserSpaceHandle const kInvalidUserSpaceHandle =
     0LU;
-#elif IS_MACOS
-constexpr PlatformThreadHandle::KernelSpaceHandle const
-    kInvalidKernelSpaceHandle = 0LU;
-constexpr PlatformThreadHandle::UserSpaceHandle const kInvalidUserSpaceHandle =
-    0LU;
-#endif
+
+// pthread_setname_np(3) limits thread names to 16 bytes including the
+// terminating NUL.
+constexpr std::size_t const kMaxThreadNameLength = 15;
+
+void SetCurrentThreadName(std::string const& name) {
+  std::string const truncated = name.substr(0, kMaxThreadNameLength);
+  // Best effort: a naming failure must not kill the child thread.
+  static_cast<void>(pthread_setname_np(pthread_self(), truncated.c_str()));
+}
+
+}  // namespace
 
 // static
 bool CurrentThread::IsMainThread() noexcept {
-#if IS_LINUX
-  return getpid() == gettid();
-#elif IS_MACOS
-  return pthread_main_np();
-#endif
+  return ::getpid() == ::gettid();
 }
 
 Thread::Thread(std::string const& name)
-    : platform_thread_handle_(),
-      platform_process_handle_(getpid()),
-      state_{kCreated},
-      joined_(false),
+    : platform_thread_handle_{},
+      state_(std::make_shared<std::atomic<State>>(kCreated)),
+      joinable_(false),
       name_(name) {
   platform_thread_handle_.kernel_space_handle = kInvalidKernelSpaceHandle;
   platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
 }
 
 Thread::Thread(Thread&& other) noexcept
-    : platform_thread_handle_(std::move(other.platform_thread_handle_)),
-      platform_process_handle_(std::move(other.platform_process_handle_)),
+    : platform_thread_handle_(other.platform_thread_handle_),
       state_(std::move(other.state_)),
-      joined_(std::move(other.joined_)),
-      name_(std::move(other.name_)) {}
+      joinable_(other.joinable_),
+      name_(std::move(other.name_)) {
+  other.platform_thread_handle_.kernel_space_handle = kInvalidKernelSpaceHandle;
+  other.platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
+  other.joinable_ = false;
+}
 
 Thread& Thread::operator=(Thread&& other) noexcept {
-  platform_thread_handle_ = std::move(other.platform_thread_handle_);
-  platform_process_handle_ = std::move(other.platform_process_handle_);
-  state_ = std::move(other.state_);
-  joined_ = std::move(other.joined_);
-  name_ = std::move(other.name_);
+  if (this != &other) {
+    // Give up the currently owned thread first, with the same policy as the
+    // destructor.
+    if (joinable_) {
+      if (pthread_equal(pthread_self(),
+                        platform_thread_handle_.user_space_handle)) {
+        std::abort();
+      }
+      pthread_join(platform_thread_handle_.user_space_handle, nullptr);
+    }
+    platform_thread_handle_ = other.platform_thread_handle_;
+    state_ = std::move(other.state_);
+    joinable_ = other.joinable_;
+    name_ = std::move(other.name_);
+    other.platform_thread_handle_.kernel_space_handle =
+        kInvalidKernelSpaceHandle;
+    other.platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
+    other.joinable_ = false;
+  }
   return *this;
 }
 
 Thread::~Thread() {
-#if IS_LINUX || IS_MACOS
-  if (!joined_ && state_ == kStarted) {
-    pthread_join(platform_thread_handle_.user_space_handle, nullptr);
+  if (!joinable_) {
+    return;
   }
-#endif
+  if (pthread_equal(pthread_self(),
+                    platform_thread_handle_.user_space_handle)) {
+    // Joining ourselves would deadlock.
+    std::abort();
+  }
+  // Also reclaims a kFinished thread: its resources are held until
+  // pthread_join().
+  pthread_join(platform_thread_handle_.user_space_handle, nullptr);
 }
 
 void Thread::Join() noexcept {
-  if (!joined_ && kStarted) {
-    pthread_join(platform_thread_handle_.user_space_handle, nullptr);
-    joined_ = true;
+  if (!joinable_) {
+    // Never started, already joined/detached, or moved-from.
+    std::abort();
   }
+  if (pthread_equal(pthread_self(),
+                    platform_thread_handle_.user_space_handle)) {
+    // Self-join deadlocks.
+    std::abort();
+  }
+  pthread_join(platform_thread_handle_.user_space_handle, nullptr);
+  joinable_ = false;
+  platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
+}
+
+void Thread::Detach() noexcept {
+  if (!joinable_) {
+    // Never started, already joined/detached, or moved-from.
+    std::abort();
+  }
+  // Detaching ourselves (pthread_detach(pthread_self())) is fine.
+  pthread_detach(platform_thread_handle_.user_space_handle);
+  joinable_ = false;
+  platform_thread_handle_.user_space_handle = kInvalidUserSpaceHandle;
 }
 
 std::string Thread::GetName() const noexcept {
   return name_;
 }
 
-Thread::State Thread::GetSate() const noexcept {
-  return state_;
+Thread::State Thread::GetState() const noexcept {
+  if (!state_) {
+    // Moved-from.
+    return kCreated;
+  }
+  return state_->load(std::memory_order_acquire);
 }
 
-// private
 // static
 void* Thread::StartInternal(void* args) {
   auto* parameters = static_cast<StartRoutineParameters*>(args);
-#if IS_LINUX
-  parameters->thread->platform_thread_handle_.kernel_space_handle = gettid();
-  pthread_setname_np(
-      parameters->thread->platform_thread_handle_.user_space_handle,
-      parameters->thread->name_.c_str());
-#elif IS_MACOS
-  pthread_threadid_np(
-      parameters->thread->platform_thread_handle_.user_space_handle,
-      parameters->thread->platform_thread_handle_.kernel_space_handle);
-  pthread_setname_np(parameters->thread->name_.c_str());
-#endif
 
-  if (parameters && parameters->start_routine) {
-    parameters->start_routine->operator()();
+  // Move out everything the routine needs up front: after started.release(),
+  // `parameters` belongs to Start() again and must not be touched here.
+  std::shared_ptr<std::atomic<State>> const state =
+      std::move(parameters->state);
+  StartRoutine const start_routine = std::move(parameters->start_routine);
+
+  parameters->kernel_handle = ::gettid();
+  SetCurrentThreadName(parameters->name);
+  parameters->started.release();
+
+  try {
+    start_routine();
+  } catch (...) {
+    // A start routine must not let an exception escape its thread
+    // (same contract as std::thread).
+    std::terminate();
   }
-
-  if (parameters->thread) {
-    parameters->thread->SwitchState(kFinished);
-  }
-
-  delete parameters->start_routine;
-  delete parameters;
+  state->store(kFinished, std::memory_order_release);
   return nullptr;
-}
-
-// private
-void Thread::SwitchState(State next_state) {
-  CheckState(state_, next_state);
-  state_ = next_state;
-}
-
-void Thread::CheckState(State currnet_state, State next_state) {
-  switch (currnet_state) {
-    case kCreated: {
-      if (next_state != kStarted) {
-        // TODO, Using stack strace.
-        std::abort();
-      }
-      break;
-    }
-    case kStarted: {
-      if (next_state == kCreated) {
-        std::abort();
-      }
-      break;
-    }
-    case kSleeping: {
-      if (next_state == kCreated) {
-        std::abort();
-      }
-      break;
-    }
-    case kFinished: {
-      std::abort();
-      break;
-    }
-    default: {
-      std::abort();
-      break;
-    }
-  }
 }
 
 }  // namespace base

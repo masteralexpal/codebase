@@ -12,13 +12,17 @@
 #include "base/concurrent/thread.h"
 
 #include <gtest/gtest.h>
+#include <atomic>
 #include <chrono>
+#include <functional>
+#include <iostream>
+#include <utility>
 
 namespace base {
 TEST(Thread, Creation) {
   Thread thread;
   ASSERT_STREQ(thread.GetName().c_str(), "Anonymous");
-  ASSERT_EQ(thread.GetSate(), Thread::kCreated);
+  ASSERT_EQ(thread.GetState(), Thread::kCreated);
 }
 void PlainFunction0() {
   std::cout << __func__ << "() called!";
@@ -26,11 +30,13 @@ void PlainFunction0() {
 
 TEST(Thread, StartWithPlainFunction0) {
   Thread thread("Main");
-  ASSERT_EQ(thread.GetSate(), Thread::kCreated);
+  ASSERT_EQ(thread.GetState(), Thread::kCreated);
   ASSERT_STREQ(thread.GetName().c_str(), "Main");
   thread.Start(PlainFunction0);
-  ASSERT_EQ(thread.GetSate(), Thread::kStarted);
+  ASSERT_EQ(thread.GetState(), Thread::kStarted);
   thread.Join();
+  // Join() returns after the start routine, hence after the kFinished store.
+  ASSERT_EQ(thread.GetState(), Thread::kFinished);
 }
 
 void PlainFunction1(int a, int b, int* c) {
@@ -48,24 +54,75 @@ TEST(Thread, StartWithPlainFunction1) {
 }
 
 class Functor {
+ public:
   void operator()() {}
 };
 
-TEST(Thread, StartWithFunctor) {}
+TEST(Thread, StartWithFunctor) {
+  Thread thread;
+  thread.Start(Functor{});
+  thread.Join();
+}
 
-TEST(CurrnetThread, IsMainThread) {
+TEST(Thread, Detach) {
+  Thread thread;
+  thread.Start([]() -> void {});
+  thread.Detach();
+  // The destructor must not join a detached thread.
+}
+
+TEST(Thread, DestructorJoins) {
+  bool executed = false;
+  {
+    Thread thread;
+    thread.Start([&executed]() -> void { executed = true; });
+    // No Join(): the destructor joins.
+  }
+  ASSERT_TRUE(executed);
+}
+
+TEST(Thread, MoveAfterStart) {
+  std::atomic<bool> executed{false};
+  Thread first;
+  first.Start([&executed]() -> void {
+    executed.store(true, std::memory_order_relaxed);
+  });
+  // Moving a running Thread is safe: the child reports through the shared
+  // state, never through `this`.
+  Thread second(std::move(first));
+  second.Join();
+  ASSERT_TRUE(executed.load(std::memory_order_relaxed));
+  ASSERT_EQ(second.GetState(), Thread::kFinished);
+}
+
+TEST(Thread, JoinWithoutStart) {
+  Thread thread;
+  ASSERT_DEATH(thread.Join(), "");
+}
+
+TEST(Thread, DoubleStart) {
+  ASSERT_DEATH(
+      {
+        Thread thread;
+        thread.Start([]() -> void {});
+        thread.Start([]() -> void {});
+      },
+      "");
+}
+
+TEST(CurrentThread, IsMainThread) {
   ASSERT_TRUE(CurrentThread::IsMainThread());
   Thread thread;
   thread.Start([]() -> void { ASSERT_FALSE(CurrentThread::IsMainThread()); });
   thread.Join();
 }
 
-TEST(CurrnetThread, SleepFor) {
+TEST(CurrentThread, SleepFor) {
   ASSERT_TRUE(CurrentThread::IsMainThread());
   CurrentThread::SleepFor(std::chrono::seconds{5});
 }
 
-TEST(CurrnetThread, SleepUntil) {
+TEST(CurrentThread, SleepUntil) {
   ASSERT_TRUE(CurrentThread::IsMainThread());
   CurrentThread::SleepUntil(std::chrono::system_clock::now() +
                             std::chrono::seconds{5});
