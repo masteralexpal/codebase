@@ -117,6 +117,20 @@ TEST(CurrentThread, IsMainThread) {
   thread.Join();
 }
 
+TEST(CurrentThread, Handles) {
+  ASSERT_EQ(CurrentThread::GetHandle(), pthread_self());
+  ASSERT_EQ(CurrentThread::GetKernelHandle(), ::gettid());
+}
+
+TEST(CurrentThread, KernelHandleDiffersAcrossThreads) {
+  auto const main_tid = CurrentThread::GetKernelHandle();
+  Thread thread;
+  thread.Start([main_tid]() -> void {
+    ASSERT_NE(CurrentThread::GetKernelHandle(), main_tid);
+  });
+  thread.Join();
+}
+
 TEST(CurrentThread, SleepFor) {
   ASSERT_TRUE(CurrentThread::IsMainThread());
   CurrentThread::SleepFor(std::chrono::seconds{5});

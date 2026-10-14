@@ -5,7 +5,7 @@
 # Sources with std-only dependencies build on every supported platform. The
 # pthread/POSIX-based components (mutex, condition_variable, thread, log,
 # ...) are Linux-only for now. TODO: port them to Win32
-# (platform_thread_win, SRWLOCK, CONDITION_VARIABLE, ...).
+# (thread_win.cc, SRWLOCK, CONDITION_VARIABLE, ...).
 # -------------------
 
 # CODEBASE_COMPONENT_BUILD (cmake/options.cmake): ON -> shared component,
@@ -35,7 +35,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     "concurrent/condition_variable.cc"
     "concurrent/count_down_latch.cc"
     "concurrent/mutex.cc"
-    "concurrent/platform_thread_linux.cc"
     "concurrent/restrict_mutex.cc"
     "concurrent/thread.cc"
     "concurrent/thread_group.cc"
@@ -83,10 +82,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_executable(thread_tests "concurrent/thread_tests.cc")
   target_link_libraries(thread_tests PRIVATE base codebase::config third_party::gtest)
   enable_asan(thread_tests)
-
-  add_executable(platform_thread_linux_tests "concurrent/platform_thread_linux_tests.cc")
-  target_link_libraries(platform_thread_linux_tests PRIVATE base codebase::config third_party::gtest)
-  enable_asan(platform_thread_linux_tests)
 
   add_executable(task_executor_tests "concurrent/task_executor_tests.cc")
   target_link_libraries(task_executor_tests PRIVATE base codebase::config third_party::gtest)

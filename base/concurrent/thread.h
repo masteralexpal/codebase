@@ -32,6 +32,19 @@
 namespace base {
 
 /**
+ * @brief pthread identity of a spawned thread: the user-space handle
+ * (pthread_t, valid until join/detach) plus the kernel-space thread id
+ * (as in gettid(2)).
+ *
+ */
+struct PlatformThreadHandle {
+  using KernelSpaceHandle = pid_t;
+  using UserSpaceHandle = pthread_t;
+  KernelSpaceHandle kernel_space_handle{};
+  UserSpaceHandle user_space_handle{};
+};
+
+/**
  * @brief Functionalities that related to the current thread.
  *
  */
@@ -43,6 +56,19 @@ struct BASE_EXPORT CurrentThread {
    * @return false
    */
   static bool IsMainThread() noexcept;
+
+  /**
+   * @brief The pthread_t of the calling thread.
+   *
+   */
+  static PlatformThreadHandle::UserSpaceHandle GetHandle() noexcept;
+
+  /**
+   * @brief The kernel-space thread id (gettid(2)) of the calling thread.
+   * Cached per thread: gettid() is a real syscall.
+   *
+   */
+  static PlatformThreadHandle::KernelSpaceHandle GetKernelHandle() noexcept;
 
   template <typename Rep, typename Period>
   static void SleepFor(
@@ -75,19 +101,6 @@ struct BASE_EXPORT CurrentThread {
       now = Clock::now();
     }
   }
-};
-
-/**
- * @brief pthread identity of a spawned thread: the user-space handle
- * (pthread_t, valid until join/detach) plus the kernel-space thread id
- * (as in gettid(2)).
- *
- */
-struct PlatformThreadHandle {
-  using KernelSpaceHandle = pid_t;
-  using UserSpaceHandle = pthread_t;
-  KernelSpaceHandle kernel_space_handle{};
-  UserSpaceHandle user_space_handle{};
 };
 
 /**

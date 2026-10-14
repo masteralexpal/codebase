@@ -16,6 +16,7 @@
 #include <iomanip>
 
 #include "base/build_config.h"
+#include "base/concurrent/thread.h"
 
 #if IS_WIN32 || IS_WIN64
 constexpr char const kSlash = '\\';
@@ -32,17 +33,9 @@ static inline pid_t GetPid() {
 #endif
 
 #if IS_LINUX
-#include <sys/syscall.h>
-#if defined(SYS_gettid)
-#define gettid() ((pid_t)syscall(SYS_gettid))
 static inline pid_t GetTid() {
-  thread_local pid_t currnet_tid = gettid();
-  return currnet_tid;
+  return CurrentThread::GetKernelHandle();
 }
-#else
-#error "SYS_gettid unavailable on this system"
-#endif
-
 #endif
 
 namespace base {

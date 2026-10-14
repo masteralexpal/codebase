@@ -47,6 +47,20 @@ bool CurrentThread::IsMainThread() noexcept {
   return ::getpid() == ::gettid();
 }
 
+// static
+PlatformThreadHandle::UserSpaceHandle CurrentThread::GetHandle() noexcept {
+  return pthread_self();
+}
+
+// static
+PlatformThreadHandle::KernelSpaceHandle CurrentThread::GetKernelHandle()
+    noexcept {
+  // gettid(2) is a real syscall (no vDSO); cache it per thread.
+  thread_local PlatformThreadHandle::KernelSpaceHandle const kernel_handle =
+      ::gettid();
+  return kernel_handle;
+}
+
 Thread::Thread(std::string const& name)
     : platform_thread_handle_{},
       state_(std::make_shared<std::atomic<State>>(kCreated)),

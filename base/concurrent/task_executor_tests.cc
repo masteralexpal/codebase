@@ -13,15 +13,15 @@
 #include <iostream>
 #include <tuple>
 
-#include "base/concurrent/platform_thread_linux.h"
 #include "base/concurrent/task.h"
 #include "base/concurrent/task_executor_impl.h"
+#include "base/concurrent/thread.h"
 
 #include <gtest/gtest.h>
 #include "base/log.h"
 
 void Add(int a, int b) {
-  LOG(INFO) << "LWPID = " << base::PlatformThread::Current::GetKernelHandle()
+  LOG(INFO) << "LWPID = " << base::CurrentThread::GetKernelHandle()
             << ", result = " << a + b;
 }
 
@@ -42,5 +42,5 @@ TEST(TaskExecutorImpl, Submit) {
 
   task_executor_impl.Stop();
 
-  base::PlatformThread::Current::SleepFor(std::chrono::seconds{15});
+  base::CurrentThread::SleepFor(std::chrono::seconds{15});
 }
