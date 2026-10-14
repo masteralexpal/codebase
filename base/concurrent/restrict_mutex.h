@@ -16,12 +16,12 @@
 
 #include <pthread.h>
 
-#include "base/macro.h"
+#include "base/base_exports.h"
 
 namespace base {
 // Restrict mutex has private Acquire and Release.
 // Must be used with base::MutextGuard<RestrictMutex>.
-class API RestrictMutex final {
+class BASE_EXPORT RestrictMutex final {
  public:
   RestrictMutex();
 

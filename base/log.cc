@@ -15,7 +15,7 @@
 #include <ctime>
 #include <iomanip>
 
-#include "base/macro.h"
+#include "base/build_config.h"
 
 #if IS_WIN32 || IS_WIN64
 constexpr char const kSlash = '\\';

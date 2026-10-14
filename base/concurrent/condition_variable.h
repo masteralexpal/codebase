@@ -1,13 +1,13 @@
 #ifndef BASE_CONCURRENT_CONDITION_VARIABLE_H_
 #define BASE_CONCURRENT_CONDITION_VARIABLE_H_
 
+#include "base/base_exports.h"
 #include "base/concurrent/mutex.h"
-#include "base/macro.h"
 
 #include <pthread.h>
 
 namespace base {
-class API ConditionVariable final {
+class BASE_EXPORT ConditionVariable final {
  public:
   ConditionVariable();
 

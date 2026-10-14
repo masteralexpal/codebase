@@ -12,14 +12,14 @@
 #ifndef BASE_CONCURRENT_MONITOR_H_
 #define BASE_CONCURRENT_MONITOR_H_
 
-#include "base/macro.h"
+#include "base/base_exports.h"
 
 #include <pthread.h>
 
 namespace base {
 // A monitor consists of a mutex (lock) object and condition variables.
 // https://en.wikipedia.org/wiki/Monitor_(synchronization)
-class API Monitor final {
+class BASE_EXPORT Monitor final {
  public:
   Monitor();
 

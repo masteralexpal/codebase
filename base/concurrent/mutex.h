@@ -11,7 +11,7 @@
 #ifndef BASE_CONCURRENT_MUTEX_H_
 #define BASE_CONCURRENT_MUTEX_H_
 
-#include "base/macro.h"
+#include "base/base_exports.h"
 
 #include <pthread.h>
 
@@ -19,7 +19,7 @@ namespace base {
 
 class ConditionVariable;
 
-class API Mutex final {
+class BASE_EXPORT Mutex final {
  public:
   Mutex();
 

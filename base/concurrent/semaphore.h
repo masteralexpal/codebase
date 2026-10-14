@@ -12,12 +12,12 @@
 #ifndef BASE_CONCURRENT_SEMAPHORE_H_
 #define BASE_CONCURRENT_SEMAPHORE_H_
 
+#include "base/base_exports.h"
 #include "base/concurrent/condition_variable.h"
 #include "base/concurrent/mutex.h"
-#include "base/macro.h"
 
 namespace base {
-class API Semaphore final {
+class BASE_EXPORT Semaphore final {
  public:
   Semaphore();
   Semaphore(int count);

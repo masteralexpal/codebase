@@ -11,6 +11,8 @@
 
 #include "base/concurrent/thread.h"
 
+#include "base/build_config.h"
+
 #include <pthread.h>
 #include <sys/syscall.h>
 #include <unistd.h>

@@ -11,6 +11,8 @@
 
 #include "base/platform/platform.h"
 
+#include "base/build_config.h"
+
 #include <sys/syscall.h>
 #include <unistd.h>
 

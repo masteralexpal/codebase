@@ -21,7 +21,8 @@
 #include <type_traits>
 #include <utility>
 
-#include "base/macro.h"
+#include "base/base_exports.h"
+#include "base/build_config.h"
 
 namespace base {
 
@@ -29,7 +30,7 @@ namespace base {
  * @brief Functionalities that related to the current thread.
  *
  */
-struct API CurrentThread {
+struct BASE_EXPORT CurrentThread {
   /**
    * @brief
    *
@@ -103,7 +104,7 @@ struct PlatformProcessHandle {
  * @brief A naive wrapper of platform thread.
  *
  */
-class API Thread {
+class BASE_EXPORT Thread {
  public:
   // using PlatformThread = pthread_t;
 
