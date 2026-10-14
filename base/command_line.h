@@ -16,6 +16,7 @@
 #include <optional>
 #include <string>
 
+#include "base/base_exports.h"
 #include "base/macro.h"
 
 namespace base {
@@ -29,7 +30,7 @@ namespace base {
  *
  */
 
-class API CommandLine final {
+class BASE_EXPORT CommandLine final {
  public:
   using Key = std::string;
   using Value = std::string;

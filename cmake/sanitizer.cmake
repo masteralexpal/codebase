@@ -30,6 +30,13 @@ function(enable_asan target)
   codebase_option_scope(${target} _scope)
   if(MSVC)
     target_compile_options(${target} ${_scope} "/fsanitize=address")
+    # MSVC STL embeds /failifmismatch pragmas for its container annotations
+    # (string/vector/optional), whose values differ between sanitized and
+    # unsanitized TUs. Since the ASan target links unsanitized objects
+    # (vcpkg gtest, base, ...), disable the annotations or lld-link rejects
+    # the mix. _DISABLE_STL_ANNOTATION is the master switch (see
+    # __msvc_sanitizer_annotate_container.hpp).
+    target_compile_definitions(${target} ${_scope} "_DISABLE_STL_ANNOTATION")
     get_target_property(_type ${target} TYPE)
     if(NOT _type STREQUAL "INTERFACE_LIBRARY")
       set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")

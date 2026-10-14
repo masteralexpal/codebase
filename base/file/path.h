@@ -45,10 +45,7 @@ class Path final {
   std::string ToString() const;
 
   static constexpr inline char GetPlatformSeprator() {
-#if defined(__linux) || defined(__linux__) || defined(__gnu__linux__) || \
-    defined(__APPLE__) || defined(__MACH__)
-    return '/';
-#elif
+#if defined(_WIN32)
     return '\\';
 #else
     return '/';

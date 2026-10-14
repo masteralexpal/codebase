@@ -11,9 +11,14 @@
 
 #include "base/concurrent/spin_lock.h"
 
+#include <atomic>
+
 namespace base {
 
-SpinLock::SpinLock() noexcept : is_exclusive_(false) {}
+// The C++20 default constructor of std::atomic_flag initializes to the
+// clear state; do not use is_exclusive_(false) (P0883 ctor), which MSVC
+// STL does not implement.
+SpinLock::SpinLock() noexcept {}
 
 void SpinLock::Acquire() noexcept {
   while (is_exclusive_.test_and_set(std::memory_order_acquire)) {

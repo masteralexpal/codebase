@@ -2,15 +2,11 @@
 # -------------------
 # The base library and its tests.
 #
-# NOTE: base is currently pthread/Linux-only (mutex.h, thread.cc, log.cc etc.
-# include <pthread.h> and <sys/...> unconditionally), so nothing is built on
-# other platforms. TODO: port to Win32 (platform_thread_win, SRWLOCK,
-# CONDITION_VARIABLE, ...).
+# Sources with std-only dependencies build on every supported platform. The
+# pthread/POSIX-based components (mutex, condition_variable, thread, log,
+# platform, ...) are Linux-only for now. TODO: port them to Win32
+# (platform_thread_win, SRWLOCK, CONDITION_VARIABLE, ...).
 # -------------------
-
-if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  return()
-endif()
 
 # CODEBASE_COMPONENT_BUILD (cmake/options.cmake): ON -> shared component,
 # OFF -> static library.
@@ -20,28 +16,36 @@ else()
   set(_base_library_type STATIC)
 endif()
 
+# std-only sources; portable across all supported platforms.
 add_library(base ${_base_library_type}
-  "concurrent/blocking_queue.cc"
-  "concurrent/condition_variable.cc"
-  "concurrent/count_down_latch.cc"
-  "concurrent/mutex_guard.cc"
-  "concurrent/mutex.cc"
-  "concurrent/promise.cc"
-  "concurrent/platform_thread_linux.cc"
-  "concurrent/restrict_mutex.cc"
-  "concurrent/spin_lock.cc"
-  "concurrent/thread.cc"
-  "concurrent/thread_group.cc"
-  "concurrent/task_executor_impl.cc"
-  "concurrent/task_queue_impl.cc"
   "command_line.cc"
+  "concurrent/mutex_guard.cc"
+  "concurrent/promise.cc"
+  "concurrent/spin_lock.cc"
+  "concurrent/task_queue_impl.cc"
+  "file/path.cc"
   "memory/atomic_reference_counting.cc"
   "memory/reference_counting.cc"
-  "file/path.cc"
-  "log.cc"
-  "platform/platform.cc"
   "string_aux.cc"
   )
+
+# pthread/POSIX-only sources.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  target_sources(base PRIVATE
+    "concurrent/blocking_queue.cc"
+    "concurrent/condition_variable.cc"
+    "concurrent/count_down_latch.cc"
+    "concurrent/mutex.cc"
+    "concurrent/platform_thread_linux.cc"
+    "concurrent/restrict_mutex.cc"
+    "concurrent/thread.cc"
+    "concurrent/thread_group.cc"
+    "concurrent/task_executor_impl.cc"
+    "log.cc"
+    "platform/platform.cc"
+    )
+endif()
+
 # Repo-root include path is part of base's usage requirements ("base/..."
 # includes appear in its public headers), so link the config PUBLICly.
 target_link_libraries(base PUBLIC codebase::config)
@@ -59,25 +63,7 @@ else()
   set_target_properties(base PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
-# concurrent tests
-add_executable(thread_tests "concurrent/thread_tests.cc")
-target_link_libraries(thread_tests PRIVATE base codebase::config third_party::gtest)
-enable_asan(thread_tests)
-
-add_executable(platform_thread_linux_tests "concurrent/platform_thread_linux_tests.cc")
-target_link_libraries(platform_thread_linux_tests PRIVATE base codebase::config third_party::gtest)
-enable_asan(platform_thread_linux_tests)
-
-add_executable(task_executor_tests "concurrent/task_executor_tests.cc")
-target_link_libraries(task_executor_tests PRIVATE base codebase::config third_party::gtest)
-
-add_executable(log_tests "log_tests.cc")
-target_link_libraries(log_tests PRIVATE base codebase::config third_party::gtest)
-enable_asan(log_tests)
-
-add_executable(count_down_latch_tests "concurrent/count_down_latch_tests.cc")
-target_link_libraries(count_down_latch_tests PRIVATE base codebase::config third_party::gtest)
-
+# Portable tests.
 add_executable(spin_lock "concurrent/spin_lock_tests.cc")
 target_link_libraries(spin_lock PRIVATE base codebase::config third_party::gtest)
 
@@ -89,13 +75,40 @@ target_link_libraries(utility_tests PRIVATE base codebase::config third_party::g
 
 add_executable(shared_ptr_tests "memory/shared_ptr_tests.cc")
 target_link_libraries(shared_ptr_tests PRIVATE base codebase::config third_party::gtest)
-enable_asan(shared_ptr_tests)
 
 add_executable(path_tests "file/path_tests.cc")
 target_link_libraries(path_tests PRIVATE base codebase::config third_party::gtest)
-enable_asan(path_tests)
 
-# platform tests
-add_executable(platform_tests "platform/platform_tests.cc")
-target_link_libraries(platform_tests PRIVATE base codebase::config third_party::gtest)
-enable_asan(platform_tests)
+# ASan only on Linux for tests that link base: on Windows enable_asan forces
+# the release CRT (ASan does not support /MDd), which clashes with the
+# debug-CRT base.lib in Debug configs (lld-link /failifmismatch).
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  enable_asan(shared_ptr_tests)
+  enable_asan(path_tests)
+endif()
+
+# Linux-only tests (they exercise the pthread/POSIX-based components).
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  add_executable(thread_tests "concurrent/thread_tests.cc")
+  target_link_libraries(thread_tests PRIVATE base codebase::config third_party::gtest)
+  enable_asan(thread_tests)
+
+  add_executable(platform_thread_linux_tests "concurrent/platform_thread_linux_tests.cc")
+  target_link_libraries(platform_thread_linux_tests PRIVATE base codebase::config third_party::gtest)
+  enable_asan(platform_thread_linux_tests)
+
+  add_executable(task_executor_tests "concurrent/task_executor_tests.cc")
+  target_link_libraries(task_executor_tests PRIVATE base codebase::config third_party::gtest)
+
+  add_executable(log_tests "log_tests.cc")
+  target_link_libraries(log_tests PRIVATE base codebase::config third_party::gtest)
+  enable_asan(log_tests)
+
+  add_executable(count_down_latch_tests "concurrent/count_down_latch_tests.cc")
+  target_link_libraries(count_down_latch_tests PRIVATE base codebase::config third_party::gtest)
+
+  # platform tests
+  add_executable(platform_tests "platform/platform_tests.cc")
+  target_link_libraries(platform_tests PRIVATE base codebase::config third_party::gtest)
+  enable_asan(platform_tests)
+endif()

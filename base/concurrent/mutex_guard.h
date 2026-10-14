@@ -5,7 +5,8 @@
 
 namespace base {
 template <typename MutexType>
-class API MutexGuard final {
+// No export macro: templates are instantiated in the consuming TU.
+class MutexGuard final {
  public:
   explicit MutexGuard(MutexType& mutex) : mutex_(mutex) { mutex_.Acquire(); }
 

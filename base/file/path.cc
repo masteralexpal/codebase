@@ -9,9 +9,10 @@
  *
  */
 
-#include <utility>
-
 #include "base/file/path.h"
+
+#include <string>
+#include <utility>
 
 namespace base {
 Path::Path(char const* path_name) : path_name_(path_name) {}
@@ -47,21 +48,23 @@ bool Path::IsAbsolute() const noexcept {
 }
 
 void Path::Append(char const* sub_path) {
-  if (path_name_.back() != GetPlatformSeprator()) {
+  // Appending to an empty path yields a relative path (std::filesystem
+  // semantics); back() on an empty string is undefined behavior.
+  if (!path_name_.empty() && path_name_.back() != GetPlatformSeprator()) {
     path_name_.push_back(GetPlatformSeprator());
   }
   path_name_.append(sub_path);
 }
 
 void Path::Append(std::string const& sub_path) {
-  if (path_name_.back() != GetPlatformSeprator()) {
+  if (!path_name_.empty() && path_name_.back() != GetPlatformSeprator()) {
     path_name_.push_back(GetPlatformSeprator());
   }
   path_name_.append(sub_path);
 }
 
 void Path::Append(Path const& sub_path) {
-  if (path_name_.back() != GetPlatformSeprator()) {
+  if (!path_name_.empty() && path_name_.back() != GetPlatformSeprator()) {
     path_name_.push_back(GetPlatformSeprator());
   }
   path_name_.append(sub_path.path_name_);

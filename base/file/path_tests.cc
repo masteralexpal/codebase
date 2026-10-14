@@ -10,20 +10,23 @@
  */
 #include "base/file/path.h"
 
+#include <string>
+
 #include <gtest/gtest.h>
 
 namespace base {
 
 TEST(Path, Construction0) {
+  char const sep = base::Path::GetPlatformSeprator();
   base::Path path;
   ASSERT_EQ(path.Empty(), true);
   ASSERT_EQ(path.IsAbsolute(), false);
   path.Append(Path{"tmp"});
-  ASSERT_EQ(path.ToString(), "/tmp");
-  path.Append("hikari/");
-  ASSERT_EQ(path.ToString(), "/tmp/hikari/");
+  ASSERT_EQ(path.ToString(), "tmp");
+  path.Append("hikari");
+  ASSERT_EQ(path.ToString(), std::string{"tmp"} + sep + "hikari");
   path.Append("dora");
-  ASSERT_EQ(path.ToString(), "/tmp/hikari/dora");
+  ASSERT_EQ(path.ToString(), std::string{"tmp"} + sep + "hikari" + sep + "dora");
 }
 
 }  // namespace base
