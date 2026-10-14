@@ -1,0 +1,25 @@
+---
+# clangd configuration for this monorepo.
+# Docs: https://clangd.llvm.org/config
+
+CompileFlags:
+  # Point clangd at the CMake compilation database. Configure first with:
+  #   cmake --preset windows-clangcl
+  # On Linux configure the linux-debug preset and change this to out/Debug.
+  CompilationDatabase: out/windows-clangcl/
+
+Index:
+  # Small project; background indexing keeps cross-references available
+  # everywhere (index cache goes to .cache/clangd, which is gitignored).
+  Background: Build
+
+Diagnostics:
+  # Flag #include directives that are not used / that should be direct.
+  UnusedIncludes: Strict
+  MissingIncludes: Strict
+
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+...
