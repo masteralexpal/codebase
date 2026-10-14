@@ -17,20 +17,14 @@
 #include <type_traits>
 #include <utility>
 
-#include "base/cxx.h"
-
 namespace base {
 namespace internal {}  // namespace internal
 
 template <typename Type>
 class SharedPtr {
  public:
-#if SINCE(CXX_17)
   using element_type = std::remove_extent_t<Type>;
   using weak_type = std::weak_ptr<Type>;
-#else
-  using element_type = Type;
-#endif
   /**
    * @brief Constructs a shared_ptr with no managed object, i.e. empty
    * shared_ptr.
@@ -151,7 +145,7 @@ class SharedPtr {
   }
 
   SharedPtr(SharedPtr const& r) noexcept
-      : storage_(r.storage_), deleter_(deleter_) {
+      : storage_(r.storage_), deleter_(r.deleter_) {
     // C.9
     storage_->AddSharedRef();
   }
