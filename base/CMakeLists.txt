@@ -41,8 +41,6 @@ add_library(base ${_base_library_type}
   "log.cc"
   "platform/platform.cc"
   "string_aux.cc"
-  "source_location.cc"
-  "timestamp.cc"
   )
 # Repo-root include path is part of base's usage requirements ("base/..."
 # includes appear in its public headers), so link the config PUBLICly.
@@ -72,10 +70,6 @@ enable_asan(platform_thread_linux_tests)
 
 add_executable(task_executor_tests "concurrent/task_executor_tests.cc")
 target_link_libraries(task_executor_tests PRIVATE base codebase::config third_party::gtest)
-
-add_executable(source_location_tests "source_location_tests.cc")
-target_link_libraries(source_location_tests PRIVATE base codebase::config third_party::gtest)
-enable_asan(source_location_tests)
 
 add_executable(log_tests "log_tests.cc")
 target_link_libraries(log_tests PRIVATE base codebase::config third_party::gtest)
