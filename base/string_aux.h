@@ -12,6 +12,7 @@
 #ifndef BASE_STRING_AUXILIARY_H_
 #define BASE_STRING_AUXILIARY_H_
 
+#include <cstddef>
 #include <string>
 #include <vector>
 

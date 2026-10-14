@@ -10,6 +10,9 @@
  */
 
 #include "base/string_aux.h"
+#include <cctype>
+#include <string>
+#include <vector>
 
 namespace base {
 std::vector<std::string> Split(std::string const& text, char delimiter) {
