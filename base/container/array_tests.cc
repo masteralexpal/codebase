@@ -11,7 +11,7 @@
 
 #include "base/container/array.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <cstddef>
 #include <stdexcept>
 #include <type_traits>

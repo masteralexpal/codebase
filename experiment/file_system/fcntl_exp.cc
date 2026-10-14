@@ -12,7 +12,7 @@
 #include <fcntl.h>
 
 #include "experiment/helper.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 TEST(fcntl, dupfd) {
   std::string file_path = "test_file";

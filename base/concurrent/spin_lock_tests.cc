@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "base/concurrent/spin_lock.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 inline constexpr int kNumOfThreads = 10;
 inline constexpr int kMax = 100000;

@@ -19,7 +19,7 @@
 #include <cstdlib>
 #include <thread>
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace base {
 

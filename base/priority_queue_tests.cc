@@ -10,7 +10,7 @@
  */
 
 #include "base/priority_queue.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace base {
 TEST(PriorityQueue, case0) {

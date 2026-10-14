@@ -13,7 +13,7 @@
 #include <sys/timerfd.h>
 
 #include "base/log.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 class TimeTestEnviroment : public testing::Environment {
  public:

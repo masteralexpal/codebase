@@ -17,7 +17,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #define PRINT_STANDARD_ERROR_CODE_AND_MESSAGE()                                \
   std::cerr << "[" << __FILE__ << "(" << __LINE__ << ")@" << __func__          \

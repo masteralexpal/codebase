@@ -22,7 +22,7 @@
 #include <utility>
 
 #include "base/log.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 class DeleagteImpl : public base::PlatformThread::Delegate {
 public:

@@ -11,7 +11,7 @@
 
 #include "base/string_aux.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace base {
 TEST(auxiliary, split_0) {

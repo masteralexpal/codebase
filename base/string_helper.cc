@@ -10,6 +10,4 @@
  */
 
 #include "base/string_helper.h"
-namespace base {
-    
-}
+namespace base {}

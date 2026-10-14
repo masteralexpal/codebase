@@ -13,7 +13,7 @@
 #include <type_traits>
 
 #include "base/closure.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 int PlainFunction1(int a, int b) {
   std::cout << a << " + " << b << " = " << a + b;

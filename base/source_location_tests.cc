@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 template <std::size_t N>
 constexpr char const *ExtractFileName(char const (&file_path)[N]) {

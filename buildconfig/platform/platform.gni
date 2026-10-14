@@ -1,5 +1,0 @@
-declare_args() {
-  is_macos = host_os == "mac"
-  is_linux = host_os == "linux"
-  is_windows = host_os == "win"
-}

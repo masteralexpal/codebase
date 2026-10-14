@@ -33,6 +33,10 @@
 
 # Build Output
 out
+/build/
+
+# vcpkg manifest-mode install tree
+vcpkg_installed/
 
 # VScode
 .vscode

@@ -11,7 +11,7 @@
 
 #include "base/concurrent/thread.h"
 
-#include "testing/googletest//include/gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <chrono>
 
 namespace base {

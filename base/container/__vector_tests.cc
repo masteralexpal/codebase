@@ -10,7 +10,7 @@
  */
 
 #include "base/container/__vector.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 TEST(Vector, Constructor) {
   base::Vector<int> vector;

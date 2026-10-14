@@ -13,7 +13,7 @@
 #include <thread>
 #include <vector>
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 static constexpr int kMax = 1'000'000;
 static constexpr int kThreadCount = 40;

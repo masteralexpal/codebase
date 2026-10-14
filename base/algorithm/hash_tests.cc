@@ -11,7 +11,7 @@
 
 #include "base/algorithm/hash.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace base {
 TEST(FNV1A, case0) {

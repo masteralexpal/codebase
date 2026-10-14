@@ -1,5 +1,5 @@
 #include "base/algorithm/find.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <cstddef>
 
 namespace base {

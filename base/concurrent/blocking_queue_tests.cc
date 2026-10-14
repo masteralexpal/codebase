@@ -11,7 +11,7 @@
 
 #include "base/concurrent/blocking_queue.h"
 #include "base/concurrent/thread.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace base {
 TEST(BlockingQueue, case0) {

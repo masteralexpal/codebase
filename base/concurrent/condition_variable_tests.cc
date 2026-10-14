@@ -3,7 +3,7 @@
 #include "base/concurrent/mutex.h"
 #include "base/concurrent/mutex_guard.h"
 #include "base/concurrent/thread.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <queue>

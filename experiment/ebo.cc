@@ -12,7 +12,7 @@
 #include <memory>
 #include <type_traits>
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 struct Empty {};
 

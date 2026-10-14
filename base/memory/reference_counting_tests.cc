@@ -11,7 +11,7 @@
 
 #include "base/memory/reference_counting.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace base {
 class Base : public ReferenceCounting<Base> {

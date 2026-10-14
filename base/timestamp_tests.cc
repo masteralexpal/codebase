@@ -11,7 +11,7 @@
 
 #include "base/timestamp.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <iostream>
 
 namespace base {

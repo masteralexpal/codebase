@@ -12,7 +12,7 @@
 #include <cstddef>
 #include <type_traits>
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 template <typename Tp, typename Sfinae = void>
 struct IsCallable : std::false_type {};
@@ -30,8 +30,10 @@ template <typename Functor, typename... BoundArgs> struct BindTraits {
   static constexpr size_t number_of_bound_arguments = sizeof...(BoundArgs);
   using functor_traits = FunctorTraits<Functor>;
   using invoke_type = typename functor_traits::invoke_type;
-  using result_type = typename std::result_of<invoke_type>::type;
-  using invoke_params_list = typename std::result_of<invoke_type>;
+  // std::result_of was removed in C++20; std::invoke_result is the
+  // replacement (note its arguments are <F, Args...>, not a signature type).
+  using result_type = typename std::invoke_result<invoke_type>::type;
+  using invoke_params_list = typename std::invoke_result<invoke_type>;
 };
 
 class A {

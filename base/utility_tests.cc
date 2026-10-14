@@ -10,7 +10,7 @@
  */
 
 #include "base/utility.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 class A {
 private:

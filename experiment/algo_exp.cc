@@ -11,7 +11,7 @@
 
 #include <algorithm>
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 class AlgoTestEnviroment : public testing::Environment {};
 class AlgoTest : public testing::Test {};

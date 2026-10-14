@@ -10,7 +10,7 @@
  */
 #include "base/file/path.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace base {
 

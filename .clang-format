@@ -1,0 +1,5 @@
+---
+# Chromium style with East const ("T const&" instead of "const T&").
+BasedOnStyle: Chromium
+QualifierAlignment: Right
+...

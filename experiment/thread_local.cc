@@ -9,7 +9,7 @@
  *
  */
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <cstdio>
 #include <pthread.h>

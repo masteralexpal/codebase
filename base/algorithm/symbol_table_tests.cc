@@ -10,7 +10,7 @@
  */
 #include "base/algorithm/linked_symbol_table.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 namespace base {
 TEST(LinkedSymbolTable, case0) {}
 

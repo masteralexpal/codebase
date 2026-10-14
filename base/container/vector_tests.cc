@@ -12,7 +12,7 @@
 #include "base/allocator/simple_allocator.h"
 #include "base/container/vector.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 class VectorTestHelper : public testing::Test {
 public:

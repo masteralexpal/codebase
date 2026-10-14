@@ -1,6 +1,6 @@
 #include "base/command_line.h"
 
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <cstdarg>
 
 char **CreateArgv(int count, ...) {

@@ -10,7 +10,7 @@
  */
 
 #include "base/algorithm/heap.h"
-#include "testing/googletest/include/gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include <algorithm>
 #include <random>
