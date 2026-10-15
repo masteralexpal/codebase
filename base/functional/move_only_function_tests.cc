@@ -8,6 +8,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace base {
 namespace {
@@ -250,6 +251,152 @@ TEST(MoveOnlyFunction, ResetDestroysContent) {
   f.Reset();
   ASSERT_EQ(LifecycleCounter::live, 0);
   ASSERT_FALSE(static_cast<bool>(f));
+}
+
+// A plain stateful callable: exercises member pointers and lvalue copies.
+struct Accumulator {
+  int total = 0;
+
+  int Add(int x) { return total += x; }
+  int operator()(int x) { return total += x; }
+};
+
+TEST(MoveOnlyFunction, FunctionPointerIsStoredAndInvoked) {
+  MoveOnlyFunction<int(int, int)> f(&Add);
+  ASSERT_EQ(f(20, 22), 42);
+}
+
+TEST(MoveOnlyFunction, MemberFunctionPointerTarget) {
+  // std::invoke semantics: a PMF wraps fine, the object arrives as the
+  // first call-site parameter.
+  MoveOnlyFunction<int(Accumulator&, int)> f(&Accumulator::Add);
+  Accumulator acc;
+  ASSERT_EQ(f(acc, 40), 40);
+  ASSERT_EQ(f(acc, 2), 42);
+}
+
+TEST(MoveOnlyFunction, MemberObjectPointerTarget) {
+  // Member-object pointers are invocable too: the call reads the member.
+  MoveOnlyFunction<int&(Accumulator&)> f(&Accumulator::total);
+  Accumulator acc;
+  f(acc) = 42;
+  ASSERT_EQ(acc.total, 42);
+}
+
+TEST(MoveOnlyFunction, LvalueCallableIsCopiedIn) {
+  Accumulator acc;
+  acc.total = 100;
+  MoveOnlyFunction<int(int)> f(acc);
+  // The wrapped copy is independent of the source object.
+  acc.total = 0;
+  ASSERT_EQ(f(1), 101);
+}
+
+TEST(MoveOnlyFunction, ReferenceParameterMutatesThroughCall) {
+  MoveOnlyFunction<void(int&)> f([](int& x) { x *= 2; });
+  int value = 21;
+  f(value);
+  ASSERT_EQ(value, 42);
+}
+
+TEST(MoveOnlyFunction, VoidSignatureWithParameters) {
+  int sum = 0;
+  MoveOnlyFunction<void(int, int)> f([&sum](int a, int b) { sum += a + b; });
+  f(1, 2);
+  f(3, 4);
+  ASSERT_EQ(sum, 10);
+}
+
+TEST(MoveOnlyFunction, NoexceptCallableAccepted) {
+  MoveOnlyFunction<int()> f([]() noexcept { return 42; });
+  ASSERT_EQ(f(), 42);
+}
+
+TEST(MoveOnlyFunction, ExactlyInlineCapacityStaysFunctional) {
+  // sizeof == 3 pointers: exactly the inline capacity boundary.
+  struct ThreePointers {
+    void* a = nullptr;
+    void* b = nullptr;
+    void* c = nullptr;
+    int operator()() { return 42; }
+  };
+  static_assert(sizeof(ThreePointers) == 3 * sizeof(void*));
+  MoveOnlyFunction<int()> f(ThreePointers{});
+  MoveOnlyFunction<int()> g(std::move(f));
+  ASSERT_EQ(g(), 42);
+}
+
+TEST(MoveOnlyFunction, OnePastInlineCapacityStillWorks) {
+  // One byte over the boundary: the heap path must be just as correct.
+  struct JustTooBig {
+    char data[3 * sizeof(void*) + 1] = {};
+    int operator()() { return 42; }
+  };
+  static_assert(sizeof(JustTooBig) > 3 * sizeof(void*));
+  MoveOnlyFunction<int()> f(JustTooBig{});
+  MoveOnlyFunction<int()> g(std::move(f));
+  ASSERT_EQ(g(), 42);
+}
+
+TEST(MoveOnlyFunction, MoveChainKeepsExactlyOneInstance) {
+  LifecycleCounter::live = 0;
+  {
+    MoveOnlyFunction<void()> f(LifecycleCounter{});
+    MoveOnlyFunction<void()> g(std::move(f));
+    MoveOnlyFunction<void()> h(std::move(g));
+    MoveOnlyFunction<void()> k(std::move(h));
+    // Four objects, one callable: relocation never duplicates it.
+    ASSERT_EQ(LifecycleCounter::live, 1);
+    k();
+  }
+  ASSERT_EQ(LifecycleCounter::live, 0);
+}
+
+TEST(MoveOnlyFunction, ResetOnEmptyIsHarmless) {
+  MoveOnlyFunction<void()> f;
+  f.Reset();
+  f.Reset();
+  ASSERT_FALSE(static_cast<bool>(f));
+}
+
+TEST(MoveOnlyFunction, StressInlineChurn) {
+  // 10k construct/destroy cycles of an inline-stored callable: placement
+  // new and the dtor must pair up exactly (leak/UAF food for ASan).
+  LifecycleCounter::live = 0;
+  for (int i = 0; i < 10000; ++i) {
+    MoveOnlyFunction<void()> f(LifecycleCounter{});
+    f();
+  }
+  ASSERT_EQ(LifecycleCounter::live, 0);
+}
+
+TEST(MoveOnlyFunction, StressHeapChurn) {
+  // Same for the heap path: new/delete must pair up exactly.
+  BigLifecycleCounter::live = 0;
+  for (int i = 0; i < 10000; ++i) {
+    MoveOnlyFunction<void()> f(BigLifecycleCounter{});
+    f();
+  }
+  ASSERT_EQ(BigLifecycleCounter::live, 0);
+}
+
+TEST(MoveOnlyFunction, VectorGrowthRelocatesSafely) {
+  // vector reallocation exercises the relocate path in bulk: every element
+  // must survive growth moves, and every callable must run exactly once.
+  LifecycleCounter::live = 0;
+  constexpr int kCount = 128;
+  {
+    std::vector<MoveOnlyFunction<void()>> functions;
+    for (int i = 0; i < kCount; ++i) {
+      functions.emplace_back(LifecycleCounter{});
+    }
+    ASSERT_EQ(LifecycleCounter::live, kCount);
+    for (auto& f : functions) {
+      f();
+    }
+    ASSERT_EQ(LifecycleCounter::live, kCount);
+  }
+  ASSERT_EQ(LifecycleCounter::live, 0);
 }
 
 }  // namespace

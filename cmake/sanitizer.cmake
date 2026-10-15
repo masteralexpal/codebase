@@ -29,17 +29,33 @@ endfunction()
 function(enable_asan target)
   codebase_option_scope(${target} _scope)
   if(MSVC)
-    target_compile_options(${target} ${_scope} "/fsanitize=address")
+    # ASan does not support the debug CRT (/MDd), and a sanitized binary
+    # must not mix CRTs with the unsanitized libraries it links (base,
+    # gtest). Under a multi-config generator everything below is therefore
+    # guarded to non-Debug configs; single-config generators keep the
+    # unconditional behavior (the config is known at configure time).
+    if(CMAKE_CONFIGURATION_TYPES)
+      set(_asan_config_guard "$<NOT:$<CONFIG:Debug>>")
+      # The CRT property must spell out BOTH branches: an empty expansion in
+      # Debug would suppress the flag entirely, and clang-cl then defaults to
+      # the release CRT — a silent ABI mismatch with the debug-CRT libraries
+      # (gtest) that crashes at startup instead of failing the link.
+      set(_asan_crt "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    else()
+      set(_asan_config_guard "1")
+      set(_asan_crt "MultiThreadedDLL")
+    endif()
+    target_compile_options(${target} ${_scope} "$<${_asan_config_guard}:/fsanitize=address>")
     # MSVC STL embeds /failifmismatch pragmas for its container annotations
     # (string/vector/optional), whose values differ between sanitized and
     # unsanitized TUs. Since the ASan target links unsanitized objects
     # (vcpkg gtest, base, ...), disable the annotations or lld-link rejects
     # the mix. _DISABLE_STL_ANNOTATION is the master switch (see
     # __msvc_sanitizer_annotate_container.hpp).
-    target_compile_definitions(${target} ${_scope} "_DISABLE_STL_ANNOTATION")
+    target_compile_definitions(${target} ${_scope} "$<${_asan_config_guard}:_DISABLE_STL_ANNOTATION>")
     get_target_property(_type ${target} TYPE)
     if(NOT _type STREQUAL "INTERFACE_LIBRARY")
-      set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+      set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY "${_asan_crt}")
       if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         codebase_clang_rt_windows_dir(_rt_dir)
         if(_rt_dir)
@@ -50,8 +66,8 @@ function(enable_asan target)
           endif()
           target_link_directories(${target} ${_scope} "${_rt_dir}")
           target_link_libraries(${target} ${_scope}
-            "clang_rt.asan_dynamic-${_arch}"
-            "-WHOLEARCHIVE:clang_rt.asan_dynamic_runtime_thunk-${_arch}.lib")
+            "$<${_asan_config_guard}:clang_rt.asan_dynamic-${_arch}>"
+            "$<${_asan_config_guard}:-WHOLEARCHIVE:clang_rt.asan_dynamic_runtime_thunk-${_arch}.lib>")
           # The ASan runtime DLL must sit next to the executable at run time.
           add_custom_command(TARGET ${target} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -68,4 +84,21 @@ function(enable_asan target)
     target_compile_options(${target} ${_scope} "-fsanitize=address" "-fno-omit-frame-pointer")
     target_link_options(${target} ${_scope} "-fsanitize=address")
   endif()
+endfunction()
+
+# enable_tsan(<target>)
+# ThreadSanitizer: -fsanitize=thread on both compile and link. There is no
+# TSan runtime for Windows, so this is a (loud) no-op there.
+# NOTE: TSan is mutually exclusive with ASan in the same binary; give TSan
+# targets their own executable rather than stacking enable_xxx calls.
+function(enable_tsan target)
+  codebase_option_scope(${target} _scope)
+  if(MSVC)
+    message(WARNING
+      "enable_tsan(${target}): TSan has no Windows runtime; the target is "
+      "built unsanitized. Run it on Linux for actual race detection.")
+    return()
+  endif()
+  target_compile_options(${target} ${_scope} "-fsanitize=thread" "-fno-omit-frame-pointer")
+  target_link_options(${target} ${_scope} "-fsanitize=thread")
 endfunction()

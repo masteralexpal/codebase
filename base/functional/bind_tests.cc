@@ -316,5 +316,100 @@ TEST(BindValidator, AcceptsMoveOnlyInOnce) {
   static_assert(Validator::value);
 }
 
+void WriteInto(int& out, int v) {
+  out = v;
+}
+
+int CStrLength(char const* s) {
+  int n = 0;
+  while (s[n] != '\0') {
+    ++n;
+  }
+  return n;
+}
+
+int FortyTwo() {
+  return 42;
+}
+
+TEST(BindOnce, BoundReferenceWrapperMutatesOriginal) {
+  // Unwrap applies to every bound arg, not just member receivers: a bound
+  // std::ref arrives as a real reference at the call.
+  int x = 0;
+  auto closure = BindOnce(&WriteInto, std::ref(x), 42);
+  std::move(closure).Run();
+  ASSERT_EQ(x, 42);
+}
+
+TEST(BindOnce, PartialBindingKeepsTrailingParameterOrder) {
+  auto closure = BindOnce(&Sum4, 1, 2);
+  ASSERT_EQ(std::move(closure).Run(3, 4), 10);
+  auto concat = BindOnce(&Concat3, std::string("a"));
+  ASSERT_EQ(std::move(concat).Run(std::string("b"), std::string("c")), "abc");
+}
+
+TEST(BindOnce, BoundStringLiteralDecaysToPointer) {
+  auto closure = BindOnce(&CStrLength, "hello");
+  ASSERT_EQ(std::move(closure).Run(), 5);
+}
+
+TEST(BindOnce, ZeroArgumentCallable) {
+  auto closure = BindOnce(&FortyTwo);
+  ASSERT_EQ(std::move(closure).Run(), 42);
+}
+
+TEST(BindOnce, SharedPtrToConstObject) {
+  auto counter = std::make_shared<Counter>();
+  counter->value = 42;
+  std::shared_ptr<Counter const> const_counter = counter;
+  auto closure = BindOnce(&Counter::Get, const_counter);
+  ASSERT_EQ(std::move(closure).Run(), 42);
+}
+
+TEST(BindOnce, WeakPtrReceiverThenChaining) {
+  auto counter = std::make_shared<Counter>();
+  auto closure = BindOnce(&Counter::Set, std::weak_ptr<Counter>(counter), 42)
+                     .Then([] { return 7; });
+  ASSERT_EQ(std::move(closure).Run(), 7);
+  ASSERT_EQ(counter->value, 42);
+}
+
+TEST(BindOnce, WeakPtrExpiredThenStillRunsNextStage) {
+  auto counter = std::make_shared<Counter>();
+  auto closure = BindOnce(&Counter::Set, std::weak_ptr<Counter>(counter), 42)
+                     .Then([] { return 7; });
+  counter.reset();
+  // The weak stage is skipped, but Then's continuation still runs.
+  ASSERT_EQ(std::move(closure).Run(), 7);
+}
+
+TEST(BindRepeating, BoundByValueArgSnapshottedPerCopy) {
+  // A bound by-value argument is copied into the closure; copies of the
+  // closure each carry the snapshot as of construction time.
+  Counter counter;
+  counter.value = 10;
+  auto first = BindRepeating([](Counter c) { return c.value; }, counter);
+  counter.value = 99;
+  auto second = first;
+  ASSERT_EQ(first.Run(), 10);
+  ASSERT_EQ(second.Run(), 10);
+}
+
+TEST(BindRepeating, BindsAndRunsZeroArgumentCallable) {
+  auto closure = BindRepeating(&FortyTwo);
+  ASSERT_EQ(closure.Run(), 42);
+  ASSERT_EQ(closure.Run(), 42);
+}
+
+TEST(BindOnce, StressManyBoundClosures) {
+  // 5k bound closures through construction, storage, and a single
+  // consuming call: ASan food for the tuple storage and invoke paths.
+  long long sum = 0;
+  for (int i = 0; i < 5000; ++i) {
+    sum += BindOnce(&Sum4, i, 1, 1).Run(i);
+  }
+  ASSERT_EQ(sum, 25005000LL);
+}
+
 }  // namespace
 }  // namespace base

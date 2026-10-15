@@ -7,6 +7,7 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace base {
 namespace {
@@ -277,6 +278,119 @@ TEST(RepeatingClosure, Reset) {
   ASSERT_FALSE(closure.is_null());
   closure.Reset();
   ASSERT_TRUE(closure.is_null());
+}
+
+TEST(OnceClosure, ReferenceParameterMutatesThroughRun) {
+  OnceClosure<void(int&)> closure([](int& x) { x *= 2; });
+  int value = 21;
+  std::move(closure).Run(value);
+  ASSERT_EQ(value, 42);
+}
+
+TEST(OnceClosure, ThenPassesParametersToFirstStage) {
+  auto closure = OnceClosure<int(int)>([](int x) { return x * 2; })
+                     .Then([](int y) { return y + 1; });
+  ASSERT_EQ(std::move(closure).Run(5), 11);
+}
+
+TEST(OnceClosure, ThenThreeStages) {
+  auto closure = OnceClosure<int()>([] { return 1; })
+                     .Then([](int x) { return x * 10; })
+                     .Then([](int x) { return x + 5; })
+                     .Then([](int x) { return x * 2; });
+  ASSERT_EQ(std::move(closure).Run(), 30);
+}
+
+TEST(OnceClosure, NestedClosureRunsInner) {
+  OnceClosure<int()> inner([] { return 42; });
+  OnceClosure<int()> outer(
+      [inner = std::move(inner)]() mutable { return std::move(inner).Run(); });
+  ASSERT_EQ(std::move(outer).Run(), 42);
+}
+
+TEST(OnceClosure, VectorOfClosuresRunsEachExactlyOnce) {
+  // The executor pattern: a queue of move-only tasks, each consumed once.
+  constexpr int kCount = 128;
+  int ran = 0;
+  std::vector<OnceClosure<void()>> tasks;
+  for (int i = 0; i < kCount; ++i) {
+    tasks.emplace_back([&ran] { ++ran; });
+  }
+  for (auto& task : tasks) {
+    std::move(task).Run();
+  }
+  ASSERT_EQ(ran, kCount);
+}
+
+TEST(OnceClosure, StressRunAndDestroy) {
+  // Alternating inline/heap closures, 10k construct-run-destroy cycles.
+  LifecycleCounter::live = 0;
+  for (int i = 0; i < 10000; ++i) {
+    if (i % 2 == 0) {
+      OnceClosure<void()> closure(LifecycleCounter{});
+      std::move(closure).Run();
+    } else {
+      struct Big {
+        std::byte payload[128];
+        LifecycleCounter counter;
+        void operator()() {}
+      };
+      OnceClosure<void()> closure(Big{});
+      std::move(closure).Run();
+    }
+  }
+  ASSERT_EQ(LifecycleCounter::live, 0);
+}
+
+TEST(RepeatingClosure, MoveAssignment) {
+  int count = 0;
+  RepeatingClosure<void()> first([&count] { ++count; });
+  RepeatingClosure<void()> second;
+  second = std::move(first);
+  ASSERT_TRUE(first.is_null());
+  second.Run();
+  ASSERT_EQ(count, 1);
+}
+
+TEST(RepeatingClosure, CopyAssignmentKeepsCopiesIndependent) {
+  int first_ran = 0;
+  int second_ran = 0;
+  RepeatingClosure<void()> first([&first_ran] { ++first_ran; });
+  RepeatingClosure<void()> second([&second_ran] { ++second_ran; });
+  second = first;
+  second.Run();
+  ASSERT_EQ(first_ran, 1);
+  ASSERT_EQ(second_ran, 0);
+}
+
+TEST(RepeatingClosure, StateAccumulatesAcrossRuns) {
+  RepeatingClosure<int()> closure([count = 0]() mutable { return ++count; });
+  ASSERT_EQ(closure.Run(), 1);
+  ASSERT_EQ(closure.Run(), 2);
+  ASSERT_EQ(closure.Run(), 3);
+}
+
+TEST(RepeatingClosure, CopiedStateDivergesAfterCopy) {
+  // Copies share nothing: the mutable counter in each copy advances on its
+  // own from the value it had at copy time.
+  RepeatingClosure<int()> original([count = 10]() mutable { return ++count; });
+  ASSERT_EQ(original.Run(), 11);
+  RepeatingClosure<int()> copy = original;
+  ASSERT_EQ(original.Run(), 12);
+  ASSERT_EQ(copy.Run(), 12);
+  ASSERT_EQ(copy.Run(), 13);
+  ASSERT_EQ(original.Run(), 13);
+}
+
+TEST(RepeatingClosure, StressCopyRunDestroy) {
+  LifecycleCounter::live = 0;
+  for (int i = 0; i < 10000; ++i) {
+    RepeatingClosure<void()> original(LifecycleCounter{});
+    RepeatingClosure<void()> copy = original;
+    original.Run();
+    copy.Run();
+  }
+  ASSERT_EQ(LifecycleCounter::live, 0);
 }
 
 }  // namespace

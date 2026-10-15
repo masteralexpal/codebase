@@ -98,6 +98,16 @@ target_link_libraries(bind_tests PRIVATE base codebase::config third_party::gtes
 add_executable(move_only_function_benchmarks "functional/move_only_function_benchmarks.cc")
 target_link_libraries(move_only_function_benchmarks PRIVATE base codebase::config third_party::benchmark third_party::absl)
 
+# ASan for the functional suites: placement-new type erasure, unions and
+# relocation are exactly what sanitizers earn their keep on. On Windows this
+# takes effect in non-Debug configs only (ASan does not support the debug
+# CRT); on Linux it applies to every config.
+foreach(_functional_test IN ITEMS
+    move_only_function_tests closure_tests bind_tests
+    type_list_tests callable_traits_tests)
+  enable_asan(${_functional_test})
+endforeach()
+
 # ASan only on Linux for tests that link base: on Windows enable_asan forces
 # the release CRT (ASan does not support /MDd), which clashes with the
 # debug-CRT base.lib in Debug configs (lld-link /failifmismatch).
@@ -108,6 +118,16 @@ endif()
 
 # Linux-only tests (they exercise the pthread/POSIX-based components).
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  # TSan variants of the threaded suites (TSan has no Windows runtime, and
+  # is mutually exclusive with ASan, hence separate binaries).
+  add_executable(thread_tests_tsan "concurrent/thread_tests.cc")
+  target_link_libraries(thread_tests_tsan PRIVATE base codebase::config third_party::gtest)
+  enable_tsan(thread_tests_tsan)
+
+  add_executable(spin_lock_tsan "concurrent/spin_lock_tests.cc")
+  target_link_libraries(spin_lock_tsan PRIVATE base codebase::config third_party::gtest)
+  enable_tsan(spin_lock_tsan)
+
   add_executable(task_executor_tests "concurrent/task_executor_tests.cc")
   target_link_libraries(task_executor_tests PRIVATE base codebase::config third_party::gtest)
 
