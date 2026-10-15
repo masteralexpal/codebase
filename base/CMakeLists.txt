@@ -80,6 +80,12 @@ target_link_libraries(path_tests PRIVATE base codebase::config third_party::gtes
 add_executable(thread_tests "concurrent/thread_tests.cc")
 target_link_libraries(thread_tests PRIVATE base codebase::config third_party::gtest)
 
+add_executable(move_only_function_tests "functional/move_only_function_tests.cc")
+target_link_libraries(move_only_function_tests PRIVATE base codebase::config third_party::gtest)
+
+add_executable(closure_tests "functional/closure_tests.cc")
+target_link_libraries(closure_tests PRIVATE base codebase::config third_party::gtest)
+
 # ASan only on Linux for tests that link base: on Windows enable_asan forces
 # the release CRT (ASan does not support /MDd), which clashes with the
 # debug-CRT base.lib in Debug configs (lld-link /failifmismatch).
