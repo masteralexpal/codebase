@@ -5,4 +5,6 @@
 # the provider only means editing the single .cmake file below.
 # ---------------------------
 
+include(absl.cmake)
+include(benchmark.cmake)
 include(gtest.cmake)

@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "builtin-baseline": "eae1680538b86f962455c27abca2aad0dc304a4d",
   "dependencies": [
+    "abseil",
+    "benchmark",
     "gtest"
   ]
 }
