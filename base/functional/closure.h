@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef BASE_FUNCTIONAL_CLOSURE_H_
 #define BASE_FUNCTIONAL_CLOSURE_H_
 
@@ -27,7 +29,8 @@ class OnceClosure<R(Params...)> final {
  public:
   using Return = R;
   using Signature = R(Params...);
-  using FnOnce = MoveOnlyFunction<Signature>;
+  // The type-erasure engine; an implementation detail, not public currency.
+  using FnOnce = impl::MoveOnlyFunction<Signature>;
 
   constexpr OnceClosure() noexcept = default;
   explicit OnceClosure(FnOnce fn_once) : fn_once_(std::move(fn_once)) {}

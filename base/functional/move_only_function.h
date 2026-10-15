@@ -9,6 +9,7 @@
 #include <utility>
 
 namespace base {
+namespace impl {
 
 template <typename Signature>
 class MoveOnlyFunction;
@@ -16,6 +17,9 @@ class MoveOnlyFunction;
 // A minimal move-only std::function: type-erased ownership of a callable,
 // with no copy semantics anywhere (std::move_only_function is the C++23
 // standard answer; this is the from-scratch learning implementation).
+//
+// Implementation detail of OnceClosure (functional/closure.h), not public
+// currency: users spell OnceClosure<void()>, never this name.
 //
 // Two deliberate deviations from std::function:
 //  - The callable is invoked through a non-const lvalue, so mutable lambdas
@@ -32,15 +36,25 @@ class MoveOnlyFunction<R(Params...)> final {
  public:
   using result_type = R;
 
-  MoveOnlyFunction() noexcept = default;
+  // storage_{} value-initializes the union's first member so that the
+  // default constructor stays constexpr (OnceClosure's default constructor
+  // is declared constexpr).
+  constexpr MoveOnlyFunction() noexcept : ops_(nullptr), storage_{} {}
 
   // From anything invocable with Params... (excluding ourselves, so the
   // move constructor wins overload resolution for same-type arguments).
+  // A null function pointer yields an empty object, matching std::function.
   template <typename F>
     requires(!std::is_same_v<std::decay_t<F>, MoveOnlyFunction> &&
              std::is_invocable_r_v<R, F&, Params...>)
   MoveOnlyFunction(F&& f) {
     using D = std::decay_t<F>;
+    if constexpr (std::is_pointer_v<D> &&
+                  std::is_function_v<std::remove_pointer_t<D>>) {
+      if (f == nullptr) {
+        return;
+      }
+    }
     if constexpr (kStoreInline<D>) {
       ::new (static_cast<void*>(storage_.inline_)) D(std::forward<F>(f));
       ops_ = &kOps<D, true>;
@@ -128,8 +142,7 @@ class MoveOnlyFunction<R(Params...)> final {
         if constexpr (std::is_void_v<R>) {
           // The wrapped callable may still return something; the value is
           // deliberately discarded for void signatures.
-          std::invoke(At<D, kInline>(storage),
-                      std::forward<Params>(params)...);
+          std::invoke(At<D, kInline>(storage), std::forward<Params>(params)...);
         } else {
           return std::invoke(At<D, kInline>(storage),
                              std::forward<Params>(params)...);
@@ -156,6 +169,7 @@ class MoveOnlyFunction<R(Params...)> final {
   Storage storage_;
 };
 
+}  // namespace impl
 }  // namespace base
 
 #endif  // BASE_FUNCTIONAL_MOVE_ONLY_FUNCTION_H_

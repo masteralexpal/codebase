@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef BASE_FUNCTIONAL_BIND_H_
 #define BASE_FUNCTIONAL_BIND_H_
 
@@ -11,8 +13,7 @@ namespace base {
 // bound args welcome); BindRepeating requires copyable bound args and can
 // run repeatedly.
 template <typename Callable, typename... BoundArguments>
-inline auto BindOnce(Callable&& callable,
-                     BoundArguments&&... bound_arguments) {
+inline auto BindOnce(Callable&& callable, BoundArguments&&... bound_arguments) {
   return impl::BindHelper<ClosureCategory::kOnce>::Bind(
       std::forward<Callable>(callable),
       std::forward<BoundArguments>(bound_arguments)...);

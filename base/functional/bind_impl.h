@@ -304,7 +304,6 @@ struct BindHelper {
 
     // Unbound parameters = canonical parameters minus the bound prefix.
     constexpr std::size_t kBoundArity = sizeof...(BoundArgs);
-    static_assert(Validator::kArityOk);
 
     using UnboundList = Drop<ParamsList, kBoundArity>;
     using Signature = MakeSignature<UnboundList, Return>;

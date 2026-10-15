@@ -1,6 +1,9 @@
+#pragma once
 
 #ifndef BASE_FUNCTIONAL_CALLABLE_TRAITS_H_
 #define BASE_FUNCTIONAL_CALLABLE_TRAITS_H_
+
+#include <type_traits>
 
 #include "base/functional/common_types.h"
 #include "base/functional/type_list.h"

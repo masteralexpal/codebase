@@ -1,3 +1,4 @@
+#pragma once
 
 #ifndef BASE_FUNCTIONAL_COMMON_TYPES_H_
 #define BASE_FUNCTIONAL_COMMON_TYPES_H_
