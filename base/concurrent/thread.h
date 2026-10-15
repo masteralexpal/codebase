@@ -25,7 +25,6 @@
 #include <memory>
 #include <semaphore>
 #include <string>
-#include <system_error>
 #include <thread>
 #include <tuple>
 #include <utility>
@@ -34,11 +33,8 @@
 
 namespace base {
 
-/**
- * @brief OS identity of a thread: the user-space handle (valid until
- * join/detach) plus the kernel-space thread id.
- *
- */
+// OS identity of a thread: the user-space handle (valid until join/detach)
+// plus the kernel-space thread id.
 struct PlatformThreadHandle {
 #if IS_WINDOWS
   // HANDLE and DWORD, spelled out so that this header does not have to drag
@@ -53,45 +49,27 @@ struct PlatformThreadHandle {
   UserSpaceHandle user_space_handle{};
 };
 
-/**
- * @brief Functionalities that related to the current thread.
- *
- */
+// Functionalities related to the calling thread.
 struct BASE_EXPORT CurrentThread {
-  /**
-   * @brief
-   *
-   * @return true
-   * @return false
-   */
   static bool IsMainThread() noexcept;
 
 #if IS_LINUX
-  /**
-   * @brief The pthread_t of the calling thread.
-   *
-   * Deliberately Linux-only: the Win32 GetCurrentThread() returns a
-   * *pseudo*-handle (a constant meaning "this thread") that can neither be
-   * handed to another thread nor waited on. Exposing it as a real handle is
-   * a classic Win32 bug; GetKernelHandle() is the portable identity.
-   *
-   */
+  // The pthread_t of the calling thread.
+  //
+  // Deliberately Linux-only: the Win32 GetCurrentThread() returns a
+  // *pseudo*-handle (a constant meaning "this thread") that can neither be
+  // handed to another thread nor waited on. Exposing it as a real handle is
+  // a classic Win32 bug; GetKernelHandle() is the portable identity.
   static PlatformThreadHandle::UserSpaceHandle GetHandle() noexcept;
 #endif
 
-  /**
-   * @brief The kernel-space thread id of the calling thread (gettid(2) /
-   * GetCurrentThreadId()).
-   *
-   */
+  // The kernel-space thread id of the calling thread (gettid(2) /
+  // GetCurrentThreadId()).
   static PlatformThreadHandle::KernelSpaceHandle GetKernelHandle() noexcept;
 
-  /**
-   * @brief Names the calling thread (best effort). Linux truncates to 15
-   * bytes (pthread_setname_np's 16-byte limit); Windows uses
-   * SetThreadDescription (Windows 10 version 1607+).
-   *
-   */
+  // Names the calling thread (best effort). Linux truncates to 15 bytes
+  // (pthread_setname_np's 16-byte limit); Windows uses
+  // SetThreadDescription (Windows 10 version 1607+).
   static void SetName(std::string const& name) noexcept;
 
   template <typename Rep, typename Period>
@@ -107,34 +85,31 @@ struct BASE_EXPORT CurrentThread {
   }
 };
 
-/**
- * @brief A naive wrapper of platform thread.
- *
- * Ownership policy:
- *  - A successfully Start()ed Thread owns a joinable OS thread. Exactly one
- *    of Join(), Detach() or the destructor reclaims it.
- *  - The destructor joins (unlike std::thread, which terminates): a
- *    finished-but-unjoined thread still holds resources that only the join
- *    releases. Joining from the owned thread itself aborts (it would
- *    deadlock).
- *  - Join()/Detach() on a non-joinable thread (never started, already
- *    joined/detached, moved-from) aborts: that is a logic error, not a
- *    runtime condition.
- *
- * Threading notes:
- *  - The State lives in a control block shared with the child thread, so the
- *    child never dereferences `this` after the startup handshake. Moving (or
- *    destroying, after Detach()) a Thread while its child is still running
- *    is therefore safe.
- *  - Start() blocks until the child has published its kernel-space handle
- *    and its name, so both are valid as soon as Start() returns.
- *
- * Portability:
- *  - The class logic is platform-neutral; only four small hooks (Spawn,
- *    PlatformJoin, PlatformDetach, PlatformIsSelf) plus CurrentThread are
- *    implemented per platform in thread_linux.cc and thread_win.cc.
- *
- */
+// A naive wrapper of platform thread.
+//
+// Ownership policy:
+//  - A successfully Start()ed Thread owns a joinable OS thread. Exactly one
+//    of Join(), Detach() or the destructor reclaims it.
+//  - The destructor joins (unlike std::thread, which terminates): a
+//    finished-but-unjoined thread still holds resources that only the join
+//    releases. Joining from the owned thread itself aborts (it would
+//    deadlock).
+//  - Join()/Detach() on a non-joinable thread (never started, already
+//    joined/detached, moved-from) aborts: that is a logic error, not a
+//    runtime condition.
+//
+// Threading notes:
+//  - The State lives in a control block shared with the child thread, so the
+//    child never dereferences `this` after the startup handshake. Moving (or
+//    destroying, after Detach()) a Thread while its child is still running
+//    is therefore safe.
+//  - Start() blocks until the child has published its kernel-space handle
+//    and its name, so both are valid as soon as Start() returns.
+//
+// Portability:
+//  - The class logic is platform-neutral; only four small hooks (Spawn,
+//    PlatformJoin, PlatformDetach, PlatformIsSelf) plus CurrentThread are
+//    implemented per platform in thread_linux.cc and thread_win.cc.
 class BASE_EXPORT Thread final {
  public:
   enum State {
