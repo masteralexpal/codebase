@@ -15,9 +15,9 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include <windows.h>
 
 #include <process.h>
+#include <windows.h>
 
 #include <cerrno>
 #include <cstddef>
@@ -50,16 +50,14 @@ ThreadId CurrentThread::GetId() noexcept {
 // static
 void CurrentThread::SetName(std::string const& name) noexcept {
   // SetThreadDescription (Windows 10 version 1607+) takes UTF-16.
-  int const length = ::MultiByteToWideChar(CP_UTF8, 0, name.data(),
-                                           static_cast<int>(name.size()),
-                                           nullptr, 0);
+  int const length = ::MultiByteToWideChar(
+      CP_UTF8, 0, name.data(), static_cast<int>(name.size()), nullptr, 0);
   if (length <= 0) {
     return;
   }
   std::wstring wide_name(static_cast<std::size_t>(length), L'\0');
-  ::MultiByteToWideChar(CP_UTF8, 0, name.data(),
-                        static_cast<int>(name.size()), wide_name.data(),
-                        length);
+  ::MultiByteToWideChar(CP_UTF8, 0, name.data(), static_cast<int>(name.size()),
+                        wide_name.data(), length);
   // Best effort: a naming failure must not kill the child thread.
   static_cast<void>(
       ::SetThreadDescription(::GetCurrentThread(), wide_name.c_str()));
@@ -77,13 +75,11 @@ void Thread::Spawn(StartRoutineParameters* parameters) {
   // that touches the CRT leaks its per-thread CRT state (errno, strtok
   // context, ...) on exit. _beginthreadex allocates and releases it.
   unsigned int thread_id = 0;
-  uintptr_t const raw_handle =
-      _beginthreadex(nullptr, 0, &StartInternalAdapter, parameters, 0,
-                     &thread_id);
+  uintptr_t const raw_handle = _beginthreadex(nullptr, 0, &StartInternalAdapter,
+                                              parameters, 0, &thread_id);
   if (raw_handle == 0) {
     // _beginthreadex reports failures through errno.
-    throw std::system_error(errno, std::generic_category(),
-                            "_beginthreadex");
+    throw std::system_error(errno, std::generic_category(), "_beginthreadex");
   }
   parameters->handle = reinterpret_cast<Handle>(raw_handle);
 }
