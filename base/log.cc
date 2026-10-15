@@ -18,13 +18,13 @@
 #include "base/build_config.h"
 #include "base/concurrent/thread.h"
 
-#if IS_WINDOWS
+#if CODEBASE_IS_WINDOWS
 constexpr char const kSlash = '\\';
 #else
 constexpr char const kSlash = '/';
 #endif
 
-#if IS_LINUX
+#if CODEBASE_IS_LINUX
 #include <unistd.h>
 static inline pid_t GetPid() {
   static pid_t currnet_pid = getpid();
@@ -32,7 +32,7 @@ static inline pid_t GetPid() {
 }
 #endif
 
-#if IS_LINUX
+#if CODEBASE_IS_LINUX
 static inline pid_t GetTid() {
   return CurrentThread::GetKernelHandle();
 }

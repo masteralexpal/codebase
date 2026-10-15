@@ -14,7 +14,7 @@
 
 #include "base/build_config.h"
 
-#if IS_LINUX
+#if CODEBASE_IS_LINUX
 #include <pthread.h>
 #endif
 
@@ -36,12 +36,12 @@ namespace base {
 // OS identity of a thread: the user-space handle (valid until join/detach)
 // plus the kernel-space thread id.
 struct PlatformThreadHandle {
-#if IS_WINDOWS
+#if CODEBASE_IS_WINDOWS
   // HANDLE and DWORD, spelled out so that this header does not have to drag
   // in <windows.h>.
   using UserSpaceHandle = void*;
   using KernelSpaceHandle = unsigned long;
-#elif IS_LINUX
+#elif CODEBASE_IS_LINUX
   using UserSpaceHandle = pthread_t;
   using KernelSpaceHandle = pid_t;
 #endif
@@ -53,7 +53,7 @@ struct PlatformThreadHandle {
 struct BASE_EXPORT CurrentThread {
   static bool IsMainThread() noexcept;
 
-#if IS_LINUX
+#if CODEBASE_IS_LINUX
   // The pthread_t of the calling thread.
   //
   // Deliberately Linux-only: the Win32 GetCurrentThread() returns a
@@ -206,7 +206,7 @@ class BASE_EXPORT Thread final {
   static bool PlatformIsSelf(
       PlatformThreadHandle::UserSpaceHandle handle) noexcept;
 
-#if IS_WINDOWS
+#if CODEBASE_IS_WINDOWS
   // _beginthreadex entry bridge: it requires an unsigned __stdcall(void*)
   // routine, StartInternal() uses the pthread signature.
   static unsigned int __stdcall StartInternalAdapter(void* args);

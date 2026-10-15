@@ -15,7 +15,7 @@
 
 #include "base/build_config.h"
 
-#if IS_LINUX
+#if CODEBASE_IS_LINUX
 #include <unistd.h>
 #endif
 
@@ -126,7 +126,7 @@ TEST(CurrentThread, IsMainThread) {
   thread.Join();
 }
 
-#if IS_LINUX
+#if CODEBASE_IS_LINUX
 TEST(CurrentThread, Handles) {
   ASSERT_EQ(CurrentThread::GetHandle(), pthread_self());
   ASSERT_EQ(CurrentThread::GetKernelHandle(), ::gettid());
