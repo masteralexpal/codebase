@@ -33,39 +33,37 @@
 
 namespace base {
 
-// OS identity of a thread: the user-space handle (valid until join/detach)
-// plus the kernel-space thread id.
-struct PlatformThreadHandle {
+// A thread's identity label: a kernel-assigned integer (gettid(2) /
+// GetCurrentThreadId()) that anyone may hold, print and compare with ==.
+//
+// Id vs. handle: an id is a *name* — a snapshot that never needs releasing;
+// after the thread exits it merely stops referring to anything (passing it
+// to a syscall yields a clean ESRCH-style error). A handle is a *key* — an
+// operations token (join/detach) whose validity ends at join/detach, after
+// which using it is undefined behavior. Therefore an id is fine to expose
+// publicly, while the handle stays private to Thread, the sole owner of the
+// join/detach responsibility.
 #if CODEBASE_IS_WINDOWS
-  // HANDLE and DWORD, spelled out so that this header does not have to drag
-  // in <windows.h>.
-  using UserSpaceHandle = void*;
-  using KernelSpaceHandle = unsigned long;
+// DWORD, spelled out so that this header does not have to drag in
+// <windows.h>.
+using ThreadId = unsigned long;
 #elif CODEBASE_IS_LINUX
-  using UserSpaceHandle = pthread_t;
-  using KernelSpaceHandle = pid_t;
+using ThreadId = pid_t;
 #endif
-  KernelSpaceHandle kernel_space_handle{};
-  UserSpaceHandle user_space_handle{};
-};
 
 // Functionalities related to the calling thread.
 struct BASE_EXPORT CurrentThread {
   static bool IsMainThread() noexcept;
 
-#if CODEBASE_IS_LINUX
-  // The pthread_t of the calling thread.
+  // The identity of the calling thread.
   //
-  // Deliberately Linux-only: the Win32 GetCurrentThread() returns a
-  // *pseudo*-handle (a constant meaning "this thread") that can neither be
-  // handed to another thread nor waited on. Exposing it as a real handle is
-  // a classic Win32 bug; GetKernelHandle() is the portable identity.
-  static PlatformThreadHandle::UserSpaceHandle GetHandle() noexcept;
-#endif
-
-  // The kernel-space thread id of the calling thread (gettid(2) /
-  // GetCurrentThreadId()).
-  static PlatformThreadHandle::KernelSpaceHandle GetKernelHandle() noexcept;
+  // There is deliberately no GetHandle() here: a handle is an operations
+  // token and handing out the calling thread's token would bypass Thread's
+  // ownership policy (any holder could detach/cancel behind its back). On
+  // Win32 such an API cannot even exist safely — GetCurrentThread() returns
+  // a pseudo-handle (a constant meaning "this thread") that can neither be
+  // passed to another thread nor waited on.
+  static ThreadId GetId() noexcept;
 
   // Names the calling thread (best effort). Linux truncates to 15 bytes
   // (pthread_setname_np's 16-byte limit); Windows uses
@@ -103,8 +101,8 @@ struct BASE_EXPORT CurrentThread {
 //    child never dereferences `this` after the startup handshake. Moving (or
 //    destroying, after Detach()) a Thread while its child is still running
 //    is therefore safe.
-//  - Start() blocks until the child has published its kernel-space handle
-//    and its name, so both are valid as soon as Start() returns.
+//  - Start() blocks until the child has set its name, so the name is
+//    visible to OS tooling as soon as Start() returns.
 //
 // Portability:
 //  - The class logic is platform-neutral; only four small hooks (Spawn,
@@ -152,7 +150,7 @@ class BASE_EXPORT Thread final {
     state_->store(kStarted, std::memory_order_relaxed);
     try {
       // Platform hook: spawns StartInternal(parameters) and publishes the
-      // user-space handle into parameters->user_handle.
+      // thread handle into parameters->handle.
       Spawn(parameters);
     } catch (...) {
       // Roll back to kCreated so Start() may be retried.
@@ -162,11 +160,10 @@ class BASE_EXPORT Thread final {
     }
     joinable_ = true;
 
-    // Wait until the child has published its kernel-space handle and name.
-    // StartInternal() must not touch `parameters` after releasing `started`.
+    // Wait until the child has set its name. StartInternal() must not touch
+    // `parameters` after releasing `started`.
     parameters->started.acquire();
-    platform_thread_handle_.user_space_handle = parameters->user_handle;
-    platform_thread_handle_.kernel_space_handle = parameters->kernel_handle;
+    handle_ = parameters->handle;
     delete parameters;
   }
 
@@ -181,6 +178,16 @@ class BASE_EXPORT Thread final {
  private:
   using StartRoutine = std::function<void()>;
 
+  // The operations token of the owned thread (join/detach). Private by
+  // design: see the ThreadId comment above. Valid from Start() until
+  // Join()/Detach().
+#if CODEBASE_IS_WINDOWS
+  // HANDLE, spelled out for the same reason as ThreadId.
+  using Handle = void*;
+#elif CODEBASE_IS_LINUX
+  using Handle = pthread_t;
+#endif
+
   // Everything the child thread needs at startup. Owned by Start(), except
   // between Spawn() and the `started` handshake, when it is lent to
   // StartInternal().
@@ -189,8 +196,7 @@ class BASE_EXPORT Thread final {
     std::string name;
     StartRoutine start_routine;
     std::binary_semaphore started{0};
-    PlatformThreadHandle::UserSpaceHandle user_handle{};
-    PlatformThreadHandle::KernelSpaceHandle kernel_handle{};
+    Handle handle{};
   };
 
   static void* StartInternal(void* args);
@@ -199,12 +205,9 @@ class BASE_EXPORT Thread final {
   // Spawn() throws std::system_error on failure.
   static void Spawn(StartRoutineParameters* parameters);
   // PlatformJoin() blocks until the thread exits and releases the handle.
-  static void PlatformJoin(
-      PlatformThreadHandle::UserSpaceHandle handle) noexcept;
-  static void PlatformDetach(
-      PlatformThreadHandle::UserSpaceHandle handle) noexcept;
-  static bool PlatformIsSelf(
-      PlatformThreadHandle::UserSpaceHandle handle) noexcept;
+  static void PlatformJoin(Handle handle) noexcept;
+  static void PlatformDetach(Handle handle) noexcept;
+  static bool PlatformIsSelf(Handle handle) noexcept;
 
 #if CODEBASE_IS_WINDOWS
   // _beginthreadex entry bridge: it requires an unsigned __stdcall(void*)
@@ -212,7 +215,7 @@ class BASE_EXPORT Thread final {
   static unsigned int __stdcall StartInternalAdapter(void* args);
 #endif
 
-  PlatformThreadHandle platform_thread_handle_{};
+  Handle handle_{};
   // Shared with the child thread so it can report kFinished even after this
   // object was moved or destroyed.
   std::shared_ptr<std::atomic<State>> state_;

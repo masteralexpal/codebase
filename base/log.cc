@@ -34,7 +34,7 @@ static inline pid_t GetPid() {
 
 #if CODEBASE_IS_LINUX
 static inline pid_t GetTid() {
-  return CurrentThread::GetKernelHandle();
+  return CurrentThread::GetId();
 }
 #endif
 

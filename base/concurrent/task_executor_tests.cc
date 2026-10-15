@@ -21,7 +21,7 @@
 #include "base/log.h"
 
 void Add(int a, int b) {
-  LOG(INFO) << "LWPID = " << base::CurrentThread::GetKernelHandle()
+  LOG(INFO) << "LWPID = " << base::CurrentThread::GetId()
             << ", result = " << a + b;
 }
 

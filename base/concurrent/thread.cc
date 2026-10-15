@@ -23,17 +23,17 @@
 namespace base {
 
 Thread::Thread(std::string const& name)
-    : platform_thread_handle_{},
+    : handle_{},
       state_(std::make_shared<std::atomic<State>>(kCreated)),
       joinable_(false),
       name_(name) {}
 
 Thread::Thread(Thread&& other) noexcept
-    : platform_thread_handle_(other.platform_thread_handle_),
+    : handle_(other.handle_),
       state_(std::move(other.state_)),
       joinable_(other.joinable_),
       name_(std::move(other.name_)) {
-  other.platform_thread_handle_ = {};
+  other.handle_ = {};
   other.joinable_ = false;
 }
 
@@ -42,16 +42,16 @@ Thread& Thread::operator=(Thread&& other) noexcept {
     // Give up the currently owned thread first, with the same policy as the
     // destructor.
     if (joinable_) {
-      if (PlatformIsSelf(platform_thread_handle_.user_space_handle)) {
+      if (PlatformIsSelf(handle_)) {
         std::abort();
       }
-      PlatformJoin(platform_thread_handle_.user_space_handle);
+      PlatformJoin(handle_);
     }
-    platform_thread_handle_ = other.platform_thread_handle_;
+    handle_ = other.handle_;
     state_ = std::move(other.state_);
     joinable_ = other.joinable_;
     name_ = std::move(other.name_);
-    other.platform_thread_handle_ = {};
+    other.handle_ = {};
     other.joinable_ = false;
   }
   return *this;
@@ -61,13 +61,13 @@ Thread::~Thread() {
   if (!joinable_) {
     return;
   }
-  if (PlatformIsSelf(platform_thread_handle_.user_space_handle)) {
+  if (PlatformIsSelf(handle_)) {
     // Joining ourselves would deadlock.
     std::abort();
   }
   // Also reclaims a kFinished thread: its resources are held until the
   // join.
-  PlatformJoin(platform_thread_handle_.user_space_handle);
+  PlatformJoin(handle_);
 }
 
 void Thread::Join() noexcept {
@@ -75,13 +75,13 @@ void Thread::Join() noexcept {
     // Never started, already joined/detached, or moved-from.
     std::abort();
   }
-  if (PlatformIsSelf(platform_thread_handle_.user_space_handle)) {
+  if (PlatformIsSelf(handle_)) {
     // Self-join deadlocks.
     std::abort();
   }
-  PlatformJoin(platform_thread_handle_.user_space_handle);
+  PlatformJoin(handle_);
   joinable_ = false;
-  platform_thread_handle_.user_space_handle = {};
+  handle_ = {};
 }
 
 void Thread::Detach() noexcept {
@@ -90,9 +90,9 @@ void Thread::Detach() noexcept {
     std::abort();
   }
   // Detaching ourselves is fine on both platforms.
-  PlatformDetach(platform_thread_handle_.user_space_handle);
+  PlatformDetach(handle_);
   joinable_ = false;
-  platform_thread_handle_.user_space_handle = {};
+  handle_ = {};
 }
 
 std::string Thread::GetName() const noexcept {
@@ -117,7 +117,6 @@ void* Thread::StartInternal(void* args) {
       std::move(parameters->state);
   StartRoutine const start_routine = std::move(parameters->start_routine);
 
-  parameters->kernel_handle = CurrentThread::GetKernelHandle();
   CurrentThread::SetName(parameters->name);
   parameters->started.release();
 

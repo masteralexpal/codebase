@@ -127,17 +127,16 @@ TEST(CurrentThread, IsMainThread) {
 }
 
 #if CODEBASE_IS_LINUX
-TEST(CurrentThread, Handles) {
-  ASSERT_EQ(CurrentThread::GetHandle(), pthread_self());
-  ASSERT_EQ(CurrentThread::GetKernelHandle(), ::gettid());
+TEST(CurrentThread, GetId) {
+  ASSERT_EQ(CurrentThread::GetId(), ::gettid());
 }
 #endif
 
-TEST(CurrentThread, KernelHandleDiffersAcrossThreads) {
-  auto const main_tid = CurrentThread::GetKernelHandle();
+TEST(CurrentThread, IdDiffersAcrossThreads) {
+  auto const main_tid = CurrentThread::GetId();
   Thread thread;
   thread.Start([main_tid]() -> void {
-    ASSERT_NE(CurrentThread::GetKernelHandle(), main_tid);
+    ASSERT_NE(CurrentThread::GetId(), main_tid);
   });
   thread.Join();
 }

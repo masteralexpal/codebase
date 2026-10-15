@@ -35,17 +35,10 @@ bool CurrentThread::IsMainThread() noexcept {
 }
 
 // static
-PlatformThreadHandle::UserSpaceHandle CurrentThread::GetHandle() noexcept {
-  return pthread_self();
-}
-
-// static
-PlatformThreadHandle::KernelSpaceHandle CurrentThread::GetKernelHandle()
-    noexcept {
+ThreadId CurrentThread::GetId() noexcept {
   // gettid(2) is a real syscall (no vDSO); cache it per thread.
-  thread_local PlatformThreadHandle::KernelSpaceHandle const kernel_handle =
-      ::gettid();
-  return kernel_handle;
+  thread_local ThreadId const id = ::gettid();
+  return id;
 }
 
 // static
@@ -57,7 +50,7 @@ void CurrentThread::SetName(std::string const& name) noexcept {
 
 // static
 void Thread::Spawn(StartRoutineParameters* parameters) {
-  int const result = pthread_create(&parameters->user_handle, nullptr,
+  int const result = pthread_create(&parameters->handle, nullptr,
                                     &StartInternal, parameters);
   if (result != 0) {
     throw std::system_error(result, std::generic_category(),
@@ -66,20 +59,17 @@ void Thread::Spawn(StartRoutineParameters* parameters) {
 }
 
 // static
-void Thread::PlatformJoin(PlatformThreadHandle::UserSpaceHandle handle)
-    noexcept {
+void Thread::PlatformJoin(Handle handle) noexcept {
   pthread_join(handle, nullptr);
 }
 
 // static
-void Thread::PlatformDetach(PlatformThreadHandle::UserSpaceHandle handle)
-    noexcept {
+void Thread::PlatformDetach(Handle handle) noexcept {
   pthread_detach(handle);
 }
 
 // static
-bool Thread::PlatformIsSelf(PlatformThreadHandle::UserSpaceHandle handle)
-    noexcept {
+bool Thread::PlatformIsSelf(Handle handle) noexcept {
   return pthread_equal(pthread_self(), handle);
 }
 

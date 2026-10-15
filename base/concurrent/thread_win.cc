@@ -41,8 +41,7 @@ bool CurrentThread::IsMainThread() noexcept {
 }
 
 // static
-PlatformThreadHandle::KernelSpaceHandle CurrentThread::GetKernelHandle()
-    noexcept {
+ThreadId CurrentThread::GetId() noexcept {
   // Unlike gettid(2), GetCurrentThreadId() is a plain TEB read, so there is
   // nothing worth caching.
   return ::GetCurrentThreadId();
@@ -86,29 +85,25 @@ void Thread::Spawn(StartRoutineParameters* parameters) {
     throw std::system_error(errno, std::generic_category(),
                             "_beginthreadex");
   }
-  parameters->user_handle =
-      reinterpret_cast<PlatformThreadHandle::UserSpaceHandle>(raw_handle);
+  parameters->handle = reinterpret_cast<Handle>(raw_handle);
 }
 
 // static
-void Thread::PlatformJoin(PlatformThreadHandle::UserSpaceHandle handle)
-    noexcept {
+void Thread::PlatformJoin(Handle handle) noexcept {
   // Joining consumes the handle: wait, then close.
   static_cast<void>(::WaitForSingleObject(handle, INFINITE));
   ::CloseHandle(handle);
 }
 
 // static
-void Thread::PlatformDetach(PlatformThreadHandle::UserSpaceHandle handle)
-    noexcept {
+void Thread::PlatformDetach(Handle handle) noexcept {
   // A Win32 thread detaches by simply closing the handle: the kernel object
   // stays alive on the thread's own reference until it exits.
   ::CloseHandle(handle);
 }
 
 // static
-bool Thread::PlatformIsSelf(PlatformThreadHandle::UserSpaceHandle handle)
-    noexcept {
+bool Thread::PlatformIsSelf(Handle handle) noexcept {
   // HANDLE values themselves are not comparable (one thread may own several
   // different handles); compare thread IDs instead.
   return ::GetThreadId(handle) == ::GetCurrentThreadId();
